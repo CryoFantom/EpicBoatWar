@@ -59,12 +59,14 @@ Type Bateau=Record
 	detecte : Boolean; //bateau visible par l’adversaire, recalculé à chaque tour
 end;
 
+Type listeBateaux = Array[1..NBOAT] of Bateau;
+
 Type Joueur=Record
 	nom : String;
 	nbBateaux : Integer; //nombre de bateaux restants
 	score : Integer;
 	nbDeplacement : Integer; //quota de déplacement par tour
-	boat : Array[1..NBOAT] of Bateau; //ensemble des bateaux du joueur
+	boat : listeBateaux; //ensemble des bateaux du joueur
 end;
 
 Type Action=Record

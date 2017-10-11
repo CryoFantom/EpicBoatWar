@@ -4,7 +4,7 @@ interface
 
 uses commun, crt;
 
-procedure genObstacles (var plat: Plateau; var listeMontagne : Obstacle; var listeRecif : Obstacle);
+procedure genGrille(var plat : Jeu; var joueur1, joueur2: Joueur);
 
 implementation
 
@@ -168,6 +168,107 @@ begin
 	end;
 	until test;
 	
+end;
+
+procedure affectation(taille, pdv, degats, trchrg : Integer; nom : String; var navire : Bateau);
+
+begin
+	navire.taille := taille;
+	navire.nom:= nom;
+	navire.ptDeVie := pdv;
+	navire.degats := degats;
+	navire.tRechargement := trchrg;
+	navire.detecte:=True;
+end;
+
+procedure initBateau(var listeBateau : listeBateaux);
+
+var i : Integer;
+
+begin
+	for i:=1 to NBOAT do
+		listeBateau[i].classe := cuirasse;
+	for i:=2 to NBOAT do
+		listeBateau[i].classe := croiseurlrd;
+	for i:=3 to NBOAT do
+		listeBateau[i].classe := croiseurlg;
+	for i:=5 to Nboat do
+		listeBateau[i].classe := destroyer;
+	
+	for  i:=1 to NBOAT do
+		begin
+			if (listeBateau[i].classe = destroyer) then	
+				affectation(1, 4, 2, 1, 'destroyer', listeBateau[i]);
+			if (listeBateau[i].classe = croiseurlg) then
+				affectation(2, 6, 3, 2, 'croiseur leger' ,listeBateau[i]);
+			if (listeBateau[i].classe = croiseurlrd) then
+				affectation(3, 7, 4, 3, 'croiseur lourd', listeBateau[i]);
+			if (listebateau[i].classe = cuirasse) then
+				affectation(4, 9, 6, 4, 'cuirasse', listeBateau[i]);
+		end;
+end;
+
+procedure genBateau (joueur1, joueur2 : Joueur);
+
+var i, j, x, y : Integer;
+
+begin	
+	initBateau(joueur1.boat);
+	initBateau(joueur2.boat);
+	
+	joueur1.nom := '';
+	joueur2.nom := '';
+	
+	joueur1.nbBateaux := NBOAT;
+	joueur2.nbBateaux := NBOAT;
+	
+	joueur1.nbDeplacement := NBOAT;
+	joueur2.nbDeplacement := NBOAT;
+	
+	joueur1.score:= 0;
+	joueur2.score:= 0;
+	
+	//remplir les positions des bateaux
+	
+	y:=2;
+	
+	for i:= 1 to NBOAT do
+		begin
+			x:=2;
+			for j := 1 to joueur1.boat[i].taille do
+				begin
+					joueur1.boat[i].pos[j].x := x;
+					joueur1.boat[i].pos[j].y := y;
+					joueur1.boat[i].pos[j].nature := bateauJ1;
+					joueur1.boat[i].pos[j].visible:=True;
+					x:=x+1;
+				end;
+			y:=y+2;
+		end;
+	y:=2;
+	
+	for i:= 1 to NBOAT do
+		begin
+			x:=TAILLE_X-2;
+			for j := 1 to joueur1.boat[i].taille do
+				begin
+					joueur2.boat[i].pos[j].x := x;
+					joueur2.boat[i].pos[j].y := y;
+					joueur2.boat[i].pos[j].nature := bateauJ2;
+					joueur2.boat[i].pos[j].visible:=True;
+					x:=x-1;
+				end;
+			y:=y+2;
+		end;
+	
+end;	
+
+procedure genGrille(var plat : Jeu; var joueur1, joueur2 : Joueur);
+
+begin
+	genObstacles(plat.grille, plat.montagne, plat.recifs);
+	plat.joueur1Joue:=True;
+	genBateau(joueur1, joueur2);
 end;
 
 begin
