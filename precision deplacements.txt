@@ -1,0 +1,50 @@
+Précisions pour les déplacements
+
+On distingue 3 types de déplacement, nécessitant chacun un certain nombre de points de déplacement pour être effectués.
+
+- Déplacement en avant (1 pt / case)
+- Déplacement en arrière (2 pt / case)
+- Rotation (1/4*(boat.taille-1) / 45°)
+ Soit : Taille	Nb de pt
+	2	0.25
+	3	0.50
+	4	0.75
+	5	1.00
+
+Le nombre de points de déplacement est réinitialisé à chaque tour à deplacement.distance.
+Le joueur peut se déplacer tant que le nombre  de points est positif.
+
+Ce décompte du nombre de points entraîne une modification de la zone de déplacement, dont le calcul sera adapté ultérieurement en conséquence.
+
+Une procédure de calcul de trajectoire permettra à terme, suivant la position d'arrivée voulue, de déterminer les déplacements élémentaires pour y arriver (pour afficher une animation du déplacement) et donc le nombre de points nécessaire (qui sera utilisé dans la procédure précédente).
+
+Exemple de touches pour le contrôle des bateaux :
+- Haut : avancer d'une case
+- Bas : reculer d'une case
+- Gauche : tourner de 45° vers la gauche
+- Droite : tourner de 45° vers la droite
+
+Au niveau des arguments en entrée et en sortie des procédures :
+- Pour une rotation, indiquer nature=rotation
+Indiquer la direction par coord.x : -1 vers la gauche, +1 vers la droite.
+- Pour un déplacement : indiquer nature=deplacement et le sens par coord.x : +1 pour avancer, -1 pour reculer.
+
+
+À faire :
+Affichage : 
+-distinguer l'avant et l'arrière du bateau
+-permettre au joueur de déplacer et de faire tourner ses bateaux.
+
+Génération : 
+-attribuer deplacement.distance, tir.distance,detection.distance lors de la génération des bateaux
+
+Calcul : 
+-Calculer la nouvelle position en fonction du déplacement effectué.
+-Mettre à jour le quota de déplacement
+-Recalculer si le bateau est visible pour l'adversaire et si les bateaux de l'adversaire deviennent (ou ne sont plus) visibles.
+(-Ajuster la zone au nombre de points de déplacement et aux déplacements nécessaires pour y arriver).
+(-Déterminer les déplacements nécessaires pour arriver à un point).
+
+	
+
+

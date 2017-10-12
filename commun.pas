@@ -13,7 +13,7 @@ const 	NBOAT=6; //nombre maximum de bateaux
 		
 Type Nature=(montagne, centreMontagne, recifs, centreRecifs, bateauJ1, bateauJ2, libre);
 
-Type TypeAction=(deplacement, tir, detection);
+Type TypeAction=(deplacement, rotation, tir, detection);
 
 Type TypeBateau=(destroyer, croiseurlg, croiseurlrd, cuirasse);
 		
@@ -55,6 +55,7 @@ Type Bateau=Record
 	tir : Zone; //distance + zone de tir
 	tRechargement : Integer; //délai (en tour) avant de pouvoir tirer à nouveau
 	deplacement : Zone; //distance + zone déplacement
+	quota : Single; //nombre de déplacements restants pour un tour
 	detection : Zone; //distance détection + zone où l'adversaire est détecté
 	detecte : Boolean; //bateau visible par l’adversaire, recalculé à chaque tour
 end;
@@ -72,7 +73,7 @@ end;
 Type Action=Record
 	nature : TypeAction;
 	boat : Bateau;
-	coord : Position;
+	coord : Position; 
 end;
 
 
