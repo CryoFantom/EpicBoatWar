@@ -96,7 +96,7 @@ begin
 	for i:=1 to nm do													//Création motagnes
 		begin
 			positionAleatoire(xp, yp);									//Position particulière
-			plat[xp][yp] := montagne;							//On note
+			plat[xp][yp] := centreMontagne;							//On note
 			listeMontagne.npos:=listeMontagne.npos+1;
 			listeMontagne.tab[listeMontagne.npos].nature := montagne;
 			listeMontagne.tab[listeMontagne.npos].x:=xp;
@@ -123,7 +123,7 @@ begin
 	for i:=1 to nr do													//Création récifs
 		begin
 			positionAleatoire(xp, yp);									//Position particulière
-			plat[xp][yp] := recifs;										//On note
+			plat[xp][yp] := centreRecifs;								//On note
 			listeRecif.npos:=listeRecif.npos+1;
 			listeRecif.tab[listeRecif.npos].nature := recifs;
 			listeRecif.tab[listeRecif.npos].x:=xp;

@@ -11,7 +11,7 @@ const 	NBOAT=6; //nombre maximum de bateaux
 		NBRECIF=5; //nombre maximum de récifs
 		PROBA=0.9; 
 		
-Type Nature=(montagne, recifs, bateauJ1, bateauJ2, libre);
+Type Nature=(montagne, centreMontagne, recifs, centreRecifs, bateauJ1, bateauJ2, libre);
 
 Type TypeAction=(deplacement, tir, detection);
 
@@ -20,7 +20,7 @@ Type TypeBateau=(destroyer, croiseurlg, croiseurlrd, cuirasse);
 Type Plateau=Array[1..TAILLE_X,1..TAILLE_Y] of Nature;
 		
 Type Position=Record
-	nature : Nature; //bateauJ1, bateauJ2, récif, montagne
+	nature : Nature; //bateauJ1, bateauJ2, récif, montagne, centreMontagne, centreRecifs
 	x : Integer;
 	y : Integer;
 	visible : Boolean;
