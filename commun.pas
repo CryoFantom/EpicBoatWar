@@ -18,6 +18,8 @@ Type TypeAction=(deplacement, rotation, tir, detection);
 Type TypeBateau=(destroyer, croiseurlg, croiseurlrd, cuirasse);
 		
 Type Plateau=Array[1..TAILLE_X,1..TAILLE_Y] of Nature;
+
+Type Orientation=(NO, N, NE, E, SE, S, SO, O); //orientation de l'avant du bateau
 		
 Type Position=Record
 	nature : Nature; //bateauJ1, bateauJ2, récif, montagne, centreMontagne, centreRecifs
@@ -48,6 +50,7 @@ end;
 Type Bateau=Record
 	taille : Integer;
 	pos : Array[1..TMAX] of Position;
+	sens : Orientation;
 	nom : String;
 	classe : TypeBateau;
 	ptDeVie : Integer; //diminue à chaque fois que le bateau est touché
