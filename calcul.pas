@@ -29,8 +29,7 @@ Type ZoneG=Record
 //////////////////
 
 procedure calculZone (game : Jeu; var boat : Bateau); //maintenu ici pour le fonctionnement des tests et démos
-procedure gestionDeplacement (saisie:Action; game : Jeu; joueur, adversaire : Joueur);
-
+procedure gestionDeplacement (saisie:Action; game : Jeu; noBateau : Word; var joueur, adversaire : Joueur);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -267,31 +266,59 @@ begin
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-procedure gestionDeplacement (saisie:Action; game : Jeu; joueur, adversaire : Joueur);
+procedure calculDeplacement (var saisie:Action; var game : Jeu);
+
+var i:Integer;
+
+begin
+	//détermination de la nouvelle position du bateau
+		for i:=1 to saisie.boat.taille do
+		begin
+			case saisie.boat.sens of
+				N,NO,NE : saisie.boat.pos[i].y:=saisie.boat.pos[i].y-1*saisie.coord.x;
+				S,SO,SE : saisie.boat.pos[i].y:=saisie.boat.pos[i].y+1*saisie.coord.x;
+				E : saisie.boat.pos[i].x:=saisie.boat.pos[i].x+1*saisie.coord.x;
+				O : saisie.boat.pos[i].x:=saisie.boat.pos[i].x-1*saisie.coord.x;
+			end;
+			case saisie.boat.sens of
+				NE,SE : saisie.boat.pos[i].x:=saisie.boat.pos[i].x+1*saisie.coord.x;
+				NO,SO : saisie.boat.pos[i].x:=saisie.boat.pos[i].x-1*saisie.coord.x;
+			end;
+		end;
+		
+	//mise à jour du quota de déplacement
+		if saisie.coord.x=1 then //le bateau avance
+			case saisie.boat.sens of
+				N,S,E,O : saisie.boat.quota:=saisie.boat.quota-1;
+				NO,NE,SE,SO : saisie.boat.quota:=saisie.boat.quota-sqrt(2); //déplacement en diagonale plus rapide
+			end;
+		if saisie.coord.x=-1 then //le bateau recule
+			case saisie.boat.sens of
+				N,S,E,O : saisie.boat.quota:=saisie.boat.quota-2;
+				NO,NE,SE,SO : saisie.boat.quota:=saisie.boat.quota-2*sqrt(2); //déplacement en diagonale plus rapide
+			end;
+end;
+	
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+procedure gestionDeplacement (saisie:Action; game : Jeu; noBateau : Word; var joueur, adversaire : Joueur);
 
 begin
 //si rotation
-	if (saisie.nature=rotation) and (saisie.boat.quota-1/4*(saisie.boat.taille-1)>=0) then
-		calculRotation (saisie,game);
+	if (saisie.nature=rotation) then calculRotation (saisie,game);
 		
 //si déplacement
-	if (saisie.nature=deplacement) then
-	begin
+	if (saisie.nature=deplacement) then calculDeplacement (saisie,game);
 	
-		////en cours d'écriture////////
-	
-		//mise à jour du quota de déplacement
-		case saisie.boat.sens of
-			N,S,E,O : saisie.boat.quota:=saisie.boat.quota+saisie.coord.x;
-			NO,NE,SE,SO : saisie.boat.quota:=saisie.boat.quota+sqrt(2)*saisie.coord.x; //déplacement en diagonale plus rapide
-		end;
-	end;
-	
-//mise à jour des zones
-	calculZone (game, saisie.boat);
-	
+//si le quota n'est pas négatif, la modification est enregistrée
+	if saisie.boat.quota>=0 then
+		begin
+		calculZone (game, saisie.boat); //mise à jour des zones
+		joueur.boat[noBateau]:=saisie.boat;
+		saisie.statut:=allowed;
+		end
+	else saisie.statut:=overquota;
 
-		
 end;
 
 
