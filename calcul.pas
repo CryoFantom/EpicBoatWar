@@ -29,7 +29,7 @@ Type ZoneG=Record
 //////////////////
 
 procedure calculZone (game : Jeu; var boat : Bateau); //maintenu ici pour le fonctionnement des tests et démos
-procedure gestionDeplacement (saisie:Action; game : Jeu; noBateau : Word; var joueur, adversaire : Joueur);
+procedure gestionDeplacement (var saisie:Action; game : Jeu; noBateau : Word; var joueur, adversaire : Joueur);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -301,7 +301,9 @@ end;
 	
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-procedure gestionDeplacement (saisie:Action; game : Jeu; noBateau : Word; var joueur, adversaire : Joueur);
+procedure gestionDeplacement (var saisie:Action; game : Jeu; noBateau : Word; var joueur, adversaire : Joueur);
+
+var i:Word;
 
 begin
 //si rotation
@@ -310,15 +312,31 @@ begin
 //si déplacement
 	if (saisie.nature=deplacement) then calculDeplacement (saisie,game);
 	
-//si le quota n'est pas négatif, la modification est enregistrée
-	if saisie.boat.quota>=0 then
-		begin
+	saisie.statut:=allowed; //le déplacement est autorisé par défaut, et on va vérifier que rien de l'empêche
+	
+//le bateau est-il toujours dans la zone de jeu
+	for i:=1 to saisie.boat.taille do
+		if (saisie.boat.pos[i].x<=0) or (saisie.boat.pos[i].x>TAILLE_X)
+		or (saisie.boat.pos[i].y<=0) or (saisie.boat.pos[i].y>TAILLE_Y)
+		then saisie.statut:=outzone;
+	
+//le quota est-il suffisant
+	if saisie.boat.quota<0 then 
+		saisie.statut:=overquota;
+		
+//le bateau rencontre-t-il une montagne ou un récif
+	for i:=1 to saisie.boat.taille do
+	begin
+		if game.grille[saisie.boat.pos[i].x,saisie.boat.pos[i].y]=montagne then saisie.statut:=mountain;
+		if game.grille[saisie.boat.pos[i].x,saisie.boat.pos[i].y]=recifs then saisie.statut:=reef;
+	end;
+	
+//si tout est bon, on enregistre le bateau
+	if saisie.statut=allowed then
+	begin
 		calculZone (game, saisie.boat); //mise à jour des zones
 		joueur.boat[noBateau]:=saisie.boat;
-		saisie.statut:=allowed;
-		end
-	else saisie.statut:=overquota;
-
+	end;
 end;
 
 
