@@ -2,11 +2,11 @@ program EpicBoatWar;
 
 uses commun, crt, generation, calcul;
 
-var plat : Plateau;
-var i: Integer;
+var i, t: Integer;
 var test : Boolean;
 var game:Jeu;
 	boat:Bateau;
+var joueur1, joueur2 : Joueur;
 	
 begin
 	clrscr;
@@ -29,81 +29,123 @@ begin
 			game.recifs.tab[i].visible := True;
 		end;
 	
-	genObstacles(plat, game.montagne, game.recifs);
+	genGrille(game, joueur1, joueur2);
+	
+	t:=1;
+	
+	while (t<TAILLE_X) do
+	begin
+			if (t>1) then
+				begin
+					//effaçage des zones précédentes
+					for i:=1 to boat.deplacement.nbCases do
+						begin
+							GotoXY(boat.deplacement.tabZone[i].x,boat.deplacement.tabZone[i].y);
+							if boat.deplacement.tabZone[i].visible then
+								begin
+									TextBackground(Black);
+									write(' ');
+								end;
+						end;
 
-	//création d'un bateau au milieu de l'écran
-	boat.taille:=4;
-	for i:=1 to boat.taille do
-		begin
-		boat.pos[i].y:=25;
-		boat.pos[i].x:=70+i;
-		end;
-	boat.tir.distance:=10;
-	boat.detection.distance:=30;
-	boat.deplacement.distance:=60;
+					for i:=1 to boat.detection.nbCases do
+						begin
+							GotoXY(boat.detection.tabZone[i].x,boat.detection.tabZone[i].y);
+							if boat.detection.tabZone[i].visible then
+								begin
+									TextBackground(Black);
+									write(' ');
+								end;
+						end;
+
+					for i:=1 to boat.tir.nbCases do
+						begin
+							GotoXY(boat.tir.tabZone[i].x,boat.tir.tabZone[i].y);
+							if boat.tir.tabZone[i].visible then
+								begin
+									TextBackground(Black);
+									write(' ');
+								end;
+						end;				
+				end;
+
 	
-	//calcul des zones
-	calculZone (game,boat); 
-	
-	//affichage des zones
-	//déplacement
-	for i:=1 to boat.deplacement.nbCases do
-		begin
-		GotoXY(boat.deplacement.tabZone[i].x,boat.deplacement.tabZone[i].y);
-		if boat.deplacement.tabZone[i].visible then
+		//création du bateau
+		boat.taille:=4;
+		for i:=1 to boat.taille do
 			begin
-			TextBackground(Green);
-			write(' ');
+				boat.pos[i].y:=10;
+				boat.pos[i].x:=i+t;
 			end;
-		end;
+		boat.tir.distance:=4;
+		boat.detection.distance:=8;
+		boat.deplacement.distance:=12;
 	
-	//détection
-	for i:=1 to boat.detection.nbCases do
-		begin
-		GotoXY(boat.detection.tabZone[i].x,boat.detection.tabZone[i].y);
-		if boat.detection.tabZone[i].visible then
+		//calcul des zones
+		calculZone (game,boat); 
+	
+		//affichage des zones
+		
+		//déplacement
+		for i:=1 to boat.deplacement.nbCases do
 			begin
-			TextBackground(Blue);
-			write(' ');
+				GotoXY(boat.deplacement.tabZone[i].x,boat.deplacement.tabZone[i].y);
+				if boat.deplacement.tabZone[i].visible then
+					begin
+						TextBackground(Green);
+						write(' ');
+					end;
 			end;
-		end;
 	
-	//tir
-	for i:=1 to boat.tir.nbCases do
-		begin
-		GotoXY(boat.tir.tabZone[i].x,boat.tir.tabZone[i].y);
-		if boat.tir.tabZone[i].visible then
+		//détection
+		for i:=1 to boat.detection.nbCases do
 			begin
-			TextBackground(Red);
-			write(' ');
-			end;
-		end;
-		
-	TextBackground(Black);
-		
-	//affichage du bateau
-	for i:=1 to boat.taille do
-		begin
-		GotoXY(boat.pos[i].x,boat.pos[i].y);
-		write('b');
-		end;
-		
-	//affichage des montagnes
-	for i:=1 to game.montagne.npos do
-		begin
-		GotoXY(game.montagne.tab[i].x,game.montagne.tab[i].y);
-		write('m');
-		end;
-		
-	//affichage des récifs
-	for i:=1 to game.recifs.npos do
-		begin
-		GotoXY(game.recifs.tab[i].x,game.recifs.tab[i].y);
-		write('r');
+				GotoXY(boat.detection.tabZone[i].x,boat.detection.tabZone[i].y);
+				if boat.detection.tabZone[i].visible then
+				begin
+				TextBackground(Blue);
+				write(' ');
+				end;
 		end;
 	
-	GotoXY(1,TAILLE_Y+1);
+		//tir
+		for i:=1 to boat.tir.nbCases do
+			begin
+				GotoXY(boat.tir.tabZone[i].x,boat.tir.tabZone[i].y);
+				if boat.tir.tabZone[i].visible then
+					begin
+						TextBackground(Red);
+						write(' ');
+					end;
+			end;
 		
-	delay(1200);
+		TextBackground(Black);
+		
+		//affichage du bateau
+		for i:=1 to boat.taille do
+			begin
+				GotoXY(boat.pos[i].x,boat.pos[i].y);
+				write('b');
+			end;
+		
+		//affichage des montagnes
+		for i:=1 to game.montagne.npos do
+			begin
+				GotoXY(game.montagne.tab[i].x,game.montagne.tab[i].y);
+				write('m');
+			end;
+		
+		//affichage des récifs
+		for i:=1 to game.recifs.npos do
+			begin
+				GotoXY(game.recifs.tab[i].x,game.recifs.tab[i].y);
+				write('r');
+			end;
+	
+		GotoXY(1,TAILLE_Y+1);
+		
+		delay(1000);
+		t:=t+1;
+		end;
 	end;
 end.

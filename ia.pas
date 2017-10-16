@@ -2,7 +2,7 @@ unit ia;
 
 interface
 
-uses commun;
+uses commun, calcul;
 
 Const NNOEUDSMAX = 1000000;
 
@@ -65,5 +65,8 @@ begin
 	end;
 end;
 
+
+
 begin
 end.
+
