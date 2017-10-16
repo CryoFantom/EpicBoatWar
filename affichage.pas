@@ -6,7 +6,7 @@ uses commun,Crt;
 
 procedure affObstacle ( montagne, recif: Obstacle);
 procedure affBateaux  ( game: Jeu; joueur1, joueur2: Joueur);
-//procedure affInfosJeu ( joueur1joue: Boolean; joueur1, joueur2: Joueur);
+procedure affInfosJeu ( joueur1joue: Boolean; joueur1, joueur2: Joueur);
 procedure affZone (boat: Bateau; affiche: Boolean);
 
 implementation
@@ -141,6 +141,20 @@ begin
 		end;
 	
 	TextBackground(Black);
+end;
+
+procedure affInfosJeu ( joueur1joue: Boolean; joueur1, joueur2: Joueur);
+var i: integer;
+
+begin
+		for i:=1 to joueur1.nbBateaux do
+			writeln(joueur1.boat[i].nom,joueur1.boat[i].ptDeVie,'PV');
+			
+		for i:=1 to joueur2.nbBateaux do
+			writeln(joueur2.boat[i].nom,joueur2.boat[i].ptDeVie,'PV');
+		
+
+
 end;
 begin
 end.
