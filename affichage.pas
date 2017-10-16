@@ -37,11 +37,13 @@ begin
 	begin
 		for i:=1 to joueur1.nbBateaux do
 		begin
-			j:=1;
+			GotoXY(joueur1.boat[i].pos[1].x,joueur1.boat[i].pos[1].y);
+			textcolor(blue);
+			textbackground(White);
+			write('P');
+			j:=2;
 			repeat
 				GotoXY(joueur1.boat[i].pos[j].x,joueur1.boat[i].pos[j].y);
-				textcolor(blue);
-				textbackground(White);
 				write('B');
 				j:=j+1;
 			until j= joueur1.boat[i].taille+1;
@@ -50,11 +52,13 @@ begin
 		begin
 			if joueur2.boat[i].detecte then
 				begin
-				j:=1;
+				GotoXY(joueur2.boat[i].pos[1].x,joueur2.boat[i].pos[1].y);
+				textcolor(red);
+				textbackground(White);
+				write('P');
+				j:=2;
 				repeat
 					GotoXY(joueur2.boat[i].pos[j].x,joueur2.boat[i].pos[j].y);
-					textcolor(red);
-					textbackground(White);
 					write('B');
 					j:=j+1;
 				until j= joueur2.boat[i].taille+1;
@@ -64,26 +68,32 @@ begin
 	else
 	begin
 		for i:=1 to joueur2.nbBateaux do
-			j:=1;
+		begin
+			GotoXY(joueur2.boat[i].pos[1].x,joueur2.boat[i].pos[1].y);
+			textcolor(blue);
+			textbackground(White);
+			write('P');
+			j:=2;
 			repeat
 				GotoXY(joueur2.boat[i].pos[j].x,joueur2.boat[i].pos[j].y);
-				textcolor(blue);
-				textbackground(White);
 				write('B');
 				j:=j+1;
-			until j= joueur2.boat[i].taille;
-		for i:=1 to joueur2.nbBateaux do
+			until j= joueur2.boat[i].taille+1;
+		end;
+	for i:=1 to joueur1.nbBateaux do
 		begin
 			if joueur1.boat[i].detecte then
 				begin
-				j:=1;
+				GotoXY(joueur1.boat[i].pos[1].x,joueur1.boat[i].pos[1].y);
+				textcolor(red);
+				textbackground(White);
+				write('P');
+				j:=2;
 				repeat
-					GotoXY(joueur2.boat[i].pos[j].x,joueur2.boat[i].pos[j].y);
-					textcolor(red);
-					textbackground(White);
+					GotoXY(joueur1.boat[i].pos[j].x,joueur1.boat[i].pos[j].y);
 					write('B');
 					j:=j+1;
-				until j= joueur2.boat[i].taille+1;
+				until j= joueur1.boat[i].taille+1;
 				end;
 		end;
 	end;
