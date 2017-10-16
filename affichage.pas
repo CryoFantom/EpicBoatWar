@@ -144,15 +144,30 @@ begin
 end;
 
 procedure affInfosJeu ( joueur1joue: Boolean; joueur1, joueur2: Joueur);
-var i: integer;
+var i,j: integer;
 
 begin
-		for i:=1 to joueur1.nbBateaux do
-			writeln(joueur1.boat[i].nom,joueur1.boat[i].ptDeVie,'PV');
-			
-		for i:=1 to joueur2.nbBateaux do
-			writeln(joueur2.boat[i].nom,joueur2.boat[i].ptDeVie,'PV');
-		
+	GotoXY(100,1);
+	writeln(joueur1.nom);
+	j:=1;
+	i:=2;
+	repeat
+		GotoXY(100,i);
+		writeln(joueur1.boat[j].nom,' ',joueur1.boat[j].ptDeVie,' PV');
+		i:=i+1;
+		j:=j+1;
+	until j=joueur1.nbBateaux+1;
+	i:=i+2;
+	GotoXY(100,i);
+	writeln(joueur2.nom);
+	i:=i+1;
+	j:=1;
+	repeat
+		GotoXY(100,i);
+		writeln(joueur2.boat[j].nom,' ',joueur2.boat[j].ptDeVie,' PV');
+		i:=i+1;
+		j:=j+1;
+	until j=joueur2.nbBateaux+1;
 
 
 end;
