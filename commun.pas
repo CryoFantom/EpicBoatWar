@@ -4,8 +4,8 @@ interface
 
 const 	NBOAT=6; //nombre maximum de bateaux
 		TMAX=5; //taille maximale d’un bateau
-		TAILLE_X=75; //largeur en caractères de la surface de jeu (max 169)
-		TAILLE_Y=40; //hauteur en caractères de la surface de jeu (max 51)
+		TAILLE_X=150; //largeur en caractères de la surface de jeu (max 169)
+		TAILLE_Y=50; //hauteur en caractères de la surface de jeu (max 51)
 		NMAXPOS=7500; //nombre maximum de valeurs dans un tableau de position (max 7500)
 		NBMONTS=6; //nombre maximum de montagnes
 		NBRECIF=5; //nombre maximum de récifs
@@ -20,6 +20,8 @@ Type TypeBateau=(destroyer, croiseurlg, croiseurlrd, cuirasse);
 Type Plateau=Array[1..TAILLE_X,1..TAILLE_Y] of Nature;
 
 Type Orientation=(NO, N, NE, E, SE, S, SO, O); //orientation de l'avant du bateau
+
+Type StatutAction=(allowed, overquota, outzone, mountain, reef); //l'action est-elle autorisée et si non pourquoi
 		
 Type Position=Record
 	nature : Nature; //bateauJ1, bateauJ2, récif, montagne, centreMontagne, centreRecifs
@@ -76,7 +78,8 @@ end;
 Type Action=Record
 	nature : TypeAction;
 	boat : Bateau;
-	coord : Position; 
+	coord : Position;
+	statut : StatutAction; //l'action est-elle autorisée et si non pourquoi (overquota, mountain, reef)
 end;
 
 
