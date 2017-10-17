@@ -21,7 +21,7 @@ Type Plateau=Array[1..TAILLE_X,1..TAILLE_Y] of Nature;
 
 Type Orientation=(NO, N, NE, E, SE, S, SO, O); //orientation de l'avant du bateau
 
-Type StatutAction=(allowed, overquota, outzone, mountain, reef); //l'action est-elle autorisée et si non pourquoi
+Type StatutAction=(allowed, overquota, outzone, mountain, reef, boatJ1, boatJ2); //l'action est-elle autorisée et si non pourquoi
 		
 Type Position=Record
 	nature : Nature; //bateauJ1, bateauJ2, récif, montagne, centreMontagne, centreRecifs
@@ -76,9 +76,10 @@ Type Joueur=Record
 end;
 
 Type Action=Record
-	nature : TypeAction;
+	nature : TypeAction; //deplacement, rotation, tir, detection
 	boat : Bateau;
 	coord : Position;
+	noBateau : Word ; //numéro du bateau concerné par l'action
 	statut : StatutAction; //l'action est-elle autorisée et si non pourquoi (overquota, mountain, reef)
 end;
 

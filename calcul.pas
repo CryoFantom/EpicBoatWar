@@ -7,7 +7,7 @@ uses commun, math;
 
 ////////////////
 
-const distanceZoneMax=30; //(2830 cases environ) 	(max 75)
+const DISTANCE_ZONE_MAX=30; //(2830 cases environ) 	(max 75)
 	
 Type Cases=Record
 	x : Integer; 
@@ -29,7 +29,7 @@ Type ZoneG=Record
 //////////////////
 
 procedure calculZone (game : Jeu; var boat : Bateau); //maintenu ici pour le fonctionnement des tests et démos
-procedure gestionDeplacement (var saisie:Action; game : Jeu; noBateau : Word; var joueur, adversaire : Joueur);
+procedure gestionDeplacement (game : Jeu; var saisie:Action; var joueur1, joueur2 : Joueur);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -61,7 +61,7 @@ begin
 		y:=obst.tab[i].y;
 		distance:=sqrt((x-zone.xc)**2+(y-zone.yc)**2);
 		//si l'obstacle est dans la zone
-		if distance<=distanceZoneMax then
+		if distance<=DISTANCE_ZONE_MAX then
 		begin
 			nb:=nb+1;
 			obstZone[nb].x:=obst.tab[i].x;
@@ -134,16 +134,16 @@ begin
 	zone.yc:=(proue.y+poupe.y)/2;
 	
 	//pré-détermination de la zone (carré de côté 2*distanceMax)
-	xmin:=trunc(zone.xc)-distanceZoneMax-1;
+	xmin:=trunc(zone.xc)-DISTANCE_ZONE_MAX-1;
 	if xmin<=0 then xmin:=1;
 	
-	xmax:=trunc(zone.xc)+distanceZoneMax+1;
+	xmax:=trunc(zone.xc)+DISTANCE_ZONE_MAX+1;
 	if xmax>TAILLE_X then xmax:=TAILLE_X;
 	
-	ymin:=trunc(zone.yc)-distanceZoneMax-1;
+	ymin:=trunc(zone.yc)-DISTANCE_ZONE_MAX-1;
 	if ymin<=0 then ymin:=1;
 	
-	ymax:=trunc(zone.yc)+distanceZoneMax+1;
+	ymax:=trunc(zone.yc)+DISTANCE_ZONE_MAX+1;
 	if ymax>TAILLE_Y then ymax:=TAILLE_Y;
 	
 	
@@ -154,7 +154,7 @@ begin
 			begin
 			distance:=sqrt((x-zone.xc)**2+(y-zone.yc)**2);
 			//si le point est dans la zone, on l'ajoute dans le tableau, on calcule l'angle, et on vérifie s'il est masqué par un obstacle
-			if distance<=distanceZoneMax then
+			if distance<=DISTANCE_ZONE_MAX then
 				begin
 				i:=i+1;
 				zone.grille[i].x:=x;
@@ -192,7 +192,7 @@ begin
 	nb:=0;
 	boat.tir.typeZone:=deplacement;
 	for i:=1 to zone.nbCases do
-			if zone.grille[i].distance<=boat.deplacement.distance then
+			if zone.grille[i].distance<=boat.quota then
 				begin
 				nb:=nb+1;
 				case zone.grille[i].cause of
@@ -297,13 +297,17 @@ begin
 				N,S,E,O : saisie.boat.quota:=saisie.boat.quota-2;
 				NO,NE,SE,SO : saisie.boat.quota:=saisie.boat.quota-2*sqrt(2); //déplacement en diagonale plus rapide
 			end;
+			
+	
 end;
 	
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-procedure gestionDeplacement (var saisie:Action; game : Jeu; noBateau : Word; var joueur, adversaire : Joueur);
+procedure gestionDeplacement (game : Jeu; var saisie:Action; var joueur1, joueur2 : Joueur);
 
-var i:Word;
+var i,j,x,y:Word;
+var quiJoue,adversaire:Joueur;
+var tabDetec : Array[1..TAILLE_X,1..TAILLE_Y] of Boolean;
 
 begin
 //si rotation
@@ -324,20 +328,69 @@ begin
 	if saisie.boat.quota<0 then 
 		saisie.statut:=overquota;
 		
-//le bateau rencontre-t-il une montagne ou un récif
+//le bateau rencontre-t-il une montagne,un récif ou un autre bateau
 	for i:=1 to saisie.boat.taille do
 	begin
 		if game.grille[saisie.boat.pos[i].x,saisie.boat.pos[i].y]=montagne then saisie.statut:=mountain;
 		if game.grille[saisie.boat.pos[i].x,saisie.boat.pos[i].y]=recifs then saisie.statut:=reef;
+		if game.grille[saisie.boat.pos[i].x,saisie.boat.pos[i].y]=bateauJ1 then saisie.statut:=boatJ1;
+		if game.grille[saisie.boat.pos[i].x,saisie.boat.pos[i].y]=bateauJ2 then saisie.statut:=boatJ2;
 	end;
-	
-//si tout est bon, on enregistre le bateau
+
+//si tout est bon, on enregistre le bateau et on met à jour la visibilité de l'adversaire
 	if saisie.statut=allowed then
 	begin
+		//qui joue
+		if game.joueur1Joue then 
+			begin;
+			quiJoue:=joueur1;
+			adversaire:=joueur2;
+			end
+		else
+			begin
+			quiJoue:=joueur2;
+			adversaire:=joueur1;
+			end;
+	
 		calculZone (game, saisie.boat); //mise à jour des zones
-		joueur.boat[noBateau]:=saisie.boat;
+		quiJoue.boat[saisie.noBateau]:=saisie.boat;
+		
+		//les bateaux de l'adversaire deviennent-ils visibles ?
+		//conversion du tableau de position en grille
+		for x:=1 to TAILLE_X do //initialisation du tableau
+			for y:=1 to TAILLE_Y do tabDetec[x,y]:=False;
+
+		for i:=1 to quiJoue.boat[saisie.noBateau].detection.nbCases do
+			begin
+			x:=quiJoue.boat[saisie.noBateau].detection.tabZone[i].x;
+			y:=quiJoue.boat[saisie.noBateau].detection.tabZone[i].y;
+			tabDetec[x,y]:=True;
+			end;
+
+		for i:=1 to adversaire.nbBateaux do
+			begin
+			adversaire.boat[i].detecte:=False; //on recache tout
+			for j:=1 to adversaire.boat[i].taille do
+				begin
+				x:=adversaire.boat[i].pos[j].x;
+				y:=adversaire.boat[i].pos[j].y;
+				if tabDetec[x,y] then adversaire.boat[i].detecte:=True;
+				end;
+			end;
+	
+	
+		//et on exporte tout ça dans les joueurs correspondants
+		if game.joueur1Joue then 
+			begin;
+			joueur1:=quiJoue;
+			joueur2:=adversaire;
+			end
+		else
+			begin
+			joueur1:=adversaire;
+			joueur2:=quiJoue;
+			end;
 	end;
 end;
-
 
 end.
