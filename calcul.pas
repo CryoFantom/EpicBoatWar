@@ -355,6 +355,7 @@ begin
 		calculZone (game, saisie.boat); //mise à jour des zones
 		quiJoue.boat[saisie.noBateau]:=saisie.boat;
 		
+
 		//les bateaux de l'adversaire deviennent-ils visibles ?
 		//conversion du tableau de position en grille
 		for x:=1 to TAILLE_X do //initialisation du tableau
@@ -377,6 +378,7 @@ begin
 				if tabDetec[x,y] then adversaire.boat[i].detecte:=True;
 				end;
 			end;
+
 	
 	
 		//et on exporte tout ça dans les joueurs correspondants

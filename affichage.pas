@@ -2,12 +2,10 @@ unit affichage;
 
 interface 
 
-uses commun,Crt;
+uses commun,Crt,keyboard;
 
-procedure affObstacle ( montagne, recif: Obstacle);
-procedure affBateaux  ( game: Jeu; joueur1, joueur2: Joueur);
-procedure affInfosJeu ( joueur1joue: Boolean; joueur1, joueur2: Joueur);
-procedure affZone (boat: Bateau; affiche: Boolean);
+procedure affichageJeu (game:Jeu; boat:Bateau; joueur1, joueur2: Joueur);
+procedure controle (var choix : Action);
 
 implementation
 
@@ -19,16 +17,17 @@ begin
 	for i:=1 to montagne.npos do
 		begin
 			GotoXY(montagne.tab[i].x,montagne.tab[i].y);
-			writeln('M');
+			writeln('#');
 		end;
 	for i:=1 to recif.npos do
 		begin
 			GotoXY(recif.tab[i].x,recif.tab[i].y);
-			writeln('R');
+			writeln('*');
 		end;
+	GotoXY(1,TAILLE_Y+1);
 end;
 
-procedure affBateaux  ( game: Jeu; joueur1, joueur2: Joueur);
+procedure affBateaux  (game: Jeu; joueur1, joueur2: Joueur);
 
 var i,j:Integer;
 
@@ -99,10 +98,11 @@ begin
 	end;
 	textbackground(Black);
 	textcolor(White);
+	GotoXY(1,TAILLE_Y+1);
 end;
 
 
-procedure affZone (boat: Bateau; affiche: Boolean);
+procedure affZone (boat: Bateau);
 
 var i : Integer;
 
@@ -141,35 +141,70 @@ begin
 		end;
 	
 	TextBackground(Black);
+	GotoXY(1,TAILLE_Y+1);
 end;
 
-procedure affInfosJeu ( joueur1joue: Boolean; joueur1, joueur2: Joueur);
+procedure affInfosJeu (joueur1joue: Boolean; joueur1, joueur2: Joueur);
 var i,j: integer;
 
 begin
-	GotoXY(100,1);
+	GotoXY(TAILLE_X+1,1);
 	writeln(joueur1.nom);
 	j:=1;
 	i:=2;
 	repeat
-		GotoXY(100,i);
+		GotoXY(TAILLE_X+1,i);
 		writeln(joueur1.boat[j].nom,' ',joueur1.boat[j].ptDeVie,' PV');
 		i:=i+1;
 		j:=j+1;
 	until j=joueur1.nbBateaux+1;
 	i:=i+2;
-	GotoXY(100,i);
+	GotoXY(TAILLE_X+1,i);
 	writeln(joueur2.nom);
 	i:=i+1;
 	j:=1;
 	repeat
-		GotoXY(100,i);
+		GotoXY(TAILLE_X+1,i);
 		writeln(joueur2.boat[j].nom,' ',joueur2.boat[j].ptDeVie,' PV');
 		i:=i+1;
 		j:=j+1;
 	until j=joueur2.nbBateaux+1;
 
-
+	GotoXY(1,TAILLE_Y+1);
 end;
+
+procedure controle (var choix : Action);
+
+var saisie:String;
+	K : TKeyEvent;
+begin
+	GotoXY(1,TAILLE_Y+1);
+	write('Utilisez les flèches pour déplacer le bateau');
+	InitKeyboard;
+	K:=GetKeyEvent;
+	K:=TranslateKeyEvent(K);
+	saisie:=KeyEventToString(K);
+	DoneKeyboard;
+	if (saisie='Right') or (saisie='Up') then choix.coord.x:=1;
+	if (saisie='Left') or (saisie='Down') then choix.coord.x:=-1;
+	
+	if (saisie='Right') or (saisie='Left') then choix.nature:=rotation;
+	if (saisie='Up') or (saisie='Down') then choix.nature:=deplacement
+	else choix.nature:=nonValide;
+end;
+
+procedure affichageJeu (game:Jeu; boat:Bateau; joueur1, joueur2: Joueur);
+
+begin
+		clrscr;
+		affZone(boat);
+		affObstacle (game.montagne, game.recifs);
+		affBateaux(game,joueur1,joueur2);
+		affInfosJeu(game.joueur1joue,joueur1,joueur2);
+		
+		GotoXY(TAILLE_X-70,TAILLE_Y+1);
+		write('Quota de déplacement : ',boat.quota:3:2);
+end;
+
 begin
 end.

@@ -13,7 +13,7 @@ const 	NBOAT=6; //nombre maximum de bateaux
 		
 Type Nature=(montagne, centreMontagne, recifs, centreRecifs, bateauJ1, bateauJ2, libre);
 
-Type TypeAction=(deplacement, rotation, tir, detection);
+Type TypeAction=(deplacement, rotation, tir, detection, nonValide);
 
 Type TypeBateau=(destroyer, croiseurlg, croiseurlrd, cuirasse);
 		
@@ -71,7 +71,6 @@ Type Joueur=Record
 	nom : String;
 	nbBateaux : Integer; //nombre de bateaux restants
 	score : Integer;
-	nbDeplacement : Integer; //quota de déplacement par tour
 	boat : listeBateaux; //ensemble des bateaux du joueur
 end;
 

@@ -170,15 +170,18 @@ begin
 	
 end;
 
-procedure affectation(taille, pdv, degats, trchrg : Integer; nom : String; var navire : Bateau);	//Cette procédure est juste créer pour faciliter l'assignation des caractéristiques à un bateau
+procedure affectation(taille, pdv, degats, trchrg, distDepl, distDetec, distTir : Integer; nom : String; var navire : Bateau);	//Cette procédure est juste créer pour faciliter l'assignation des caractéristiques à un bateau
 
 begin
 	navire.taille := taille;
 	navire.nom:= nom;
 	navire.ptDeVie := pdv;
 	navire.degats := degats;
+	navire.tir.distance := distTir;
 	navire.tRechargement := trchrg;
-	navire.detecte:=True;
+	navire.deplacement.distance := distDepl;
+	navire.detection.distance := distDetec;
+	navire.detecte:=False;
 end;
 
 procedure initBateau(var listeBateau : listeBateaux);
@@ -186,29 +189,29 @@ procedure initBateau(var listeBateau : listeBateaux);
 var i : Integer;
 
 begin
-	for i:=1 to NBOAT do												//On crée les types de bateau selon cette ordre : 1 cuirassé, 1 croiseur lourd, 2 croiseurs léger et 2 destroyers
+	for i:=1 to NBOAT do												//On crée les types de bateau selon cet ordre : 1 cuirassé, 1 croiseur lourd, 2 croiseurs léger et 2 destroyers
 		listeBateau[i].classe := cuirasse;
 	for i:=2 to NBOAT do
 		listeBateau[i].classe := croiseurlrd;
 	for i:=3 to NBOAT do
 		listeBateau[i].classe := croiseurlg;
-	for i:=5 to Nboat do
+	for i:=5 to NBOAT do
 		listeBateau[i].classe := destroyer;
 	
 	for  i:=1 to NBOAT do
 		begin
 			if (listeBateau[i].classe = destroyer) then	
-				affectation(1, 4, 2, 1, 'destroyer', listeBateau[i]);		//si le bateau est un destroyer on lui attribue ses caractéristiques
+				affectation(2, 4, 2, 1, 10, 5, 3, 'destroyer', listeBateau[i]);		//si le bateau est un destroyer on lui attribue ses caractéristiques
 			if (listeBateau[i].classe = croiseurlg) then
-				affectation(2, 6, 3, 2, 'croiseur leger' ,listeBateau[i]);	//idem pour le croiseur léger
+				affectation(3, 6, 3, 2, 7, 7, 5, 'croiseur leger' ,listeBateau[i]);	//idem pour le croiseur léger
 			if (listeBateau[i].classe = croiseurlrd) then	
-				affectation(3, 7, 4, 3, 'croiseur lourd', listeBateau[i]);	//idem pour le croiseur lourd
+				affectation(4, 7, 4, 3, 6, 8, 7, 'croiseur lourd', listeBateau[i]);	//idem pour le croiseur lourd
 			if (listebateau[i].classe = cuirasse) then
-				affectation(4, 9, 6, 4, 'cuirasse', listeBateau[i]);		//idem pour le cuirassé
+				affectation(5, 9, 6, 4, 5, 15, 10, 'cuirasse', listeBateau[i]);		//idem pour le cuirassé
 		end;
 end;
 
-procedure genBateau (joueur1, joueur2 : Joueur);
+procedure genBateau (var joueur1, joueur2 : Joueur);
 
 var i, j, x, y : Integer;
 
@@ -216,49 +219,45 @@ begin
 	initBateau(joueur1.boat);											//On initialise les bateaux des deux joueurs
 	initBateau(joueur2.boat);
 	
-	joueur1.nom := '';													//On initialise les noms, pour éviter tout problème d'affectation
-	joueur2.nom := '';
+	joueur1.nom := 'J1';												//On initialise les noms, pour éviter tout problème d'affectation
+	joueur2.nom := 'J2';
 	
 	joueur1.nbBateaux := NBOAT;											//Chaque joueur commence la partie avec le même nombre de bateaux (ici NBOAT)
 	joueur2.nbBateaux := NBOAT;
-	
-	joueur1.nbDeplacement := NBOAT;										//On a autant de déplacement de bateau qu'il y a de bateau (pour le début NBOAT)
-	joueur2.nbDeplacement := NBOAT;
 	
 	joueur1.score:= 0;													//On initialise le score des deux joueurs
 	joueur2.score:= 0;
 	
 	//remplir les positions des bateaux
 	
-	y:=2;
-	
-	for i:= 1 to NBOAT do												//On remplit les coordonnées de chaque bateau avec les bateaux du joueurs 1
+	y:=trunc(TAILLE_Y/2-NBOAT);											//au milieu à gauche
+	for i:= 1 to NBOAT do												//On remplit les coordonnées de chaque bateau du joueur 1
 		begin
-			x:=2;
+			x:=2+TMAX;
 			for j := 1 to joueur1.boat[i].taille do
 				begin
 					joueur1.boat[i].pos[j].x := x;						
 					joueur1.boat[i].pos[j].y := y;
 					joueur1.boat[i].pos[j].nature := bateauJ1;
-					joueur1.boat[i].pos[j].visible:=True;
-					x:=x+1;
+					x:=x-1;
 				end;
 			y:=y+2;
+			joueur1.boat[i].sens:=E;
 		end;
-	y:=2;
-	
-	for i:= 1 to NBOAT do
+
+	y:=trunc(TAILLE_Y/2-NBOAT);											//au milieu à droite
+	for i:= 1 to NBOAT do												//On remplit les coordonnées de chaque bateau du joueur 2
 		begin
-			x:=TAILLE_X-2;
+			x:=TAILLE_X-2-TMAX;
 			for j := 1 to joueur1.boat[i].taille do
 				begin
 					joueur2.boat[i].pos[j].x := x;
 					joueur2.boat[i].pos[j].y := y;
 					joueur2.boat[i].pos[j].nature := bateauJ2;
-					joueur2.boat[i].pos[j].visible:=True;
-					x:=x-1;
+					x:=x+1;
 				end;
 			y:=y+2;
+			joueur1.boat[i].sens:=O;
 		end;
 	
 end;	
@@ -266,9 +265,9 @@ end;
 procedure genGrille(var plat : Jeu; var joueur1, joueur2 : Joueur);
 
 begin
-	genObstacles(plat.grille, plat.montagne, plat.recifs);				//On génére les obstacles
+	genObstacles(plat.grille, plat.montagne, plat.recifs);				//On génère les obstacles
 	plat.joueur1Joue:=True;												//Le joueur 1 ouvre le bal
-	genBateau(joueur1, joueur2);										// On génère les bateaux des deux joueurs
+	genBateau(joueur1, joueur2);										//On génère les bateaux des deux joueurs
 end;
 
 begin
