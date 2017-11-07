@@ -108,26 +108,26 @@ var i : Integer;
 
 begin 
 	//déplacement
-	for i:=1 to boat.deplacement.nbCases do
-		begin
-		GotoXY(boat.deplacement.tabZone[i].x,boat.deplacement.tabZone[i].y);
-		if boat.deplacement.tabZone[i].visible then
-			begin
-			TextBackground(Green);
-			write(' ');
-			end;
-		end;
+	//for i:=1 to boat.deplacement.nbCases do
+	//	begin
+		//GotoXY(boat.deplacement.tabZone[i].x,boat.deplacement.tabZone[i].y);
+		//if boat.deplacement.tabZone[i].visible then
+		//	begin
+		//	TextBackground(Green);
+		//	write(' ');
+		//	end;
+	//	end;
 	
 	//détection
-	for i:=1 to boat.detection.nbCases do
-		begin
-		GotoXY(boat.detection.tabZone[i].x,boat.detection.tabZone[i].y);
-		if boat.detection.tabZone[i].visible then
-			begin
-			TextBackground(Blue);
-			write(' ');
-			end;
-		end;
+	//for i:=1 to boat.detection.nbCases do
+		//begin
+		//GotoXY(boat.detection.tabZone[i].x,boat.detection.tabZone[i].y);
+		//if boat.detection.tabZone[i].visible then
+			//begin
+			//TextBackground(Blue);
+			//write(' ');
+			//end;
+		//end;
 	
 	//tir
 	for i:=1 to boat.tir.nbCases do
