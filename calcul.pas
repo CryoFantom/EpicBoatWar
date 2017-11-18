@@ -12,8 +12,8 @@ const DISTANCE_ZONE_MAX=30; //(2830 cases environ) 	(max 75)
 Type Cases=Record
 	x : Integer; 
 	y : Integer; //coordonnées cartésiennes de la case
-	distance : Float;
-	angle : Float; //coordonnées polaires de la case (origine : bateau, angle : en radians, conventions trigo)
+	distance : Single;
+	angle : Single; //coordonnées polaires de la case (origine : bateau, angle : en radians, conventions trigo)
 	visible : Boolean;
 	cause : Nature; //pourquoi la case n'est pas visible (montagne, récifs - si les deux -> montagne)
 end;
@@ -21,15 +21,15 @@ end;
 Type ZoneG=Record
 	nbCases : Integer; //nombre de cases de la zone
 	grille : Array[1..NMAXPOS] of Cases;
-	xc : Float;
-	yc : Float; //position du centre du bateau et de la zone
+	xc : Single;
+	yc : Single; //position du centre du bateau et de la zone
 	end;
 
 
 //////////////////
 
 procedure calculZone (game : Jeu; var boat : Bateau); //maintenu ici pour le fonctionnement des tests et démos
-procedure gestionDeplacement (game : Jeu; var saisie:Action; var joueur1, joueur2 : Joueur);
+procedure gestionDeplacement (var game : Jeu; var saisie:Action; var joueur1, joueur2 : Joueur);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -42,13 +42,13 @@ Type Obstacles=record
 	nature : Nature;
 	x:Integer;
 	y:Integer;
-	distance:Float;
-	angleMin:Float;
-	angleMax:Float; //angle min et max entre le centre du bateau et les coins de l'obstacle
+	distance:Single;
+	angleMin:Single;
+	angleMax:Single; //angle min et max entre le centre du bateau et les coins de l'obstacle
 	end;
 
-var angle:Array[1..5] of Float; //pour la recherche de angleMin et angleMax
-	x,y,distance:Float; //pour simplifier la notation des coordonnées de l'obstacle
+var angle:Array[1..5] of Single; //pour la recherche de angleMin et angleMax
+	x,y,distance:Single; //pour simplifier la notation des coordonnées de l'obstacle
 	obstZone : Array [1..100] of Obstacles; //tableau des obstacles situés dans la zone
 	i,j,k,nb:Integer;
 
@@ -59,7 +59,7 @@ begin
 	begin
 		x:=obst.tab[i].x;
 		y:=obst.tab[i].y;
-		distance:=sqrt((x-zone.xc)**2+(y-zone.yc)**2);
+		distance:=sqrt(sqr(x-zone.xc)+sqr(y-zone.yc));
 		//si l'obstacle est dans la zone
 		if distance<=DISTANCE_ZONE_MAX then
 		begin
@@ -124,7 +124,7 @@ var proue, poupe : Position; //position de l'avant et de l'arrière du bateau
 	xmin,xmax,ymin,ymax:Integer; //pour pré-détermination de la zone
 	x,y : Integer; //pour parcours de toute les cases
 	i,nb : Integer; //pour stockage dans le tableau de la zone
-	distance:Float;
+	distance:Single;
 	
 begin
 	//calcul de la position du centre du bateau (et de la zone)
@@ -152,7 +152,7 @@ begin
 	for y:=ymin to ymax do
 		for x:=xmin to xmax do
 			begin
-			distance:=sqrt((x-zone.xc)**2+(y-zone.yc)**2);
+			distance:=sqrt(sqr(x-zone.xc)+sqr(y-zone.yc));
 			//si le point est dans la zone, on l'ajoute dans le tableau, on calcule l'angle, et on vérifie s'il est masqué par un obstacle
 			if distance<=DISTANCE_ZONE_MAX then
 				begin
@@ -185,12 +185,13 @@ begin
 				end;
 				boat.tir.tabZone[nb].x:=zone.grille[i].x;
 				boat.tir.tabZone[nb].y:=zone.grille[i].y;
+				boat.tir.tabZone[nb].nature:=bZone;
 				end;
 	boat.tir.nbCases:=nb;
 	
 	//génération de la zone de déplacement
 	nb:=0;
-	boat.tir.typeZone:=deplacement;
+	boat.deplacement.typeZone:=deplacement;
 	for i:=1 to zone.nbCases do
 			if zone.grille[i].distance<=boat.quota then
 				begin
@@ -202,6 +203,7 @@ begin
 				end;
 				boat.deplacement.tabZone[nb].x:=zone.grille[i].x;
 				boat.deplacement.tabZone[nb].y:=zone.grille[i].y;
+				boat.deplacement.tabZone[nb].nature:=bZone;
 				end;
 	boat.deplacement.nbCases:=nb;
 	
@@ -219,6 +221,7 @@ begin
 				end;
 				boat.detection.tabZone[nb].x:=zone.grille[i].x;
 				boat.detection.tabZone[nb].y:=zone.grille[i].y;
+				boat.detection.tabZone[nb].nature:=bZone;
 				end;
 	boat.detection.nbCases:=nb;
 end;
@@ -303,13 +306,16 @@ end;
 	
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-procedure gestionDeplacement (game : Jeu; var saisie:Action; var joueur1, joueur2 : Joueur);
+procedure gestionDeplacement (var game : Jeu; var saisie:Action; var joueur1, joueur2 : Joueur);
 
 var i,j,x,y:Word;
-var quiJoue,adversaire:Joueur;
 var tabDetec : Array[1..TAILLE_X,1..TAILLE_Y] of Boolean;
+var pos1,pos2 : Array[1..TMAX] of Position;
 
 begin
+//stockage de l'ancienne position du bateau
+	pos1:=saisie.boat.pos;
+
 //si rotation
 	if (saisie.nature=rotation) then calculRotation (saisie,game);
 		
@@ -323,37 +329,30 @@ begin
 		if (saisie.boat.pos[i].x<=0) or (saisie.boat.pos[i].x>TAILLE_X)
 		or (saisie.boat.pos[i].y<=0) or (saisie.boat.pos[i].y>TAILLE_Y)
 		then saisie.statut:=outzone;
-	
-//le quota est-il suffisant
-	if saisie.boat.quota<0 then 
-		saisie.statut:=overquota;
 		
 //le bateau rencontre-t-il une montagne,un récif ou un autre bateau
-	for i:=1 to saisie.boat.taille do
-	begin
-		if game.grille[saisie.boat.pos[i].x,saisie.boat.pos[i].y]=montagne then saisie.statut:=mountain;
-		if game.grille[saisie.boat.pos[i].x,saisie.boat.pos[i].y]=recifs then saisie.statut:=reef;
-		if game.grille[saisie.boat.pos[i].x,saisie.boat.pos[i].y]=bateauJ1 then saisie.statut:=boatJ1;
-		if game.grille[saisie.boat.pos[i].x,saisie.boat.pos[i].y]=bateauJ2 then saisie.statut:=boatJ2;
-	end;
-
-//si tout est bon, on enregistre le bateau et on met à jour la visibilité de l'adversaire
 	if saisie.statut=allowed then
 	begin
-		//qui joue
-		if game.joueur1Joue then 
-			begin;
-			quiJoue:=joueur1;
-			adversaire:=joueur2;
-			end
-		else
-			begin
-			quiJoue:=joueur2;
-			adversaire:=joueur1;
-			end;
-	
+		for i:=1 to saisie.boat.taille do
+		begin
+			if game.grille[saisie.boat.pos[i].x,saisie.boat.pos[i].y]=montagne then saisie.statut:=mountain;
+			if game.grille[saisie.boat.pos[i].x,saisie.boat.pos[i].y]=recifs then saisie.statut:=reef;
+			//if game.grille[saisie.boat.pos[i].x,saisie.boat.pos[i].y]=bateauJ1 then saisie.statut:=boatJ1;
+			//if game.grille[saisie.boat.pos[i].x,saisie.boat.pos[i].y]=bateauJ2 then saisie.statut:=boatJ2;
+		end;
+	end;
+
+//le quota est-il suffisant
+	if (saisie.statut=allowed) and (saisie.boat.quota<0) then 
+		saisie.statut:=overquota;
+		
+//si tout est bon, on enregistre le bateau et on met à jour la visibilité de l'adversaire
+	pos2:=saisie.boat.pos;
+//si le joueur 1 joue
+	if (saisie.statut=allowed) and game.joueur1Joue then
+	begin
 		calculZone (game, saisie.boat); //mise à jour des zones
-		quiJoue.boat[saisie.noBateau]:=saisie.boat;
+		joueur1.boat[saisie.noBateau]:=saisie.boat;
 		
 
 		//les bateaux de l'adversaire deviennent-ils visibles ?
@@ -361,38 +360,71 @@ begin
 		for x:=1 to TAILLE_X do //initialisation du tableau
 			for y:=1 to TAILLE_Y do tabDetec[x,y]:=False;
 
-		for i:=1 to quiJoue.boat[saisie.noBateau].detection.nbCases do
+		for i:=1 to joueur1.boat[saisie.noBateau].detection.nbCases do
 			begin
-			x:=quiJoue.boat[saisie.noBateau].detection.tabZone[i].x;
-			y:=quiJoue.boat[saisie.noBateau].detection.tabZone[i].y;
+			x:=joueur1.boat[saisie.noBateau].detection.tabZone[i].x;
+			y:=joueur1.boat[saisie.noBateau].detection.tabZone[i].y;
 			tabDetec[x,y]:=True;
 			end;
 
-		for i:=1 to adversaire.nbBateaux do
+		for i:=1 to joueur2.nbBateaux do
 			begin
-			adversaire.boat[i].detecte:=False; //on recache tout
-			for j:=1 to adversaire.boat[i].taille do
+			joueur2.boat[i].detecte:=False; //on recache tout
+			for j:=1 to joueur2.boat[i].taille do
 				begin
-				x:=adversaire.boat[i].pos[j].x;
-				y:=adversaire.boat[i].pos[j].y;
-				if tabDetec[x,y] then adversaire.boat[i].detecte:=True;
+				x:=joueur2.boat[i].pos[j].x;
+				y:=joueur2.boat[i].pos[j].y;
+				if tabDetec[x,y] then joueur2.boat[i].detecte:=True;
 				end;
 			end;
+	end;
+	
+//si le joueur 2 joue
+	if (saisie.statut=allowed) and not(game.joueur1Joue) then
+	begin
+		calculZone (game, saisie.boat); //mise à jour des zones
+		joueur2.boat[saisie.noBateau]:=saisie.boat;
+		
 
-	
-	
-		//et on exporte tout ça dans les joueurs correspondants
-		if game.joueur1Joue then 
-			begin;
-			joueur1:=quiJoue;
-			joueur2:=adversaire;
-			end
-		else
+		//les bateaux de l'adversaire deviennent-ils visibles ?
+		//conversion du tableau de position en grille
+		for x:=1 to TAILLE_X do //initialisation du tableau
+			for y:=1 to TAILLE_Y do tabDetec[x,y]:=False;
+
+		for i:=1 to joueur2.boat[saisie.noBateau].detection.nbCases do
 			begin
-			joueur1:=adversaire;
-			joueur2:=quiJoue;
+			x:=joueur2.boat[saisie.noBateau].detection.tabZone[i].x;
+			y:=joueur2.boat[saisie.noBateau].detection.tabZone[i].y;
+			tabDetec[x,y]:=True;
+			end;
+
+		for i:=1 to joueur1.nbBateaux do
+			begin
+			joueur1.boat[i].detecte:=False; //on recache tout
+			for j:=1 to joueur2.boat[i].taille do
+				begin
+				x:=joueur1.boat[i].pos[j].x;
+				y:=joueur1.boat[i].pos[j].y;
+				if tabDetec[x,y] then joueur1.boat[i].detecte:=True;
+				end;
 			end;
 	end;
+	
+//mise à jour de la grille
+	if saisie.statut=allowed then //si le bateau s'est déplacé
+	begin
+		//on enlève le bateau de l'ancienne position
+		for i:=1 to saisie.boat.taille do
+			game.grille[pos1[i].x,pos1[i].y]:=libre;
+		//et on le met sur la nouvelle
+		if game.joueur1Joue then
+			for i:=1 to saisie.boat.taille do
+			game.grille[pos2[i].x,pos2[i].y]:=bateauJ1
+		else
+			for i:=1 to saisie.boat.taille do
+			game.grille[pos2[i].x,pos2[i].y]:=bateauJ2;
+	end;
+	
 end;
 
 end.

@@ -1,22 +1,31 @@
 program EpicBoatWar;
 
-uses commun, generation, calcul, affichage, crt;
+uses commun, generation, calcul, affichage, choix;
 
 var game:Jeu;
 	joueur1,joueur2 : Joueur;
-	choix:Action;
+	saisie:Action;
+	i:Integer;
 	
 begin
 		genGrille(game,joueur1,joueur2);
 		
-		choix.boat:=joueur1.boat[1]; //en attendant que la procédure de choix du bateau soit développée ...
-		
-		choix.boat.quota:=choix.boat.deplacement.distance;
-		calculZone(game,choix.boat);
+		//calcul des zones de chaque bateau
+		for i:= 1 to NBOAT do //!
+		begin
+			calculZone(game,joueur1.boat[i]);
+			calculZone(game,joueur2.boat[i]);
+		end;
 		
 	repeat //pour chaque déplacement
-		affichageJeu(game,choix.boat, joueur1, joueur2);
-		controle(choix);
-		gestionDeplacement (game, choix, joueur1, joueur2);
-	until (choix.statut=overquota);
+		saisie.boat:=joueur1.boat[1]; //en attendant que la procédure de saisie du bateau soit terminée
+		saisie.noBateau:=1;
+		affichageJeu(game,saisie.boat, joueur1, joueur2);
+		affBateaux(game,joueur1,joueur2); //!
+		affInfosJeu(game.joueur1joue,joueur1,joueur2); //!
+		repeat
+			controle(saisie)
+		 until saisie.nature<>nonValide;
+		gestionDeplacement (game, saisie, joueur1, joueur2);
+	until (saisie.statut=overquota);
 end.

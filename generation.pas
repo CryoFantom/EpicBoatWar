@@ -2,7 +2,7 @@ unit generation;
 
 interface
 
-uses commun, crt;
+uses commun, crt, calcul;
 
 procedure genGrille(var plat : Jeu; var joueur1, joueur2: Joueur);
 
@@ -199,7 +199,7 @@ begin
 		listeBateau[i].classe := destroyer;
 	
 	for  i:=1 to NBOAT do
-		begin
+		begin		//taille, pdv, degats, trchrg, distDepl, distDetec, distTir, nom, navire
 			if (listeBateau[i].classe = destroyer) then	
 				affectation(2, 4, 2, 1, 10, 5, 3, 'destroyer', listeBateau[i]);		//si le bateau est un destroyer on lui attribue ses caractéristiques
 			if (listeBateau[i].classe = croiseurlg) then
@@ -211,7 +211,7 @@ begin
 		end;
 end;
 
-procedure genBateau (var joueur1, joueur2 : Joueur);
+procedure genBateau (plat : Jeu; var joueur1, joueur2 : Joueur);
 
 var i, j, x, y : Integer;
 
@@ -257,8 +257,23 @@ begin
 					x:=x+1;
 				end;
 			y:=y+2;
-			joueur1.boat[i].sens:=O;
+			joueur2.boat[i].sens:=O;
 		end;
+		
+		
+	//initialisation du quota
+	for i:= 1 to NBOAT do
+	begin
+		joueur1.boat[i].quota:=joueur1.boat[i].deplacement.distance;
+		joueur2.boat[i].quota:=joueur2.boat[i].deplacement.distance;
+	end;
+	
+{	//calcul des zones de chaque bateau
+	for k:= 1 to NBOAT do
+	begin
+		calculZone(plat,joueur1.boat[k]);
+		calculZone(plat,joueur2.boat[k]);
+	end;}
 	
 end;	
 
@@ -267,7 +282,7 @@ procedure genGrille(var plat : Jeu; var joueur1, joueur2 : Joueur);
 begin
 	genObstacles(plat.grille, plat.montagne, plat.recifs);				//On génère les obstacles
 	plat.joueur1Joue:=True;												//Le joueur 1 ouvre le bal
-	genBateau(joueur1, joueur2);										//On génère les bateaux des deux joueurs
+	genBateau(plat, joueur1, joueur2);									//On génère les bateaux des deux joueurs
 end;
 
 begin
