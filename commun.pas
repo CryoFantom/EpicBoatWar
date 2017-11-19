@@ -63,6 +63,7 @@ Type Bateau=Record
 	quota : Single; //nombre de déplacements restants pour un tour
 	detection : Zone; //distance détection + zone où l'adversaire est détecté
 	detecte : Boolean; //bateau visible par l’adversaire, recalculé à chaque tour
+	coule : Boolean; //le bateau est coulé (PV à 0)
 end;
 
 Type listeBateaux = Array[1..NBOAT] of Bateau;

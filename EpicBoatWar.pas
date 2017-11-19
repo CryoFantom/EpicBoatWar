@@ -17,15 +17,25 @@ begin
 			calculZone(game,joueur2.boat[i]);
 		end;
 		
-	repeat //pour chaque déplacement
-		saisie.boat:=joueur1.boat[1]; //en attendant que la procédure de saisie du bateau soit terminée
-		saisie.noBateau:=1;
-		affichageJeu(game,saisie.boat, joueur1, joueur2);
-		affBateaux(game,joueur1,joueur2); //!
-		affInfosJeu(game.joueur1joue,joueur1,joueur2); //!
-		repeat
-			controle(saisie)
-		 until saisie.nature<>nonValide;
-		gestionDeplacement (game, saisie, joueur1, joueur2);
-	until (saisie.statut=overquota);
+	repeat //pour chaque tour
+			resetQuota (joueur1,joueur2);
+			affichageDebutTour (game, joueur1, joueur2);
+			affBateaux(game,joueur1,joueur2); //!
+			affInfosJeu(game.joueur1joue,joueur1,joueur2); //!
+			choixBateau (game.joueur1Joue,joueur1,joueur2,saisie);
+			
+		repeat //pour chaque déplacement
+			affichageJeu(game,saisie.boat, joueur1, joueur2);
+			affBateaux(game,joueur1,joueur2); //!
+			affInfosJeu(game.joueur1joue,joueur1,joueur2); //!
+			repeat
+				controle(saisie)
+			 until saisie.nature<>nonValide;
+			gestionDeplacement (game, saisie, joueur1, joueur2);
+		until ((saisie.statut=overquota) or saisie.boat.coule);
+		
+		//changement de joueur
+		if game.joueur1Joue then game.joueur1Joue:=False else game.joueur1Joue:=True;
+		
+	until (joueur1.nbBateaux=0) or (joueur2.nbBateaux=0);
 end.

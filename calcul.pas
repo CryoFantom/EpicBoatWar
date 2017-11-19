@@ -300,11 +300,41 @@ begin
 				N,S,E,O : saisie.boat.quota:=saisie.boat.quota-2;
 				NO,NE,SE,SO : saisie.boat.quota:=saisie.boat.quota-2*sqrt(2); //déplacement en diagonale plus rapide
 			end;
-			
-	
 end;
-	
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+procedure gestionCollision (joueur1joue : Boolean; var saisie:Action; var joueur1, joueur2 : Joueur);
+
+var i,b,t : Word;
+
+begin
+	for i:=1 to saisie.boat.taille do
+	begin
+	//bateaux du joueur 1
+		for b:=1 to joueur1.nbBateaux do
+			//on ne vérifie que si le bateau est différent du bateau joué
+			if not(joueur1Joue and (saisie.noBateau=b)) then //si le bateau joué est le b-ième bateau du j1
+			for t:=1 to joueur1.boat[b].taille do
+				if (joueur1.boat[b].pos[t].x=saisie.boat.pos[i].x) and (joueur1.boat[b].pos[t].y=saisie.boat.pos[i].y) then
+					begin //si il y a collision, on enlève 2 PV à chaque bateau
+						joueur1.boat[b].ptDeVie:=joueur1.boat[b].ptDeVie-2;
+						if joueur1.boat[b].ptDeVie<=0 then joueur1.boat[b].coule:=True;
+						saisie.boat.ptDeVie:=saisie.boat.ptDeVie-2;	
+					end;
+	//bateaux du joueur 2
+		for b:=1 to joueur2.nbBateaux do
+			//on ne vérifie que si le bateau est différent du bateau joué
+			if (joueur1Joue and not(saisie.noBateau=b)) then //si le bateau joué est le b-ième bateau du j2
+			for t:=1 to joueur2.boat[b].taille do
+				if (joueur2.boat[b].pos[t].x=saisie.boat.pos[i].x) and (joueur2.boat[b].pos[t].y=saisie.boat.pos[i].y) then
+					begin //si il y a collision, on enlève 2 PV à chaque bateau
+						joueur2.boat[b].ptDeVie:=joueur2.boat[b].ptDeVie-2;
+						if joueur2.boat[b].ptDeVie<=0 then joueur2.boat[b].coule:=True;
+						saisie.boat.ptDeVie:=saisie.boat.ptDeVie-2;		
+					end;
+		end;
+	if saisie.boat.ptDeVie<=0 then saisie.boat.coule:=True;
+end;
 
 procedure gestionDeplacement (var game : Jeu; var saisie:Action; var joueur1, joueur2 : Joueur);
 
@@ -330,15 +360,13 @@ begin
 		or (saisie.boat.pos[i].y<=0) or (saisie.boat.pos[i].y>TAILLE_Y)
 		then saisie.statut:=outzone;
 		
-//le bateau rencontre-t-il une montagne,un récif ou un autre bateau
+//le bateau rencontre-t-il une montagne ou un récif
 	if saisie.statut=allowed then
 	begin
 		for i:=1 to saisie.boat.taille do
 		begin
 			if game.grille[saisie.boat.pos[i].x,saisie.boat.pos[i].y]=montagne then saisie.statut:=mountain;
 			if game.grille[saisie.boat.pos[i].x,saisie.boat.pos[i].y]=recifs then saisie.statut:=reef;
-			//if game.grille[saisie.boat.pos[i].x,saisie.boat.pos[i].y]=bateauJ1 then saisie.statut:=boatJ1;
-			//if game.grille[saisie.boat.pos[i].x,saisie.boat.pos[i].y]=bateauJ2 then saisie.statut:=boatJ2;
 		end;
 	end;
 
@@ -346,15 +374,18 @@ begin
 	if (saisie.statut=allowed) and (saisie.boat.quota<0) then 
 		saisie.statut:=overquota;
 		
-//si tout est bon, on enregistre le bateau et on met à jour la visibilité de l'adversaire
-	pos2:=saisie.boat.pos;
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////		
+//si tout est bon, on enregistre le bateau, on regarde s'il y a collision et on met à jour la visibilité de l'adversaire//
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	pos2:=saisie.boat.pos; //stockage de la nouvelle position du bateau
+	if saisie.statut=allowed then gestionCollision(game.joueur1Joue,saisie,joueur1,joueur2); //détection et gestion des éventuelles collisions
+	
 //si le joueur 1 joue
 	if (saisie.statut=allowed) and game.joueur1Joue then
 	begin
 		calculZone (game, saisie.boat); //mise à jour des zones
 		joueur1.boat[saisie.noBateau]:=saisie.boat;
-		
-
 		//les bateaux de l'adversaire deviennent-ils visibles ?
 		//conversion du tableau de position en grille
 		for x:=1 to TAILLE_X do //initialisation du tableau

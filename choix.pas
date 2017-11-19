@@ -2,49 +2,94 @@ unit choix;
 
 interface
 
-uses commun,Crt, Keyboard;
+uses commun, Crt, Keyboard, affichage;
 procedure controle (var choix : Action);
-procedure choixbat(player: Joueur; var boat: Bateau);
+procedure choixbateau (joueur1joue : Boolean; joueur1, joueur2: Joueur; var choixBat : Action);
 
 implementation
 
-{procedure affunbateau(boat: Bateau);
-var i: Integer;
+procedure affunBat (boat : Bateau);
+var i : Integer;
 
 begin
-	i:=1;
-	GotoXY(boat.pos[i].x,boat.pos[i].y)
-	write('
-}
+	GotoXY(boat.pos[1].x,boat.pos[1].y);
+	textcolor(green);
+	textbackground(white);
+	write('P');
+	for i:=2 to boat.taille do
+	begin;
+		GotoXY(boat.pos[i].x,boat.pos[i].y);
+		write('B');
+	end;
+	textcolor(white);
+	textbackground(Black);
+end;
 
-procedure choixbat(player: Joueur; var boat: Bateau);
 
-var K : TKeyEvent;
-	saisie : String;
+procedure choixBateau (joueur1joue : Boolean; joueur1, joueur2: Joueur; var choixBat : Action);
+var saisie : String;
+	k : TKeyEvent;
 	i : Integer;
-begin
-	boat:=player.boat[1];
-	i:=1;
-	repeat 
-		InitKeyboard;
-		K:=GetKeyEvent;
-		K:=TranslateKeyEvent(K);
-		saisie:=KeyEventToString(K);
-		doneKeyBoard;
-		if (saisie='Right') then
-			begin
-				i:=i+1;
-				if i > player.nbBateaux then
-					i:=1;
-			end
-		else if (saisie='Left') then
-			begin
-				i:= i-1;
-				if i=0 then
-					i:= player.nbBateaux;
-			end;
-		boat:= player.boat[i];
-	until saisie='B';
+
+Begin
+	InitKeyboard;
+	if joueur1joue then
+		begin
+			saisie := 'Right';
+			i:=1;
+			while saisie <> 'Enter' do
+				begin
+					K:=GetKeyEvent;
+					K:=TranslateKeyEvent(K);
+					saisie:=KeyEventToString(K);
+					if GetKeyEventCode(K)=7181 then saisie:='Enter';
+					case saisie of 
+						'Right' : begin
+									if i = joueur1.nbBateaux then
+										i:=1
+									else
+										i:=i+1;
+									end;
+						'Left' : begin
+									if i=1 then
+										i:=joueur1.nbBateaux
+									else
+										i:=i-1
+								end;
+					end;
+					affunBat(joueur1.boat[i]);
+				end;
+			choixBat.boat:=joueur1.boat[i];
+			choixBat.noBateau:=i;
+		end
+	else
+		begin
+			i:=1;
+			while saisie <> 'Enter' do
+				Begin
+					K:=GetKeyEvent;
+					K:=TranslateKeyEvent(K);
+					saisie:=KeyEventToString(K);
+					if GetKeyEventCode(K)=7181 then saisie:='Enter';
+					Case saisie of 
+					'Right' : begin
+									if i = joueur2.nbBateaux then
+										i:=1
+									Else
+										i:=i+1;
+								  end;
+						'Left' :begin
+									if i=1 then
+										i:=joueur2.nbBateaux
+									Else
+										i:=i-1
+								end;
+					end;
+					affunBat(joueur2.boat[i]);
+				end;
+			choixBat.boat:=joueur2.boat[i];
+			choixBat.noBateau:=i;
+		end;
 end;
 
 procedure controle (var choix : Action);

@@ -8,6 +8,7 @@ procedure affichageJeu (game:Jeu; boat:Bateau; joueur1, joueur2: Joueur);
 procedure controle (var choix : Action);
 procedure affBateaux  (game: Jeu; joueur1, joueur2: Joueur);
 procedure affInfosJeu (joueur1joue: Boolean; joueur1, joueur2: Joueur);
+procedure affichageDebutTour (game:Jeu; joueur1, joueur2: Joueur);
 
 implementation
 
@@ -206,6 +207,15 @@ begin
 		
 		GotoXY(TAILLE_X-70,TAILLE_Y+1);
 		write('Quota de déplacement : ',boat.quota:3:2);
+end;
+
+procedure affichageDebutTour (game:Jeu; joueur1, joueur2: Joueur);
+
+begin
+		clrscr;
+		affObstacle (game.montagne, game.recifs);
+		//affBateaux(game,joueur1,joueur2);
+		//affInfosJeu(game.joueur1joue,joueur1,joueur2);
 end;
 
 begin
