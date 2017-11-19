@@ -5,10 +5,10 @@ interface
 uses commun,Crt,keyboard;
 
 procedure affichageJeu (game:Jeu; boat:Bateau; joueur1, joueur2: Joueur);
-procedure controle (var choix : Action);
 procedure affBateaux  (game: Jeu; joueur1, joueur2: Joueur);
 procedure affInfosJeu (joueur1joue: Boolean; joueur1, joueur2: Joueur);
 procedure affichageDebutTour (game:Jeu; joueur1, joueur2: Joueur);
+procedure changementJoueur(var joueur1Joue : Boolean);
 
 implementation
 
@@ -176,26 +176,6 @@ begin
 	GotoXY(1,TAILLE_Y+1);
 end;
 
-procedure controle (var choix : Action);
-
-var saisie:String;
-	K : TKeyEvent;
-begin
-	GotoXY(1,TAILLE_Y+1);
-	write('Utilisez les flèches pour déplacer le bateau');
-	InitKeyboard;
-	K:=GetKeyEvent;
-	K:=TranslateKeyEvent(K);
-	saisie:=KeyEventToString(K);
-	DoneKeyboard;
-	if (saisie='Right') or (saisie='Up') then choix.coord.x:=1;
-	if (saisie='Left') or (saisie='Down') then choix.coord.x:=-1;
-	
-	if (saisie='Right') or (saisie='Left') then choix.nature:=rotation;
-	if (saisie='Up') or (saisie='Down') then choix.nature:=deplacement
-	else choix.nature:=nonValide;
-end;
-
 procedure affichageJeu (game:Jeu; boat:Bateau; joueur1, joueur2: Joueur);
 
 begin
@@ -205,8 +185,10 @@ begin
 		//affBateaux(game,joueur1,joueur2);
 		//affInfosJeu(game.joueur1joue,joueur1,joueur2);
 		
-		GotoXY(TAILLE_X-70,TAILLE_Y+1);
-		write('Quota de déplacement : ',boat.quota:3:2);
+		GotoXY(TAILLE_X+1,30);
+		write('Quota de déplacement : ');
+		GotoXY(TAILLE_X+1,31);
+		write(boat.quota:3:2);
 end;
 
 procedure affichageDebutTour (game:Jeu; joueur1, joueur2: Joueur);
@@ -216,6 +198,26 @@ begin
 		affObstacle (game.montagne, game.recifs);
 		//affBateaux(game,joueur1,joueur2);
 		//affInfosJeu(game.joueur1joue,joueur1,joueur2);
+end;
+
+procedure changementJoueur(var joueur1Joue : Boolean);
+
+var K : TKeyEvent;
+
+begin
+	if joueur1Joue then joueur1Joue:=False else joueur1Joue:=True; 
+	
+	clrscr;
+	GotoXY(trunc(TAILLE_X/2-5),trunc(TAILLE_Y/2));
+	if joueur1Joue then write('Joueur 1') else write('Joueur 2');
+	GotoXY(trunc(TAILLE_X/2-15),trunc(TAILLE_Y/2+1));
+	write('Appuyez sur Entrer pour continuer');
+	InitKeyboard;
+	repeat
+		K:=GetKeyEvent;
+		K:=TranslateKeyEvent(K)
+	until GetKeyEventCode(K)=7181;
+	DoneKeyboard;
 end;
 
 begin

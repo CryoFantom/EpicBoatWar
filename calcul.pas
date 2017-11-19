@@ -339,12 +339,16 @@ end;
 procedure gestionDeplacement (var game : Jeu; var saisie:Action; var joueur1, joueur2 : Joueur);
 
 var i,j,x,y:Word;
+var quota : Single;
 var tabDetec : Array[1..TAILLE_X,1..TAILLE_Y] of Boolean;
 var pos1,pos2 : Array[1..TMAX] of Position;
 
 begin
 //stockage de l'ancienne position du bateau
 	pos1:=saisie.boat.pos;
+	
+//stockage du quota de déplacement
+	quota:=saisie.boat.quota;
 
 //si rotation
 	if (saisie.nature=rotation) then calculRotation (saisie,game);
@@ -369,6 +373,9 @@ begin
 			if game.grille[saisie.boat.pos[i].x,saisie.boat.pos[i].y]=recifs then saisie.statut:=reef;
 		end;
 	end;
+
+//si le déplacement est bloqué par un obstacle ou la limite de la zone de jeu, le quota est remis à la valeur précédente
+	if saisie.statut<>allowed then saisie.boat.quota:=quota;
 
 //le quota est-il suffisant
 	if (saisie.statut=allowed) and (saisie.boat.quota<0) then 

@@ -34,8 +34,7 @@ begin
 			gestionDeplacement (game, saisie, joueur1, joueur2);
 		until ((saisie.statut=overquota) or saisie.boat.coule);
 		
-		//changement de joueur
-		if game.joueur1Joue then game.joueur1Joue:=False else game.joueur1Joue:=True;
+		changementJoueur(game.joueur1Joue); 
 		
 	until (joueur1.nbBateaux=0) or (joueur2.nbBateaux=0);
 end.

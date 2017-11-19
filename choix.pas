@@ -32,6 +32,14 @@ var saisie : String;
 	i : Integer;
 
 Begin
+	GotoXY(TAILLE_X+1,20);
+	write('Utilisez les flèches');
+	GotoXY(TAILLE_X+7,21);
+	write('<- ou -> ');
+	GotoXY(TAILLE_X+1,22);
+	write('pour choisir le bateau');
+	GotoXY(TAILLE_X+1,24);
+	write('Puis appuyez sur Entrer');
 	InitKeyboard;
 	if joueur1joue then
 		begin
@@ -97,8 +105,17 @@ procedure controle (var choix : Action);
 var saisie:String;
 	K : TKeyEvent;
 begin
-	GotoXY(1,TAILLE_Y+1);
-	write('Utilisez les flèches pour déplacer le bateau');
+	GotoXY(TAILLE_X+1,20);
+	write('Rappel des commandes :');
+	GotoXY(TAILLE_X+1,22);
+	write('↑ avancer');
+	GotoXY(TAILLE_X+1,23);
+	write('↓ reculer');
+	GotoXY(TAILLE_X+1,24);
+	write('-> pivoter vers la droite');
+	GotoXY(TAILLE_X+1,25);
+	write('<- pivoter vers la gauche');
+	
 	InitKeyboard;
 	K:=GetKeyEvent;
 	K:=TranslateKeyEvent(K);
