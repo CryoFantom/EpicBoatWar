@@ -40,6 +40,10 @@ Begin
 	write('pour choisir le bateau');
 	GotoXY(TAILLE_X+1,24);
 	write('Puis appuyez sur Entrer');
+	GotoXY(TAILLE_X+1,28);
+	write('Appuyez sur T pour');
+	GotoXY(TAILLE_X+1,29);
+	write('terminer votre tour');
 	InitKeyboard;
 	if joueur1joue then
 		begin
@@ -52,17 +56,11 @@ Begin
 					saisie:=KeyEventToString(K);
 					if GetKeyEventCode(K)=7181 then saisie:='Enter';
 					case saisie of 
-						'Right' : begin
-									if i = joueur1.nbBateaux then
-										i:=1
-									else
-										i:=i+1;
-									end;
-						'Left' : begin
-									if i=1 then
-										i:=joueur1.nbBateaux
-									else
-										i:=i-1
+						'Right' : if i = joueur1.nbBateaux then i:=1 else i:=i+1;
+						'Left' : if i=1 then i:=joueur1.nbBateaux else i:=i-1;
+						't','T' : begin
+								choixBat.nature:=finTour;
+								saisie:='Enter';
 								end;
 					end;
 					affunBat(joueur1.boat[i]);
@@ -80,17 +78,11 @@ Begin
 					saisie:=KeyEventToString(K);
 					if GetKeyEventCode(K)=7181 then saisie:='Enter';
 					Case saisie of 
-					'Right' : begin
-									if i = joueur2.nbBateaux then
-										i:=1
-									Else
-										i:=i+1;
-								  end;
-						'Left' :begin
-									if i=1 then
-										i:=joueur2.nbBateaux
-									Else
-										i:=i-1
+					'Right' : if i = joueur1.nbBateaux then i:=1 else i:=i+1;
+					'Left' : if i=1 then i:=joueur1.nbBateaux else i:=i-1;
+					't','T' : begin
+								choixBat.nature:=finTour;
+								saisie:='Enter';
 								end;
 					end;
 					affunBat(joueur2.boat[i]);

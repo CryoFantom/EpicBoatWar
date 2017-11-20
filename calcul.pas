@@ -28,8 +28,9 @@ Type ZoneG=Record
 
 //////////////////
 
-procedure calculZone (game : Jeu; var boat : Bateau); //maintenu ici pour le fonctionnement des tests et démos
+procedure calculZone (game : Jeu; var boat : Bateau);
 procedure gestionDeplacement (var game : Jeu; var saisie:Action; var joueur1, joueur2 : Joueur);
+procedure resetQuota (var joueur1,joueur2 : Joueur);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -463,6 +464,18 @@ begin
 			game.grille[pos2[i].x,pos2[i].y]:=bateauJ2;
 	end;
 	
+end;
+
+procedure resetQuota (var joueur1,joueur2 : Joueur);
+
+var i : Word; 
+
+begin
+	for i:= 1 to NBOAT do
+	begin
+		joueur1.boat[i].quota:=joueur1.boat[i].deplacement.distance;
+		joueur2.boat[i].quota:=joueur2.boat[i].deplacement.distance;
+	end;
 end;
 
 end.

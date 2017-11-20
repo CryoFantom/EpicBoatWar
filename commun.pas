@@ -4,7 +4,7 @@ interface
 
 const 	NBOAT=6; //nombre maximum de bateaux
 		TMAX=5; //taille maximale d’un bateau
-		TAILLE_X=145; //largeur en caractères de la surface de jeu (max 169)
+		TAILLE_X=143; //largeur en caractères de la surface de jeu (max 169)
 		TAILLE_Y=45; //hauteur en caractères de la surface de jeu (max 51)
 		NMAXPOS=7500; //nombre maximum de valeurs dans un tableau de position (max 7500)
 		NBMONTS=6; //nombre maximum de montagnes
@@ -13,7 +13,7 @@ const 	NBOAT=6; //nombre maximum de bateaux
 		
 Type Nature=(montagne, centreMontagne, recifs, centreRecifs, bateauJ1, bateauJ2, libre, bZone);
 
-Type TypeAction=(deplacement, rotation, tir, detection, nonValide);
+Type TypeAction=(deplacement, rotation, tir, detection, finDeplacement, finTour, nonValide);
 
 Type TypeBateau=(destroyer, croiseurlg, croiseurlrd, cuirasse);
 		
@@ -76,7 +76,7 @@ Type Joueur=Record
 end;
 
 Type Action=Record
-	nature : TypeAction; //deplacement, rotation, tir, detection, nonValide
+	nature : TypeAction; //deplacement, rotation, tir, detection, nonValide, finTour
 	boat : Bateau;
 	coord : Position;
 	noBateau : Word ; //numéro du bateau concerné par l'action

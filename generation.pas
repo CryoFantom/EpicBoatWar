@@ -5,7 +5,6 @@ interface
 uses commun, crt, calcul;
 
 procedure genGrille(var plat : Jeu; var joueur1, joueur2: Joueur);
-procedure resetQuota (var joueur1,joueur2 : Joueur);
 
 implementation
 
@@ -211,18 +210,6 @@ begin
 			if (listebateau[i].classe = cuirasse) then
 				affectation(5, 9, 6, 4, 5, 15, 10, 'cuirasse', listeBateau[i]);		//idem pour le cuirassé
 		end;
-end;
-
-procedure resetQuota (var joueur1,joueur2 : Joueur);
-
-var i : Word; 
-
-begin
-	for i:= 1 to NBOAT do
-	begin
-		joueur1.boat[i].quota:=joueur1.boat[i].deplacement.distance;
-		joueur2.boat[i].quota:=joueur2.boat[i].deplacement.distance;
-	end;
 end;
 
 procedure genBateau (plat : Jeu; var joueur1, joueur2 : Joueur);
