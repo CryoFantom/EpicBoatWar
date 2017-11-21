@@ -51,6 +51,7 @@ Begin
 			i:=1;
 			while saisie <> 'Enter' do
 				begin
+					affBateaux (joueur1joue, joueur1, joueur2);
 					K:=GetKeyEvent;
 					K:=TranslateKeyEvent(K);
 					saisie:=KeyEventToString(K);
@@ -73,6 +74,7 @@ Begin
 			i:=1;
 			while saisie <> 'Enter' do
 				Begin
+					affBateaux (joueur1joue, joueur1, joueur2);
 					K:=GetKeyEvent;
 					K:=TranslateKeyEvent(K);
 					saisie:=KeyEventToString(K);
