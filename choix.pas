@@ -5,7 +5,7 @@ interface
 uses commun, Crt, Keyboard, affichage;
 procedure controle (var choix : Action);
 procedure choixbateau (joueur1joue : Boolean; joueur1, joueur2: Joueur; var choixBat : Action);
-
+procedure choixtir (boat: Bateau; var tir: Action);
 implementation
 
 procedure affunBat (boat : Bateau);
@@ -35,7 +35,7 @@ Begin
 	GotoXY(TAILLE_X+1,20);
 	write('Utilisez les flèches');
 	GotoXY(TAILLE_X+7,21);
-	write('<- ou -> ');
+	write('← ou → ');
 	GotoXY(TAILLE_X+1,22);
 	write('pour choisir le bateau');
 	GotoXY(TAILLE_X+1,24);
@@ -92,6 +92,7 @@ Begin
 			choixBat.boat:=joueur2.boat[i];
 			choixBat.noBateau:=i;
 		end;
+	DoneKeyboard;
 end;
 
 procedure controle (var choix : Action);
@@ -106,10 +107,9 @@ begin
 	GotoXY(TAILLE_X+1,23);
 	write('↓ reculer');
 	GotoXY(TAILLE_X+1,24);
-	write('-> pivoter vers la droite');
+	write('→ pivoter vers la droite');
 	GotoXY(TAILLE_X+1,25);
-	write('<- pivoter vers la gauche');
-	
+	write('← pivoter vers la gauche');
 	InitKeyboard;
 	K:=GetKeyEvent;
 	K:=TranslateKeyEvent(K);
@@ -117,7 +117,6 @@ begin
 	DoneKeyboard;
 	if (saisie='Right') or (saisie='Up') then choix.coord.x:=1;
 	if (saisie='Left') or (saisie='Down') then choix.coord.x:=-1;
-	
 	if (saisie='Right') or (saisie='Left') then choix.nature:=rotation;
 	if (saisie='Up') or (saisie='Down') then choix.nature:=deplacement;
 	if not ((saisie='Up') or (saisie='Down') or (saisie='Right') or (saisie='Left')) then 
@@ -127,4 +126,43 @@ begin
 		end;
 end;
 
+procedure choixtir (boat: Bateau; var tir: Action);
+var saisie: String;
+	K: TKeyEvent;
+
+
+Begin
+	tir.boat:=boat;
+	GotoXY(TAILLE_X+1,20);
+	write('Utilisez les flèches');
+	GotoXY(TAILLE_X+7,21);
+	write('← ou → ou ↑ ou ↓');
+	GotoXY(TAILLE_X+1,22);
+	write('pour choisir votre cible');
+	GotoXY(TAILLE_X+1,24);
+	write('Puis appuyez sur Entrer');
+	GotoXY(TAILLE_X+1,28);
+	write('Appuyez sur T pour');
+	GotoXY(TAILLE_X+1,29);
+	write('ne pas tirer');
+	InitKeyboard;
+	saisie := 'Enter';
+	tir.coord.x:= boat.pos[1].x;
+	tir.coord.y:= boat.pos[1].y;
+	while saisie <> 'Enter' do
+		Begin
+			K:=GetKeyEvent;
+			K:=TranslateKeyEvent(K);
+			saisie:=KeyEventToString(K);
+			if GetKeyEventCode(K)=7181 then saisie:='Enter';
+			case saisie of
+				'Right': tir.coord.x:= tir.coord.x+1;
+				'Left': tir.coord.x:= tir.coord.x-1;
+				'Up': tir.coord.y:= tir.coord.y-1;
+				'Down': tir.coord.y:= tir.coord.y-1;
+				't' , 'T':tir.nature := fintir;
+			end;
+		end;
+	DoneKeyboard;
+end;
 end.
