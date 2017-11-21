@@ -149,6 +149,7 @@ Begin
 	saisie := 'Enter';
 	tir.coord.x:= boat.pos[1].x;
 	tir.coord.y:= boat.pos[1].y;
+	GotoXY(boat.pos[1].x,boat.pos[1].y);
 	while saisie <> 'Enter' do
 		Begin
 			K:=GetKeyEvent;
