@@ -28,9 +28,9 @@ Type ZoneG=Record
 
 //////////////////
 
-procedure calculZone (game : Jeu; var boat : Bateau);
-procedure gestionDeplacement (var game : Jeu; var saisie:Action; var joueur1, joueur2 : Joueur);
-procedure resetQuota (var joueur1,joueur2 : Joueur);
+procedure calculZone (game : PJeu; var boat : Bateau);
+procedure gestionDeplacement (var game : PJeu; var saisie:Action; var joueur1, joueur2 : PJoueur);
+procedure resetQuota (var joueur1,joueur2 : PJoueur);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -118,7 +118,7 @@ end;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-procedure calculZone (game : Jeu; var boat : Bateau);
+procedure calculZone (game : PJeu; var boat : Bateau);
 
 var proue, poupe : Position; //position de l'avant et de l'arrière du bateau
 	zone : ZoneG;
@@ -168,9 +168,9 @@ begin
 	
 	zone.nbCases:=i;
 		
-	obstacleDansZone (game.recifs,zone); 	//quelles cases sont rendues inaccessibles par un récif
+	obstacleDansZone (game^.recifs,zone); 	//quelles cases sont rendues inaccessibles par un récif
 			
-	obstacleDansZone (game.montagne,zone); 	//quelles cases sont cachées par une montagne
+	obstacleDansZone (game^.montagne,zone); 	//quelles cases sont cachées par une montagne
 				
 	//génération de la zone de tir
 	nb:=0;
@@ -229,7 +229,7 @@ end;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-procedure calculRotation (var saisie:Action; var game : Jeu);
+procedure calculRotation (var saisie:Action);
 
 var ncase :Integer; //centre de la rotation
 	i:Integer;
@@ -270,7 +270,7 @@ begin
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-procedure calculDeplacement (var saisie:Action; var game : Jeu);
+procedure calculDeplacement (var saisie:Action);
 
 var i:Integer;
 
@@ -304,7 +304,7 @@ begin
 end;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-procedure gestionCollision (joueur1joue : Boolean; var saisie:Action; var joueur1, joueur2 : Joueur);
+procedure gestionCollision (joueur1joue : Boolean; var saisie:Action; var joueur1, joueur2 : PJoueur);
 
 var i,b,t : Word;
 
@@ -312,32 +312,32 @@ begin
 	for i:=1 to saisie.boat.taille do
 	begin
 	//bateaux du joueur 1
-		for b:=1 to joueur1.nbBateaux do
+		for b:=1 to joueur1^.nbBateaux do
 			//on ne vérifie que si le bateau est différent du bateau joué
 			if not(joueur1Joue and (saisie.noBateau=b)) then //si le bateau joué est le b-ième bateau du j1
-			for t:=1 to joueur1.boat[b].taille do
-				if (joueur1.boat[b].pos[t].x=saisie.boat.pos[i].x) and (joueur1.boat[b].pos[t].y=saisie.boat.pos[i].y) then
+			for t:=1 to joueur1^.boat[b].taille do
+				if (joueur1^.boat[b].pos[t].x=saisie.boat.pos[i].x) and (joueur1^.boat[b].pos[t].y=saisie.boat.pos[i].y) then
 					begin //si il y a collision, on enlève 2 PV à chaque bateau
-						joueur1.boat[b].ptDeVie:=joueur1.boat[b].ptDeVie-2;
-						if joueur1.boat[b].ptDeVie<=0 then joueur1.boat[b].coule:=True;
+						joueur1^.boat[b].ptDeVie:=joueur1^.boat[b].ptDeVie-2;
+						if joueur1^.boat[b].ptDeVie<=0 then joueur1^.boat[b].coule:=True;
 						saisie.boat.ptDeVie:=saisie.boat.ptDeVie-2;	
 					end;
 	//bateaux du joueur 2
-		for b:=1 to joueur2.nbBateaux do
+		for b:=1 to joueur2^.nbBateaux do
 			//on ne vérifie que si le bateau est différent du bateau joué
 			if (joueur1Joue and not(saisie.noBateau=b)) then //si le bateau joué est le b-ième bateau du j2
-			for t:=1 to joueur2.boat[b].taille do
-				if (joueur2.boat[b].pos[t].x=saisie.boat.pos[i].x) and (joueur2.boat[b].pos[t].y=saisie.boat.pos[i].y) then
+			for t:=1 to joueur2^.boat[b].taille do
+				if (joueur2^.boat[b].pos[t].x=saisie.boat.pos[i].x) and (joueur2^.boat[b].pos[t].y=saisie.boat.pos[i].y) then
 					begin //si il y a collision, on enlève 2 PV à chaque bateau
-						joueur2.boat[b].ptDeVie:=joueur2.boat[b].ptDeVie-2;
-						if joueur2.boat[b].ptDeVie<=0 then joueur2.boat[b].coule:=True;
+						joueur2^.boat[b].ptDeVie:=joueur2^.boat[b].ptDeVie-2;
+						if joueur2^.boat[b].ptDeVie<=0 then joueur2^.boat[b].coule:=True;
 						saisie.boat.ptDeVie:=saisie.boat.ptDeVie-2;		
 					end;
 		end;
 	if saisie.boat.ptDeVie<=0 then saisie.boat.coule:=True;
 end;
 
-procedure gestionDeplacement (var game : Jeu; var saisie:Action; var joueur1, joueur2 : Joueur);
+procedure gestionDeplacement (var game : PJeu; var saisie:Action; var joueur1, joueur2 : PJoueur);
 
 var i,j,x,y:Word;
 var quota : Single;
@@ -352,10 +352,10 @@ begin
 	quota:=saisie.boat.quota;
 
 //si rotation
-	if (saisie.nature=rotation) then calculRotation (saisie,game);
+	if (saisie.nature=rotation) then calculRotation (saisie);
 		
 //si déplacement
-	if (saisie.nature=deplacement) then calculDeplacement (saisie,game);
+	if (saisie.nature=deplacement) then calculDeplacement (saisie);
 	
 	saisie.statut:=allowed; //le déplacement est autorisé par défaut, et on va vérifier que rien de l'empêche
 	
@@ -370,8 +370,8 @@ begin
 	begin
 		for i:=1 to saisie.boat.taille do
 		begin
-			if game.grille[saisie.boat.pos[i].x,saisie.boat.pos[i].y]=montagne then saisie.statut:=mountain;
-			if game.grille[saisie.boat.pos[i].x,saisie.boat.pos[i].y]=recifs then saisie.statut:=reef;
+			if game^.grille[saisie.boat.pos[i].x,saisie.boat.pos[i].y]=montagne then saisie.statut:=mountain;
+			if game^.grille[saisie.boat.pos[i].x,saisie.boat.pos[i].y]=recifs then saisie.statut:=reef;
 		end;
 	end;
 
@@ -387,42 +387,42 @@ begin
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	pos2:=saisie.boat.pos; //stockage de la nouvelle position du bateau
-	if saisie.statut=allowed then gestionCollision(game.joueur1Joue,saisie,joueur1,joueur2); //détection et gestion des éventuelles collisions
+	if saisie.statut=allowed then gestionCollision(game^.joueur1Joue,saisie,joueur1,joueur2); //détection et gestion des éventuelles collisions
 	
 //si le joueur 1 joue
-	if (saisie.statut=allowed) and game.joueur1Joue then
+	if (saisie.statut=allowed) and game^.joueur1Joue then
 	begin
 		calculZone (game, saisie.boat); //mise à jour des zones
-		joueur1.boat[saisie.noBateau]:=saisie.boat;
+		joueur1^.boat[saisie.noBateau]:=saisie.boat;
 		//les bateaux de l'adversaire deviennent-ils visibles ?
 		//conversion du tableau de position en grille
 		for x:=1 to TAILLE_X do //initialisation du tableau
 			for y:=1 to TAILLE_Y do tabDetec[x,y]:=False;
 
-		for i:=1 to joueur1.boat[saisie.noBateau].detection.nbCases do
+		for i:=1 to joueur1^.boat[saisie.noBateau].detection.nbCases do
 			begin
-			x:=joueur1.boat[saisie.noBateau].detection.tabZone[i].x;
-			y:=joueur1.boat[saisie.noBateau].detection.tabZone[i].y;
+			x:=joueur1^.boat[saisie.noBateau].detection.tabZone[i].x;
+			y:=joueur1^.boat[saisie.noBateau].detection.tabZone[i].y;
 			tabDetec[x,y]:=True;
 			end;
 
-		for i:=1 to joueur2.nbBateaux do
+		for i:=1 to joueur2^.nbBateaux do
 			begin
-			joueur2.boat[i].detecte:=False; //on recache tout
-			for j:=1 to joueur2.boat[i].taille do
+			joueur2^.boat[i].detecte:=False; //on recache tout
+			for j:=1 to joueur2^.boat[i].taille do
 				begin
-				x:=joueur2.boat[i].pos[j].x;
-				y:=joueur2.boat[i].pos[j].y;
-				if tabDetec[x,y] then joueur2.boat[i].detecte:=True;
+				x:=joueur2^.boat[i].pos[j].x;
+				y:=joueur2^.boat[i].pos[j].y;
+				if tabDetec[x,y] then joueur2^.boat[i].detecte:=True;
 				end;
 			end;
 	end;
 	
 //si le joueur 2 joue
-	if (saisie.statut=allowed) and not(game.joueur1Joue) then
+	if (saisie.statut=allowed) and not(game^.joueur1Joue) then
 	begin
 		calculZone (game, saisie.boat); //mise à jour des zones
-		joueur2.boat[saisie.noBateau]:=saisie.boat;
+		joueur2^.boat[saisie.noBateau]:=saisie.boat;
 		
 
 		//les bateaux de l'adversaire deviennent-ils visibles ?
@@ -430,21 +430,21 @@ begin
 		for x:=1 to TAILLE_X do //initialisation du tableau
 			for y:=1 to TAILLE_Y do tabDetec[x,y]:=False;
 
-		for i:=1 to joueur2.boat[saisie.noBateau].detection.nbCases do
+		for i:=1 to joueur2^.boat[saisie.noBateau].detection.nbCases do
 			begin
-			x:=joueur2.boat[saisie.noBateau].detection.tabZone[i].x;
-			y:=joueur2.boat[saisie.noBateau].detection.tabZone[i].y;
+			x:=joueur2^.boat[saisie.noBateau].detection.tabZone[i].x;
+			y:=joueur2^.boat[saisie.noBateau].detection.tabZone[i].y;
 			tabDetec[x,y]:=True;
 			end;
 
-		for i:=1 to joueur1.nbBateaux do
+		for i:=1 to joueur1^.nbBateaux do
 			begin
-			joueur1.boat[i].detecte:=False; //on recache tout
-			for j:=1 to joueur2.boat[i].taille do
+			joueur1^.boat[i].detecte:=False; //on recache tout
+			for j:=1 to joueur2^.boat[i].taille do
 				begin
-				x:=joueur1.boat[i].pos[j].x;
-				y:=joueur1.boat[i].pos[j].y;
-				if tabDetec[x,y] then joueur1.boat[i].detecte:=True;
+				x:=joueur1^.boat[i].pos[j].x;
+				y:=joueur1^.boat[i].pos[j].y;
+				if tabDetec[x,y] then joueur1^.boat[i].detecte:=True;
 				end;
 			end;
 	end;
@@ -454,27 +454,27 @@ begin
 	begin
 		//on enlève le bateau de l'ancienne position
 		for i:=1 to saisie.boat.taille do
-			game.grille[pos1[i].x,pos1[i].y]:=libre;
+			game^.grille[pos1[i].x,pos1[i].y]:=libre;
 		//et on le met sur la nouvelle
-		if game.joueur1Joue then
+		if game^.joueur1Joue then
 			for i:=1 to saisie.boat.taille do
-			game.grille[pos2[i].x,pos2[i].y]:=bateauJ1
+			game^.grille[pos2[i].x,pos2[i].y]:=bateauJ1
 		else
 			for i:=1 to saisie.boat.taille do
-			game.grille[pos2[i].x,pos2[i].y]:=bateauJ2;
+			game^.grille[pos2[i].x,pos2[i].y]:=bateauJ2;
 	end;
 	
 end;
 
-procedure resetQuota (var joueur1,joueur2 : Joueur);
+procedure resetQuota (var joueur1,joueur2 : PJoueur);
 
 var i : Word; 
 
 begin
 	for i:= 1 to NBOAT do
 	begin
-		joueur1.boat[i].quota:=joueur1.boat[i].deplacement.distance;
-		joueur2.boat[i].quota:=joueur2.boat[i].deplacement.distance;
+		joueur1^.boat[i].quota:=joueur1^.boat[i].deplacement.distance;
+		joueur2^.boat[i].quota:=joueur2^.boat[i].deplacement.distance;
 	end;
 end;
 

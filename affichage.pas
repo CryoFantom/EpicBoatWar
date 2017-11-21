@@ -4,10 +4,10 @@ interface
 
 uses commun,Crt,keyboard;
 
-procedure affichageJeu (game:Jeu; boat:Bateau; joueur1, joueur2: Joueur);
-procedure affBateaux  (game: Jeu; joueur1, joueur2: Joueur);
-procedure affInfosJeu (joueur1joue: Boolean; joueur1, joueur2: Joueur);
-procedure affichageDebutTour (game:Jeu; joueur1, joueur2: Joueur);
+procedure affichageJeu (game:PJeu; boat:Bateau; joueur1, joueur2: PJoueur);
+procedure affBateaux  (game: PJeu; joueur1, joueur2: PJoueur);
+procedure affInfosJeu (joueur1joue: Boolean; joueur1, joueur2: PJoueur);
+procedure affichageDebutTour (game:PJeu; joueur1, joueur2: PJoueur);
 procedure changementJoueur(var joueur1Joue : Boolean);
 
 implementation
@@ -30,72 +30,72 @@ begin
 	GotoXY(1,TAILLE_Y+1);
 end;
 
-procedure affBateaux  (game: Jeu; joueur1, joueur2: Joueur);
+procedure affBateaux  (game: PJeu; joueur1, joueur2: PJoueur);
 
 var i,j:Integer;
 
 begin
-	if game.joueur1Joue then
+	if game^.joueur1Joue then
 	begin
-		for i:=1 to joueur1.nbBateaux do
+		for i:=1 to joueur1^.nbBateaux do
 		begin
-			GotoXY(joueur1.boat[i].pos[1].x,joueur1.boat[i].pos[1].y);
+			GotoXY(joueur1^.boat[i].pos[1].x,joueur1^.boat[i].pos[1].y);
 			textcolor(blue);
 			textbackground(White);
 			write('P');
 			j:=2;
 			repeat
-				GotoXY(joueur1.boat[i].pos[j].x,joueur1.boat[i].pos[j].y);
+				GotoXY(joueur1^.boat[i].pos[j].x,joueur1^.boat[i].pos[j].y);
 				write('B');
 				j:=j+1;
-			until j= joueur1.boat[i].taille+1;
+			until j= joueur1^.boat[i].taille+1;
 		end;
-	for i:=1 to joueur2.nbBateaux do
+	for i:=1 to joueur2^.nbBateaux do
 		begin
-			if joueur2.boat[i].detecte then
+			if joueur2^.boat[i].detecte then
 				begin
-				GotoXY(joueur2.boat[i].pos[1].x,joueur2.boat[i].pos[1].y);
+				GotoXY(joueur2^.boat[i].pos[1].x,joueur2^.boat[i].pos[1].y);
 				textcolor(red);
 				textbackground(White);
 				write('P');
 				j:=2;
 				repeat
-					GotoXY(joueur2.boat[i].pos[j].x,joueur2.boat[i].pos[j].y);
+					GotoXY(joueur2^.boat[i].pos[j].x,joueur2^.boat[i].pos[j].y);
 					write('B');
 					j:=j+1;
-				until j= joueur2.boat[i].taille+1;
+				until j= joueur2^.boat[i].taille+1;
 				end;
 		end;	
 	end
 	else
 	begin
-		for i:=1 to joueur2.nbBateaux do
+		for i:=1 to joueur2^.nbBateaux do
 		begin
-			GotoXY(joueur2.boat[i].pos[1].x,joueur2.boat[i].pos[1].y);
+			GotoXY(joueur2^.boat[i].pos[1].x,joueur2^.boat[i].pos[1].y);
 			textcolor(blue);
 			textbackground(White);
 			write('P');
 			j:=2;
 			repeat
-				GotoXY(joueur2.boat[i].pos[j].x,joueur2.boat[i].pos[j].y);
+				GotoXY(joueur2^.boat[i].pos[j].x,joueur2^.boat[i].pos[j].y);
 				write('B');
 				j:=j+1;
-			until j= joueur2.boat[i].taille+1;
+			until j= joueur2^.boat[i].taille+1;
 		end;
-	for i:=1 to joueur1.nbBateaux do
+	for i:=1 to joueur1^.nbBateaux do
 		begin
-			if joueur1.boat[i].detecte then
+			if joueur1^.boat[i].detecte then
 				begin
-				GotoXY(joueur1.boat[i].pos[1].x,joueur1.boat[i].pos[1].y);
+				GotoXY(joueur1^.boat[i].pos[1].x,joueur1^.boat[i].pos[1].y);
 				textcolor(red);
 				textbackground(White);
 				write('P');
 				j:=2;
 				repeat
-					GotoXY(joueur1.boat[i].pos[j].x,joueur1.boat[i].pos[j].y);
+					GotoXY(joueur1^.boat[i].pos[j].x,joueur1^.boat[i].pos[j].y);
 					write('B');
 					j:=j+1;
-				until j= joueur1.boat[i].taille+1;
+				until j= joueur1^.boat[i].taille+1;
 				end;
 		end;
 	end;
@@ -147,43 +147,43 @@ begin
 	GotoXY(1,TAILLE_Y+1);
 end;
 
-procedure affInfosJeu (joueur1joue: Boolean; joueur1, joueur2: Joueur);
+procedure affInfosJeu (joueur1joue: Boolean; joueur1, joueur2: PJoueur);
 var i,j: integer;
 
 begin
 	GotoXY(TAILLE_X+1,1);
-	writeln(joueur1.nom);
+	writeln(joueur1^.nom);
 	j:=1;
 	i:=2;
 	repeat
 		GotoXY(TAILLE_X+1,i);
-		writeln(joueur1.boat[j].nom,' ',joueur1.boat[j].ptDeVie,' PV');
+		writeln(joueur1^.boat[j].nom,' ',joueur1^.boat[j].ptDeVie,' PV');
 		i:=i+1;
 		j:=j+1;
-	until j=joueur1.nbBateaux+1;
+	until j=joueur1^.nbBateaux+1;
 	i:=i+2;
 	GotoXY(TAILLE_X+1,i);
-	writeln(joueur2.nom);
+	writeln(joueur2^.nom);
 	i:=i+1;
 	j:=1;
 	repeat
 		GotoXY(TAILLE_X+1,i);
-		writeln(joueur2.boat[j].nom,' ',joueur2.boat[j].ptDeVie,' PV');
+		writeln(joueur2^.boat[j].nom,' ',joueur2^.boat[j].ptDeVie,' PV');
 		i:=i+1;
 		j:=j+1;
-	until j=joueur2.nbBateaux+1;
+	until j=joueur2^.nbBateaux+1;
 
 	GotoXY(1,TAILLE_Y+1);
 end;
 
-procedure affichageJeu (game:Jeu; boat:Bateau; joueur1, joueur2: Joueur);
+procedure affichageJeu (game:PJeu; boat:Bateau; joueur1, joueur2: PJoueur);
 
 begin
 		clrscr;
 		affZone(boat);
-		affObstacle (game.montagne, game.recifs);
-		//affBateaux(game,joueur1,joueur2);
-		//affInfosJeu(game.joueur1joue,joueur1,joueur2);
+		affObstacle (game^.montagne, game^.recifs);
+		affBateaux(game,joueur1,joueur2);
+		affInfosJeu(game^.joueur1joue,joueur1,joueur2);
 		
 		GotoXY(TAILLE_X+1,30);
 		write('Quota de déplacement : ');
@@ -191,13 +191,13 @@ begin
 		write(boat.quota:3:2);
 end;
 
-procedure affichageDebutTour (game:Jeu; joueur1, joueur2: Joueur);
+procedure affichageDebutTour (game:PJeu; joueur1, joueur2: PJoueur);
 
 begin
 		clrscr;
-		affObstacle (game.montagne, game.recifs);
-		//affBateaux(game,joueur1,joueur2);
-		//affInfosJeu(game.joueur1joue,joueur1,joueur2);
+		affObstacle (game^.montagne, game^.recifs);
+		affBateaux(game,joueur1,joueur2);
+		affInfosJeu(game^.joueur1joue,joueur1,joueur2);
 end;
 
 procedure changementJoueur(var joueur1Joue : Boolean);

@@ -13,7 +13,7 @@ const 	NBOAT=6; //nombre maximum de bateaux
 		
 Type Nature=(montagne, centreMontagne, recifs, centreRecifs, bateauJ1, bateauJ2, libre, bZone);
 
-Type TypeAction=(deplacement, rotation, tir, detection, finDeplacement, finTour, nonValide);
+Type TypeAction=(deplacement, rotation, tir, detection, finDeplacement, finTir, finTour, nonValide);
 
 Type TypeBateau=(destroyer, croiseurlg, croiseurlrd, cuirasse);
 		
@@ -76,13 +76,15 @@ Type Joueur=Record
 end;
 
 Type Action=Record
-	nature : TypeAction; //deplacement, rotation, tir, detection, nonValide, finTour
+	nature : TypeAction; //deplacement, rotation, tir, detection, nonValide, finTour, finDeplacement, finTir
 	boat : Bateau;
 	coord : Position;
 	noBateau : Word ; //numéro du bateau concerné par l'action
 	statut : StatutAction; //l'action est-elle autorisée et si non pourquoi (overquota, mountain, reef)
 end;
 
+Type PJeu = ^Jeu;
+Type PJoueur = ^Joueur;
 
 implementation
 
