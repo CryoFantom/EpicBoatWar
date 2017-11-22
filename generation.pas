@@ -4,7 +4,7 @@ interface
 
 uses commun, crt, calcul;
 
-procedure genGrille(var plat : PJeu; var joueur1, joueur2: PJoueur);
+procedure genGrille(var plat : PJeu; var joueur1, joueur2: PJoueur; var listeCentres : Obstacle);
 
 implementation
 
@@ -23,9 +23,9 @@ var rando : Double;
 	
 		while(test) do
 		begin
-			if((rando < i/(TAILLE_X-14)) and (rando >= (i-1)/(TAILLE_X-14))) then //rando fait partie d'un ensemble continue, on va donc chercher à le caser dans un intervalle. La borne haute de l'intervalle nous donne la position x de la case
+			if((rando < i/(TAILLE_X-20)) and (rando >= (i-1)/(TAILLE_X-20))) then //rando fait partie d'un ensemble continue, on va donc chercher à le caser dans un intervalle. La borne haute de l'intervalle nous donne la position x de la case
 			begin
-				xp := i+7;												// + 7 pour permettre une zone de départ des bateaux sans obstacles
+				xp := i+10;												// + 7 pour permettre une zone de départ des bateaux sans obstacles
 				test := False;											// pour sortir de la boucle													
 			end
 			else 
@@ -48,7 +48,7 @@ var rando : Double;
 	end;
 end;
 
-procedure genObstacles (var plat: Plateau; var listeMontagne : Obstacle; var listeRecif : Obstacle);
+procedure genObstacles (var plat: Plateau; var listeMontagne : Obstacle; var listeRecif : Obstacle; var listeCentre : Obstacle);
 
 
 var prob, rando : Double;
@@ -92,11 +92,16 @@ begin
 			i:=i+1;
 	
 	listeMontagne.npos:=0;												//On initialise la taille du tableau des montagne
+	listeCentre.npos := 0;												//On initialise la taille du tableau des centres des obsacles
 	
 	for i:=1 to nm do													//Création montagnes
 		begin
 			positionAleatoire(xp, yp);									//Choix d'une case considérée comme centre de la chaîne de montagne
 			plat[xp][yp] := centreMontagne;								//On la rentre dans le plateau. centreMontagne n'est qu'un repère pour l'IA future
+			listeCentre.npos := listeCentre.npos+1;
+			listeCentre.tab[listeCentre.npos].nature := centreMontagne;
+			listeCentre.tab[listeCentre.npos].x := xp;
+			listeCentre.tab[listeCentre.npos].y := yp;
 			listeMontagne.npos:=listeMontagne.npos+1;					//On incrémente la taille du tableau de Montagne
 			listeMontagne.tab[listeMontagne.npos].nature := montagne;	//On enregistre la nature de la case dans ce même tableau
 			listeMontagne.tab[listeMontagne.npos].x:=xp;				//Puis la coordonnée X
@@ -124,6 +129,10 @@ begin
 		begin
 			positionAleatoire(xp, yp);									//Position particulière
 			plat[xp][yp] := centreRecifs;								//On note
+			listeCentre.npos := listeCentre.npos+1;
+			listeCentre.tab[listeCentre.npos].nature := centreRecifs;
+			listeCentre.tab[listeCentre.npos].x := xp;
+			listeCentre.tab[listeCentre.npos].y := yp;
 			listeRecif.npos:=listeRecif.npos+1;
 			listeRecif.tab[listeRecif.npos].nature := recifs;
 			listeRecif.tab[listeRecif.npos].x:=xp;
@@ -170,8 +179,7 @@ begin
 	
 end;
 
-procedure affectation(taille, pdv, degats, trchrg, distDepl, distDetec, distTir : Integer; nom : String; var navire : Bateau);	
-//Cette procédure est juste créée pour faciliter l'assignation des caractéristiques à un bateau
+procedure affectation(taille, pdv, degats, trchrg, distDepl, distDetec, distTir : Integer; nom : String; var navire : Bateau);	//Cette procédure est juste créer pour faciliter l'assignation des caractéristiques à un bateau
 
 begin
 	navire.taille := taille;
@@ -203,19 +211,19 @@ begin
 	for  i:=1 to NBOAT do
 		begin		//taille, pdv, degats, trchrg, distDepl, distDetec, distTir, nom, navire
 			if (listeBateau[i].classe = destroyer) then	
-				affectation(2, 4, 2, 1, 20, 5, 3, 'destroyer', listeBateau[i]);		//si le bateau est un destroyer on lui attribue ses caractéristiques
+				affectation(2, 4, 2, 1, 10, 5, 3, 'destroyer', listeBateau[i]);		//si le bateau est un destroyer on lui attribue ses caractéristiques
 			if (listeBateau[i].classe = croiseurlg) then
-				affectation(3, 6, 3, 2, 14, 7, 5, 'croiseur leger' ,listeBateau[i]);	//idem pour le croiseur léger
+				affectation(3, 6, 3, 2, 7, 7, 5, 'croiseur leger' ,listeBateau[i]);	//idem pour le croiseur léger
 			if (listeBateau[i].classe = croiseurlrd) then	
-				affectation(4, 7, 4, 3, 12, 8, 7, 'croiseur lourd', listeBateau[i]);	//idem pour le croiseur lourd
+				affectation(4, 7, 4, 3, 6, 8, 7, 'croiseur lourd', listeBateau[i]);	//idem pour le croiseur lourd
 			if (listebateau[i].classe = cuirasse) then
-				affectation(5, 9, 6, 4, 10, 15, 10, 'cuirasse', listeBateau[i]);		//idem pour le cuirassé
+				affectation(5, 9, 6, 4, 5, 15, 10, 'cuirasse', listeBateau[i]);		//idem pour le cuirassé
 		end;
 end;
 
 procedure genBateau (plat : PJeu; var joueur1, joueur2 : PJoueur);
 
-var i, j, x, y, k : Integer;
+var i, j, x, y : Integer;
 
 begin	
 	initBateau(joueur1^.boat);											//On initialise les bateaux des deux joueurs
@@ -251,7 +259,7 @@ begin
 	for i:= 1 to NBOAT do												//On remplit les coordonnées de chaque bateau du joueur 2
 		begin
 			x:=TAILLE_X-2-TMAX;
-			for j := 1 to joueur1^.boat[i].taille do
+			for j := 1 to joueur2^.boat[i].taille do
 				begin
 					joueur2^.boat[i].pos[j].x := x;
 					joueur2^.boat[i].pos[j].y := y;
@@ -266,19 +274,19 @@ begin
 	//initialisation du quota
 	resetQuota (joueur1,joueur2);
 	
-	//calcul des zones de chaque bateau
+{	//calcul des zones de chaque bateau
 	for k:= 1 to NBOAT do
 	begin
-		calculZone(plat,joueur1^.boat[k]);
-		calculZone(plat,joueur2^.boat[k]);
-	end;
+		calculZone(plat,joueur1.boat[k]);
+		calculZone(plat,joueur2.boat[k]);
+	end;}
 	
 end;	
 
-procedure genGrille(var plat : PJeu; var joueur1, joueur2 : PJoueur);
+procedure genGrille(var plat : PJeu; var joueur1, joueur2 : PJoueur; var listeCentres : Obstacle);
 
 begin
-	genObstacles(plat^.grille, plat^.montagne, plat^.recifs);			//On génère les obstacles
+	genObstacles(plat^.grille, plat^.montagne, plat^.recifs, listeCentres);				//On génère les obstacles
 	plat^.joueur1Joue:=True;												//Le joueur 1 ouvre le bal
 	genBateau(plat, joueur1, joueur2);									//On génère les bateaux des deux joueurs
 end;

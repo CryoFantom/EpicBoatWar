@@ -2,7 +2,7 @@ unit ia;
 
 interface
 
-uses commun, calcul;
+uses commun, calcul, crt;
 
 Const NNOEUDSMAX = 1000000;
 
@@ -11,43 +11,31 @@ type Coordos = record
 	y : Integer;
 end;
 
-Type tabNoeuds = record
+Type TabNoeuds = record
 	tab : Array [1..NNOEUDSMAX] of Coordos;
 	taille : Integer;
 end;
 
+function calculNoeuds(plat : Plateau; centres : Obstacle) : TabNoeuds;
+
 implementation
 
-function calculNoeuds(plat : Plateau) : tabNoeuds;
+function calculNoeuds(plat : Plateau; centres : Obstacle) : TabNoeuds;
 
 var i, j, a, b, k, l, t : Integer;
-var tabTampon : Array [1..10000] of coordos;
-var tailleTampon : Integer;
-var listeNoeuds : tabNoeuds;
+var listeNoeuds : TabNoeuds;
 
 begin
 	
-	tailleTampon := 0;
 	listeNoeuds.taille := 0;
-
-	for i:=1 to TAILLE_X do
-		for j:=1 to TAILLE_Y do
-			begin
-				if ((plat[i][j] = centreMontagne) or (plat[i][j] = centreRecifs)) then
-					begin
-						tailleTampon := tailleTampon+1;
-						tabTampon[tailleTampon].x := i;
-						tabTampon[tailleTampon].y := j;
-					end;					
-			end;
 		
-	for i := 1 to tailleTampon do
-		for j:= 1 to tailleTampon do
+	for i := 1 to centres.npos do
+		for j:= 1 to centres.npos do
 			begin
-				if (i <> j) then
+				if (i<j) then
 					begin
-						a := round((tabTampon[i].x+tabTampon[j].y)/2);
-						b := round((tabTampon[i].y+tabTampon[j].y)/2);
+						a := round((centres.tab[i].x+centres.tab[j].x)/2);
+						b := round((centres.tab[i].y+centres.tab[j].y)/2);
 						t:=0;
 						for k:=-1 to 1 do
 							for l:=-1 to 1 do
@@ -60,9 +48,12 @@ begin
 								listeNoeuds.tab[listeNoeuds.taille].x := a;
 								listeNoeuds.tab[listeNoeuds.taille].y := b;
 							end;
+					end;
 			end;
-		calculNoeuds := listeNoeuds;
-	end;
+			
+	calculNoeuds := listeNoeuds;
+	
+
 end;
 
 
