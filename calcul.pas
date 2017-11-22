@@ -319,8 +319,10 @@ begin
 				if (joueur1^.boat[b].pos[t].x=saisie.boat.pos[i].x) and (joueur1^.boat[b].pos[t].y=saisie.boat.pos[i].y) then
 					begin //si il y a collision, on enlève 2 PV à chaque bateau
 						joueur1^.boat[b].ptDeVie:=joueur1^.boat[b].ptDeVie-2;
+						joueur1^.boat[b].touche:=True;
 						if joueur1^.boat[b].ptDeVie<=0 then joueur1^.boat[b].coule:=True;
 						saisie.boat.ptDeVie:=saisie.boat.ptDeVie-2;	
+						saisie.boat.touche:=True;
 					end;
 	//bateaux du joueur 2
 		for b:=1 to joueur2^.nbBateaux do
@@ -330,12 +332,15 @@ begin
 				if (joueur2^.boat[b].pos[t].x=saisie.boat.pos[i].x) and (joueur2^.boat[b].pos[t].y=saisie.boat.pos[i].y) then
 					begin //si il y a collision, on enlève 2 PV à chaque bateau
 						joueur2^.boat[b].ptDeVie:=joueur2^.boat[b].ptDeVie-2;
+						joueur2^.boat[b].touche:=True;
 						if joueur2^.boat[b].ptDeVie<=0 then joueur2^.boat[b].coule:=True;
-						saisie.boat.ptDeVie:=saisie.boat.ptDeVie-2;		
+						saisie.boat.ptDeVie:=saisie.boat.ptDeVie-2;
+						saisie.boat.touche:=True;	
 					end;
 		end;
 	if saisie.boat.ptDeVie<=0 then saisie.boat.coule:=True;
 end;
+
 
 procedure gestionDeplacement (var game : PJeu; var saisie:Action; var joueur1, joueur2 : PJoueur);
 
@@ -344,6 +349,9 @@ var quota : Single;
 var tabDetec : Array[1..TAILLE_X,1..TAILLE_Y] of Boolean;
 var pos1,pos2 : Array[1..TMAX] of Position;
 
+begin
+//si déplacement abandonné
+	if (saisie.nature=finDeplacement) then saisie.boat.quota:=0 else
 begin
 //stockage de l'ancienne position du bateau
 	pos1:=saisie.boat.pos;
@@ -388,7 +396,7 @@ begin
 
 	pos2:=saisie.boat.pos; //stockage de la nouvelle position du bateau
 	if saisie.statut=allowed then gestionCollision(game^.joueur1Joue,saisie,joueur1,joueur2); //détection et gestion des éventuelles collisions
-	
+end; //fin si déplacement non abandonné
 //si le joueur 1 joue
 	if (saisie.statut=allowed) and game^.joueur1Joue then
 	begin

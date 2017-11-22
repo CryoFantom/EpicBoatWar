@@ -4,7 +4,7 @@ interface
 
 uses commun, crt, calcul;
 
-procedure genGrille(var plat : PJeu; var joueur1, joueur2: PJoueur; var listeCentres : Obstacle);
+procedure genGrille(var plat : PJeu; var joueur1, joueur2: PJoueur);
 
 implementation
 
@@ -92,7 +92,7 @@ begin
 			i:=i+1;
 	
 	listeMontagne.npos:=0;												//On initialise la taille du tableau des montagne
-	listeCentre.npos := 0;												//On initialise la taille du tableau des centres des obsacles
+	listeCentre.npos :=0;												//On initialise la taille du tableau des centres des obsacles
 	
 	for i:=1 to nm do													//Création montagnes
 		begin
@@ -179,7 +179,7 @@ begin
 	
 end;
 
-procedure affectation(taille, pdv, degats, trchrg, distDepl, distDetec, distTir : Integer; nom : String; var navire : Bateau);	//Cette procédure est juste créer pour faciliter l'assignation des caractéristiques à un bateau
+procedure affectation(taille, pdv, degats, trchrg, distDepl, distDetec, distTir : Integer; nom : String; var navire : Bateau);	//Cette procédure est juste créée pour faciliter l'assignation des caractéristiques à un bateau
 
 begin
 	navire.taille := taille;
@@ -191,6 +191,7 @@ begin
 	navire.deplacement.distance := distDepl;
 	navire.detection.distance := distDetec;
 	navire.detecte:=False;
+	navire.touche:=False;
 	navire.coule:=False;
 end;
 
@@ -211,19 +212,19 @@ begin
 	for  i:=1 to NBOAT do
 		begin		//taille, pdv, degats, trchrg, distDepl, distDetec, distTir, nom, navire
 			if (listeBateau[i].classe = destroyer) then	
-				affectation(2, 4, 2, 1, 10, 5, 3, 'destroyer', listeBateau[i]);		//si le bateau est un destroyer on lui attribue ses caractéristiques
+				affectation(2, 4, 2, 1, 20, 5, 3, 'destroyer', listeBateau[i]);		//si le bateau est un destroyer on lui attribue ses caractéristiques
 			if (listeBateau[i].classe = croiseurlg) then
-				affectation(3, 6, 3, 2, 7, 7, 5, 'croiseur leger' ,listeBateau[i]);	//idem pour le croiseur léger
+				affectation(3, 6, 3, 2, 14, 7, 5, 'croiseur leger' ,listeBateau[i]);	//idem pour le croiseur léger
 			if (listeBateau[i].classe = croiseurlrd) then	
-				affectation(4, 7, 4, 3, 6, 8, 7, 'croiseur lourd', listeBateau[i]);	//idem pour le croiseur lourd
+				affectation(4, 7, 4, 3, 12, 8, 7, 'croiseur lourd', listeBateau[i]);	//idem pour le croiseur lourd
 			if (listebateau[i].classe = cuirasse) then
-				affectation(5, 9, 6, 4, 5, 15, 10, 'cuirasse', listeBateau[i]);		//idem pour le cuirassé
+				affectation(5, 9, 6, 4, 10, 15, 10, 'cuirasse', listeBateau[i]);		//idem pour le cuirassé
 		end;
 end;
 
 procedure genBateau (plat : PJeu; var joueur1, joueur2 : PJoueur);
 
-var i, j, x, y : Integer;
+var i, j, x, y, k : Integer;
 
 begin	
 	initBateau(joueur1^.boat);											//On initialise les bateaux des deux joueurs
@@ -232,7 +233,7 @@ begin
 	joueur1^.nom := 'J1';												//On initialise les noms, pour éviter tout problème d'affectation
 	joueur2^.nom := 'J2';
 	
-	joueur1^.nbBateaux := NBOAT;											//Chaque joueur commence la partie avec le même nombre de bateaux (ici NBOAT)
+	joueur1^.nbBateaux := NBOAT;										//Chaque joueur commence la partie avec le même nombre de bateaux (ici NBOAT)
 	joueur2^.nbBateaux := NBOAT;
 	
 	joueur1^.score:= 0;													//On initialise le score des deux joueurs
@@ -274,19 +275,19 @@ begin
 	//initialisation du quota
 	resetQuota (joueur1,joueur2);
 	
-{	//calcul des zones de chaque bateau
+	//calcul des zones de chaque bateau
 	for k:= 1 to NBOAT do
 	begin
-		calculZone(plat,joueur1.boat[k]);
-		calculZone(plat,joueur2.boat[k]);
-	end;}
+		calculZone(plat,joueur1^.boat[k]);
+		calculZone(plat,joueur2^.boat[k]);
+	end;
 	
 end;	
 
-procedure genGrille(var plat : PJeu; var joueur1, joueur2 : PJoueur; var listeCentres : Obstacle);
+procedure genGrille(var plat : PJeu; var joueur1, joueur2 : PJoueur);
 
 begin
-	genObstacles(plat^.grille, plat^.montagne, plat^.recifs, listeCentres);				//On génère les obstacles
+	genObstacles(plat^.grille, plat^.montagne, plat^.recifs, plat^.listeCentres);	//On génère les obstacles
 	plat^.joueur1Joue:=True;												//Le joueur 1 ouvre le bal
 	genBateau(plat, joueur1, joueur2);									//On génère les bateaux des deux joueurs
 end;

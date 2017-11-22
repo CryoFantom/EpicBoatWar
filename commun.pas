@@ -4,7 +4,7 @@ interface
 
 const 	NBOAT=6; //nombre maximum de bateaux
 		TMAX=5; //taille maximale d’un bateau
-		TAILLE_X=143; //largeur en caractères de la surface de jeu (max 169)
+		TAILLE_X=142; //largeur en caractères de la surface de jeu (max 169)
 		TAILLE_Y=45; //hauteur en caractères de la surface de jeu (max 51)
 		NMAXPOS=7500; //nombre maximum de valeurs dans un tableau de position (max 7500)
 		NBMONTS=6; //nombre maximum de montagnes
@@ -38,6 +38,7 @@ end;
 Type Jeu=Record
 	montagne : Obstacle; //position des montagnes (pour calcul visibilité ...)
 	recifs : Obstacle; //position des récifs
+	listeCentres : Obstacle; //pour le fonctionnement de l'IA
 	grille : Plateau; //pour tester la présence d’un obstacle ou d’un bateau à une position donnée
 	joueur1Joue : Boolean; //quel joueur est en train de jouer
 end;
@@ -63,6 +64,7 @@ Type Bateau=Record
 	quota : Single; //nombre de déplacements restants pour un tour
 	detection : Zone; //distance détection + zone où l'adversaire est détecté
 	detecte : Boolean; //bateau visible par l’adversaire, recalculé à chaque tour
+	touche : Boolean; //le bateau est touché
 	coule : Boolean; //le bateau est coulé (PV à 0)
 end;
 

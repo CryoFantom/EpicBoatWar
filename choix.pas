@@ -4,7 +4,7 @@ interface
 
 uses commun, Crt, Keyboard, affichage;
 
-procedure controle (var choix : Action);
+procedure choixDeplacement (var choix : Action);
 procedure choixbateau (joueur1joue : Boolean; joueur1, joueur2: PJoueur; game : PJeu; var choixBat : Action);
 procedure choixtir (boat: Bateau; var tir: Action);
 
@@ -15,9 +15,9 @@ var i : Integer;
 
 begin
 	GotoXY(boat.pos[1].x,boat.pos[1].y);
-	textcolor(green);
-	textbackground(white);
-	write('P');
+	textcolor(Black);
+	textbackground(LightGray);
+	write('O');
 	for i:=2 to boat.taille do
 	begin;
 		GotoXY(boat.pos[i].x,boat.pos[i].y);
@@ -25,6 +25,7 @@ begin
 	end;
 	textcolor(white);
 	textbackground(Black);
+	GoToXY(1,TAILLE_Y+1);
 end;
 
 
@@ -51,21 +52,22 @@ Begin
 		begin
 			saisie := 'Right';
 			i:=1;
+			affunBat(joueur1^.boat[i]);
 			while saisie <> 'Enter' do
 				begin
-					affBateaux (game, joueur1, joueur2);
 					K:=GetKeyEvent;
 					K:=TranslateKeyEvent(K);
 					saisie:=KeyEventToString(K);
 					if GetKeyEventCode(K)=7181 then saisie:='Enter';
 					case saisie of 
-						'Right' : if i = joueur1^.nbBateaux then i:=1 else i:=i+1;
-						'Left' : if i=1 then i:=joueur1^.nbBateaux else i:=i-1;
+						'Right' : repeat if i = joueur1^.nbBateaux then i:=1 else i:=i+1 until (not(joueur1^.boat[i].coule) and (joueur1^.boat[i].quota>0));
+						'Left' : repeat if i=1 then i:=joueur1^.nbBateaux else i:=i-1 until (not(joueur1^.boat[i].coule) and (joueur1^.boat[i].quota>0));
 						't','T' : begin
 								choixBat.nature:=finTour;
 								saisie:='Enter';
 								end;
 					end;
+					affBateaux (game, joueur1, joueur2);
 					affunBat(joueur1^.boat[i]);
 				end;
 			choixBat.boat:=joueur1^.boat[i];
@@ -74,21 +76,22 @@ Begin
 	else
 		begin
 			i:=1;
+			affunBat(joueur2^.boat[i]);
 			while saisie <> 'Enter' do
 				Begin
-					affBateaux (game, joueur1, joueur2);
 					K:=GetKeyEvent;
 					K:=TranslateKeyEvent(K);
 					saisie:=KeyEventToString(K);
 					if GetKeyEventCode(K)=7181 then saisie:='Enter';
 					Case saisie of 
-					'Right' : if i = joueur1^.nbBateaux then i:=1 else i:=i+1;
-					'Left' : if i=1 then i:=joueur1^.nbBateaux else i:=i-1;
+					'Right' : repeat if i = joueur2^.nbBateaux then i:=1 else i:=i+1 until (not(joueur2^.boat[i].coule) and (joueur2^.boat[i].quota>0));
+					'Left' : repeat if i=1 then i:=joueur2^.nbBateaux else i:=i-1  until (not(joueur2^.boat[i].coule) and (joueur2^.boat[i].quota>0));
 					't','T' : begin
 								choixBat.nature:=finTour;
 								saisie:='Enter';
 								end;
 					end;
+					affBateaux (game, joueur1, joueur2);
 					affunBat(joueur2^.boat[i]);
 				end;
 			choixBat.boat:=joueur2^.boat[i];
@@ -97,7 +100,7 @@ Begin
 	DoneKeyboard;
 end;
 
-procedure controle (var choix : Action);
+procedure choixDeplacement (var choix : Action);
 
 var saisie:String;
 	K : TKeyEvent;
@@ -112,22 +115,22 @@ begin
 	write('→ pivoter vers la droite');
 	GotoXY(TAILLE_X+1,25);
 	write('← pivoter vers la gauche');
+	GotoXY(TAILLE_X+1,27);
+	write('T abandonner le déplacement');
+	GoToXY(1,TAILLE_Y+1);
 	
 	InitKeyboard;
 	K:=GetKeyEvent;
 	K:=TranslateKeyEvent(K);
 	saisie:=KeyEventToString(K);
 	DoneKeyboard;
+	
 	if (saisie='Right') or (saisie='Up') then choix.coord.x:=1;
 	if (saisie='Left') or (saisie='Down') then choix.coord.x:=-1;
-	
 	if (saisie='Right') or (saisie='Left') then choix.nature:=rotation;
 	if (saisie='Up') or (saisie='Down') then choix.nature:=deplacement;
-	if not ((saisie='Up') or (saisie='Down') or (saisie='Right') or (saisie='Left')) then 
-		begin
-			choix.nature:=nonValide;
-			write('Saisie non valide');
-		end;
+	if (saisie='T') or (saisie='t') then choix.nature:=finDeplacement else
+	if not ((saisie='Up') or (saisie='Down') or (saisie='Right') or (saisie='Left')) then choix.nature:=nonValide;
 end;
 
 procedure choixtir (boat: Bateau; var tir: Action);

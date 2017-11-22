@@ -25,7 +25,7 @@ begin
 				repeat //pour chaque déplacement
 					affichageJeu(game,saisie.boat, joueur1, joueur2);
 					repeat
-						controle(saisie)
+						choixDeplacement(saisie)
 					 until saisie.nature<>nonValide;
 					gestionDeplacement (game, saisie, joueur1, joueur2);
 				until ((saisie.statut=overquota) or saisie.boat.coule or (saisie.nature=finDeplacement));
