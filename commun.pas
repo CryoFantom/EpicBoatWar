@@ -21,7 +21,7 @@ Type Plateau=Array[1..TAILLE_X,1..TAILLE_Y] of Nature;
 
 Type Orientation=(NO, N, NE, E, SE, S, SO, O); //orientation de l'avant du bateau
 
-Type StatutAction=(allowed, overquota, outzone, mountain, reef, boatJ1, boatJ2); //l'action est-elle autorisée et si non pourquoi
+Type StatutAction=(allowed, overquota, outzone, mountain, reef, boatJ1, boatJ2, cancelled); //l'action est-elle autorisée et si non pourquoi
 		
 Type Position=Record
 	nature : Nature; //bateauJ1, bateauJ2, récif, montagne, centreMontagne, centreRecifs

@@ -17,19 +17,20 @@ begin
 	resetQuota (joueur1,joueur2);
 		if game^.joueur1joue then nbBateaux:=joueur1^.nbBateaux else nbBateaux:=joueur2^.nbBateaux;
 		repeat //jusqu'à ce que le joueur ait déplacé tous ses bateaux ou qu'il veuille terminer son tour
-			affichageDebutTour (game, joueur1, joueur2);
+			affichageDebutTour (game, joueur1, joueur2,nbBateaux);
 			choixBateau (game^.joueur1Joue,joueur1,joueur2,game,saisie);
 			
 			if saisie.nature<>finTour then
 			begin
 				repeat //pour chaque déplacement
-					affichageJeu(game,saisie.boat, joueur1, joueur2);
+					affichageJeu(game,saisie.boat, joueur1, joueur2,nbBateaux);
 					repeat
 						choixDeplacement(saisie)
 					 until saisie.nature<>nonValide;
-					gestionDeplacement (game, saisie, joueur1, joueur2);
+					gestionDeplacement (game, saisie, joueur1, joueur2,nbBateaux);
 				until ((saisie.statut=overquota) or saisie.boat.coule or (saisie.nature=finDeplacement));
 				nbBateaux:=nbBateaux-1;
+				affichageJeu(game,saisie.boat, joueur1, joueur2,nbBateaux);
 				if nbBateaux=0 then saisie.nature:=finTour;
 			end;
 		until (saisie.nature=finTour);

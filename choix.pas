@@ -51,7 +51,8 @@ Begin
 	if joueur1joue then
 		begin
 			saisie := 'Right';
-			i:=1;
+			i:=0;
+			repeat i:=i+1 until (not(joueur1^.boat[i].coule) and (joueur1^.boat[i].quota>0));
 			affunBat(joueur1^.boat[i]);
 			while saisie <> 'Enter' do
 				begin
@@ -60,8 +61,8 @@ Begin
 					saisie:=KeyEventToString(K);
 					if GetKeyEventCode(K)=7181 then saisie:='Enter';
 					case saisie of 
-						'Right' : repeat if i = joueur1^.nbBateaux then i:=1 else i:=i+1 until (not(joueur1^.boat[i].coule) and (joueur1^.boat[i].quota>0));
-						'Left' : repeat if i=1 then i:=joueur1^.nbBateaux else i:=i-1 until (not(joueur1^.boat[i].coule) and (joueur1^.boat[i].quota>0));
+						'Right' : repeat if i = NBOAT then i:=1 else i:=i+1 until (not(joueur1^.boat[i].coule) and (joueur1^.boat[i].quota>0));
+						'Left' : repeat if i=1 then i:=NBOAT else i:=i-1 until (not(joueur1^.boat[i].coule) and (joueur1^.boat[i].quota>0));
 						't','T' : begin
 								choixBat.nature:=finTour;
 								saisie:='Enter';
@@ -75,7 +76,8 @@ Begin
 		end
 	else
 		begin
-			i:=1;
+			i:=0;
+			repeat i:=i+1 until (not(joueur2^.boat[i].coule) and (joueur2^.boat[i].quota>0));
 			affunBat(joueur2^.boat[i]);
 			while saisie <> 'Enter' do
 				Begin
@@ -84,8 +86,8 @@ Begin
 					saisie:=KeyEventToString(K);
 					if GetKeyEventCode(K)=7181 then saisie:='Enter';
 					Case saisie of 
-					'Right' : repeat if i = joueur2^.nbBateaux then i:=1 else i:=i+1 until (not(joueur2^.boat[i].coule) and (joueur2^.boat[i].quota>0));
-					'Left' : repeat if i=1 then i:=joueur2^.nbBateaux else i:=i-1  until (not(joueur2^.boat[i].coule) and (joueur2^.boat[i].quota>0));
+					'Right' : repeat if i=NBOAT then i:=1 else i:=i+1 until (not(joueur2^.boat[i].coule) and (joueur2^.boat[i].quota>0));
+					'Left' : repeat if i=1 then i:=NBOAT else i:=i-1  until (not(joueur2^.boat[i].coule) and (joueur2^.boat[i].quota>0));
 					't','T' : begin
 								choixBat.nature:=finTour;
 								saisie:='Enter';
