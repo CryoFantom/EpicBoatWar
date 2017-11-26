@@ -4,13 +4,13 @@ interface
 
 uses commun, Crt, Keyboard, affichage;
 
-procedure choixDeplacement (var choix : Action);
-procedure choixbateau (joueur1joue : Boolean; joueur1, joueur2: PJoueur; game : PJeu; var choixBat : Action);
-procedure choixtir (boat: Bateau; var tir: Action);
+procedure choixDeplacement (var choix : PAction);
+procedure choixBateau (joueur1joue : Boolean; nbBateaux : Integer ; joueur1, joueur2: PJoueur; game : PJeu; var choixBat : PAction);
+procedure choixTir (choix : PAction);
 
 implementation
 
-procedure affunBat (boat : Bateau);
+procedure affUnBat (boat : Bateau);
 var i : Integer;
 
 begin
@@ -29,9 +29,11 @@ begin
 end;
 
 
-procedure choixBateau (joueur1joue : Boolean; joueur1, joueur2: PJoueur; game : PJeu; var choixBat : Action);
-var saisie : String;
-	k : TKeyEvent;
+procedure choixBateau (joueur1joue : Boolean; nbBateaux : Integer ; joueur1, joueur2: PJoueur; game : PJeu; var choixBat : PAction);
+
+var joueur : PJoueur;
+	saisie : String;
+	K : TKeyEvent;
 	i : Integer;
 
 Begin
@@ -47,62 +49,54 @@ Begin
 	write('Appuyez sur T pour');
 	GotoXY(TAILLE_X+1,29);
 	write('terminer votre tour');
+	
+	if joueur1joue then joueur:=joueur1 else joueur:=joueur2;
+	
+	GotoXY(TAILLE_X+1,33);
+	case choixBat^.nature of
+		deplacement : write('Vous pouvez encore déplacer');
+		tir : write('Vous pouvez encore faire tirer');
+	end;
+	GotoXY(TAILLE_X+1,34);
+	write(nbBateaux,' bateaux');
+	
 	InitKeyboard;
-	if joueur1joue then
-		begin
-			saisie := 'Right';
-			i:=0;
-			repeat i:=i+1 until (not(joueur1^.boat[i].coule) and (joueur1^.boat[i].quota>0));
-			affunBat(joueur1^.boat[i]);
-			while saisie <> 'Enter' do
-				begin
-					K:=GetKeyEvent;
-					K:=TranslateKeyEvent(K);
-					saisie:=KeyEventToString(K);
-					if GetKeyEventCode(K)=7181 then saisie:='Enter';
-					case saisie of 
-						'Right' : repeat if i = NBOAT then i:=1 else i:=i+1 until (not(joueur1^.boat[i].coule) and (joueur1^.boat[i].quota>0));
-						'Left' : repeat if i=1 then i:=NBOAT else i:=i-1 until (not(joueur1^.boat[i].coule) and (joueur1^.boat[i].quota>0));
-						't','T' : begin
-								choixBat.nature:=finTour;
-								saisie:='Enter';
-								end;
+	saisie := ' ';
+	i:=0;
+	case choixBat^.nature of
+		deplacement : repeat i:=i+1 until (not(joueur^.boat[i].coule) and (joueur^.boat[i].quota>0));
+		tir : repeat i:=i+1 until (not(joueur^.boat[i].coule) and (joueur^.boat[i].prochainTir=0));
+	end;
+	affunBat(joueur^.boat[i]);
+	while saisie <> 'Enter' do
+	begin
+		K:=GetKeyEvent;
+		K:=TranslateKeyEvent(K);
+		saisie:=KeyEventToString(K);
+		if GetKeyEventCode(K)=7181 then saisie:='Enter';
+		case saisie of 
+			'Right' : case choixBat^.nature of
+						deplacement : repeat if i = NBOAT then i:=1 else i:=i+1 until (not(joueur^.boat[i].coule) and (joueur^.boat[i].quota>0));
+						tir : repeat if i = NBOAT then i:=1 else i:=i+1 until (not(joueur^.boat[i].coule) and (joueur^.boat[i].prochainTir=0));
 					end;
-					affBateaux (game, joueur1, joueur2);
-					affunBat(joueur1^.boat[i]);
-				end;
-			choixBat.boat:=joueur1^.boat[i];
-			choixBat.noBateau:=i;
-		end
-	else
-		begin
-			i:=0;
-			repeat i:=i+1 until (not(joueur2^.boat[i].coule) and (joueur2^.boat[i].quota>0));
-			affunBat(joueur2^.boat[i]);
-			while saisie <> 'Enter' do
-				Begin
-					K:=GetKeyEvent;
-					K:=TranslateKeyEvent(K);
-					saisie:=KeyEventToString(K);
-					if GetKeyEventCode(K)=7181 then saisie:='Enter';
-					Case saisie of 
-					'Right' : repeat if i=NBOAT then i:=1 else i:=i+1 until (not(joueur2^.boat[i].coule) and (joueur2^.boat[i].quota>0));
-					'Left' : repeat if i=1 then i:=NBOAT else i:=i-1  until (not(joueur2^.boat[i].coule) and (joueur2^.boat[i].quota>0));
-					't','T' : begin
-								choixBat.nature:=finTour;
-								saisie:='Enter';
-								end;
+			'Left' : case choixBat^.nature of
+						deplacement : repeat if i=1 then i:=NBOAT else i:=i-1 until (not(joueur^.boat[i].coule) and (joueur^.boat[i].quota>0));
+						tir : repeat if i=1 then i:=NBOAT else i:=i-1 until (not(joueur^.boat[i].coule) and (joueur^.boat[i].prochainTir=0));
 					end;
-					affBateaux (game, joueur1, joueur2);
-					affunBat(joueur2^.boat[i]);
-				end;
-			choixBat.boat:=joueur2^.boat[i];
-			choixBat.noBateau:=i;
+			't','T' : begin
+						choixBat^.nature:=finTour;
+						saisie:='Enter';
+					end;
 		end;
+		affBateaux (game, joueur1, joueur2);
+		affunBat(joueur^.boat[i]);
+	end;
+	choixBat^.boat:=joueur^.boat[i];
+	choixBat^.noBateau:=i;
 	DoneKeyboard;
 end;
 
-procedure choixDeplacement (var choix : Action);
+procedure choixDeplacement (var choix : PAction);
 
 var saisie:String;
 	K : TKeyEvent;
@@ -127,21 +121,20 @@ begin
 	saisie:=KeyEventToString(K);
 	DoneKeyboard;
 	
-	if (saisie='Right') or (saisie='Up') then choix.coord.x:=1;
-	if (saisie='Left') or (saisie='Down') then choix.coord.x:=-1;
-	if (saisie='Right') or (saisie='Left') then choix.nature:=rotation;
-	if (saisie='Up') or (saisie='Down') then choix.nature:=deplacement;
-	if (saisie='T') or (saisie='t') then choix.nature:=finDeplacement else
-	if not ((saisie='Up') or (saisie='Down') or (saisie='Right') or (saisie='Left')) then choix.nature:=nonValide;
+	if (saisie='Right') or (saisie='Up') then choix^.coord.x:=1;
+	if (saisie='Left') or (saisie='Down') then choix^.coord.x:=-1;
+	if (saisie='Right') or (saisie='Left') then choix^.nature:=rotation;
+	if (saisie='Up') or (saisie='Down') then choix^.nature:=deplacement;
+	if (saisie='T') or (saisie='t') then choix^.nature:=finDeplacement else
+	if not ((saisie='Up') or (saisie='Down') or (saisie='Right') or (saisie='Left')) then choix^.nature:=nonValide;
 end;
 
-procedure choixtir (boat: Bateau; var tir: Action);
+procedure choixTir (choix: PAction);
 var saisie: String;
 	K: TKeyEvent;
 
 
 Begin
-	tir.boat:=boat;
 	GotoXY(TAILLE_X+1,20);
 	write('Utilisez les flèches');
 	GotoXY(TAILLE_X+7,21);
@@ -155,10 +148,10 @@ Begin
 	GotoXY(TAILLE_X+1,29);
 	write('ne pas tirer');
 	InitKeyboard;
-	saisie := 'Enter';
-	tir.coord.x:= boat.pos[1].x;
-	tir.coord.y:= boat.pos[1].y;
-	GotoXY(boat.pos[1].x,boat.pos[1].y);
+	saisie := ' ';
+	choix^.coord.x:= choix^.boat.pos[1].x;
+	choix^.coord.y:= choix^.boat.pos[1].y;
+	GotoXY(choix^.coord.x,choix^.coord.y);
 	while saisie <> 'Enter' do
 		Begin
 			K:=GetKeyEvent;
@@ -166,12 +159,13 @@ Begin
 			saisie:=KeyEventToString(K);
 			if GetKeyEventCode(K)=7181 then saisie:='Enter';
 			case saisie of
-				'Right': tir.coord.x:= tir.coord.x+1;
-				'Left': tir.coord.x:= tir.coord.x-1;
-				'Up': tir.coord.y:= tir.coord.y-1;
-				'Down': tir.coord.y:= tir.coord.y-1;
-				't' , 'T':tir.nature := finTir;
+				'Right': choix^.coord.x:= choix^.coord.x+1;
+				'Left': choix^.coord.x:= choix^.coord.x-1;
+				'Up': choix^.coord.y:= choix^.coord.y-1;
+				'Down': choix^.coord.y:= choix^.coord.y+1;
+				't','T': choix^.nature := finTir;
 			end;
+			GotoXY(choix^.coord.x,choix^.coord.y);
 		end;
 	DoneKeyboard;
 end;

@@ -59,7 +59,8 @@ Type Bateau=Record
 	ptDeVie : Integer; //diminue à chaque fois que le bateau est touché
 	degats : Integer; //nombre de dégâts que le bateau peut infliger
 	tir : Zone; //distance + zone de tir
-	tRechargement : Integer; //délai (en tour) avant de pouvoir tirer à nouveau
+	tRechargement : Integer; //délai (en tour) avant de pouvoir tirer à nouveau (constant)
+	prochainTir : Integer; //nombre de tours restant pour pouvoir tirer
 	deplacement : Zone; //distance + zone déplacement
 	quota : Single; //nombre de déplacements restants pour un tour
 	detection : Zone; //distance détection + zone où l'adversaire est détecté
@@ -87,6 +88,7 @@ end;
 
 Type PJeu = ^Jeu;
 Type PJoueur = ^Joueur;
+Type PAction = ^Action;
 
 implementation
 
