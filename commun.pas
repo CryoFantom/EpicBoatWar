@@ -22,6 +22,8 @@ Type Plateau=Array[1..TAILLE_X,1..TAILLE_Y] of Nature;
 Type Orientation=(NO, N, NE, E, SE, S, SO, O); //orientation de l'avant du bateau
 
 Type StatutAction=(allowed, overquota, outzone, mountain, reef, boatJ1, boatJ2, cancelled); //l'action est-elle autorisée et si non pourquoi
+
+Type BArray = Array[1..TAILLE_X,1..TAILLE_Y] of Boolean;
 		
 Type Position=Record
 	nature : Nature; //bateauJ1, bateauJ2, récif, montagne, centreMontagne, centreRecifs
@@ -59,8 +61,10 @@ Type Bateau=Record
 	ptDeVie : Integer; //diminue à chaque fois que le bateau est touché
 	degats : Integer; //nombre de dégâts que le bateau peut infliger
 	tir : Zone; //distance + zone de tir
+	tabTir : BArray; //accès à la zone de tir par la position
 	tRechargement : Integer; //délai (en tour) avant de pouvoir tirer à nouveau (constant)
 	prochainTir : Integer; //nombre de tours restant pour pouvoir tirer
+	peutTirer : Boolean; //le bateau peut-il tirer pendant ce tour, recalculé au début de chaque tour
 	deplacement : Zone; //distance + zone déplacement
 	quota : Single; //nombre de déplacements restants pour un tour
 	detection : Zone; //distance détection + zone où l'adversaire est détecté

@@ -25,18 +25,35 @@ Type ZoneG=Record
 	yc : Single; //position du centre du bateau et de la zone
 	end;
 
-
 //////////////////
 
 procedure calculZone (game : PJeu; var boat : Bateau);
 procedure gestionDeplacement (var game : PJeu; var saisie:PAction; var joueur1, joueur2 : PJoueur; var nbBateaux : Integer);
 procedure resetQuota (var joueur1,joueur2 : PJoueur);
-procedure majProchainTir (joueur1Joue : Boolean ; joueur1,joueur2 : PJoueur);
+procedure majProchainTir (joueur1Joue : Boolean ; var joueur1,joueur2 : PJoueur; var nbBateaux : Integer);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 implementation
 ///////////////
+
+procedure tabToGrille(zone : Zone ; var tab : BArray);
+//conversion d'un tableau de position en grille de booléens
+
+var x,y,i:Integer;
+
+begin
+
+				for x:=1 to TAILLE_X do //initialisation du tableau
+					for y:=1 to TAILLE_Y do tab[x,y]:=False;
+
+				for i:=1 to zone.nbCases do
+					begin
+					x:=zone.tabZone[i].x;
+					y:=zone.tabZone[i].y;
+					tab[x,y]:=True;
+					end;
+end;
 
 procedure obstacleDansZone (obst : Obstacle; var zone:ZoneG);
 
@@ -190,6 +207,8 @@ begin
 				boat.tir.tabZone[nb].nature:=bZone;
 				end;
 	boat.tir.nbCases:=nb;
+	
+	tabToGrille(boat.tir,boat.tabTir); //pour accès à la zone de tir par la position
 	
 	//génération de la zone de déplacement
 	nb:=0;
@@ -360,14 +379,13 @@ begin
 	end;
 end;
 
-
 procedure gestionDeplacement (var game : PJeu; var saisie:PAction; var joueur1, joueur2 : PJoueur; var nbBateaux : Integer);
 
 var i,j,x,y:Word;
 var joueur,adversaire : PJoueur;
 var sboat : Bateau;
 var statut : StatutAction;
-var tabDetec : Array[1..TAILLE_X,1..TAILLE_Y] of Boolean;
+var tabDetec : BArray;
 
 begin
 	if game^.joueur1joue then joueur:=joueur1 else joueur:=joueur2;
@@ -432,17 +450,7 @@ begin
 				joueur^.boat[saisie^.noBateau]:=saisie^.boat;
 			
 			//les bateaux de l'adversaire deviennent-ils visibles ?
-				
-				//conversion du tableau de position en grille
-				for x:=1 to TAILLE_X do //initialisation du tableau
-					for y:=1 to TAILLE_Y do tabDetec[x,y]:=False;
-
-				for i:=1 to joueur^.boat[saisie^.noBateau].detection.nbCases do
-					begin
-					x:=joueur^.boat[saisie^.noBateau].detection.tabZone[i].x;
-					y:=joueur^.boat[saisie^.noBateau].detection.tabZone[i].y;
-					tabDetec[x,y]:=True;
-					end;
+				tabToGrille(joueur^.boat[saisie^.noBateau].detection,tabDetec);
 
 				for i:=1 to NBOAT do
 					begin
@@ -492,23 +500,28 @@ begin
 	end;
 end;
 
-procedure majProchainTir (joueur1Joue : Boolean ; joueur1,joueur2 : PJoueur);
+procedure majProchainTir (joueur1Joue : Boolean ; var joueur1,joueur2 : PJoueur; var nbBateaux : Integer);
 
 var i : Word;
+	joueur:PJoueur;
 
 begin
-	if joueur1Joue then
-		for i:= 1 to NBOAT do
+	if joueur1joue then joueur:=joueur1 else joueur:=joueur2;
+	nbBateaux:=0; 
+	for i:= 1 to NBOAT do
 		begin
-			if joueur1^.boat[i].prochainTir=0 then joueur1^.boat[i].prochainTir:=joueur1^.boat[i].tRechargement;
-			joueur1^.boat[i].prochainTir:=joueur1^.boat[i].prochainTir-1;
-		end
-	else
-		for i:= 1 to NBOAT do
-		begin
-			if joueur2^.boat[i].prochainTir=0 then joueur2^.boat[i].prochainTir:=joueur2^.boat[i].tRechargement;
-			joueur2^.boat[i].prochainTir:=joueur2^.boat[i].prochainTir-1;
+			joueur^.boat[i].peutTirer:=False;
+			if joueur^.boat[i].prochainTir=0 then joueur^.boat[i].prochainTir:=joueur^.boat[i].tRechargement;
+			joueur^.boat[i].prochainTir:=joueur^.boat[i].prochainTir-1;
+			if ((joueur^.boat[i].prochainTir=0) and not(joueur^.boat[i].coule)) then 
+				begin
+					nbBateaux:=nbBateaux+1;
+					joueur^.boat[i].peutTirer:=True;
+				end;
 		end;
+		
+	if joueur1joue then joueur1:=joueur else joueur2:=joueur;
 end;
 
+begin
 end.

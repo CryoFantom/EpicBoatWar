@@ -188,7 +188,7 @@ begin
 	navire.degats := degats;
 	navire.tir.distance := distTir;
 	navire.tRechargement := trchrg;
-	navire.prochainTir := trchrg;
+	navire.prochainTir := 1;
 	navire.deplacement.distance := distDepl;
 	navire.detection.distance := distDetec;
 	navire.detecte:=False;

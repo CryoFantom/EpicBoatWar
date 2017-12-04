@@ -5,8 +5,9 @@ interface
 uses commun,Crt,keyboard;
 
 procedure affBateaux  (game: PJeu; joueur1, joueur2: PJoueur);
-procedure affichageJeu (game:PJeu; boat:Bateau; joueur1, joueur2: PJoueur);
 procedure affichageDebutTour (game:PJeu; joueur1, joueur2: PJoueur);
+procedure affichageDepl (game:PJeu; boat:Bateau; joueur1, joueur2: PJoueur);
+procedure affichageTir (game:PJeu; boat:Bateau; joueur1, joueur2: PJoueur);
 procedure changementJoueur(var joueur1Joue : Boolean);
 
 implementation
@@ -79,12 +80,13 @@ begin
 end;
 
 
-procedure affZone (boat: Bateau);
+procedure affZone (boat: Bateau; deplacement, detection, tir : Boolean);
 
 var i : Integer;
 
 begin 
 	//déplacement
+	if deplacement then
 	for i:=1 to boat.deplacement.nbCases do
 		begin
 		GotoXY(boat.deplacement.tabZone[i].x,boat.deplacement.tabZone[i].y);
@@ -96,6 +98,7 @@ begin
 		end;
 	
 	//détection
+	if detection then
 	for i:=1 to boat.detection.nbCases do
 		begin
 		GotoXY(boat.detection.tabZone[i].x,boat.detection.tabZone[i].y);
@@ -107,6 +110,7 @@ begin
 		end;
 	
 	//tir
+	if tir then
 	for i:=1 to boat.tir.nbCases do
 		begin
 		GotoXY(boat.tir.tabZone[i].x,boat.tir.tabZone[i].y);
@@ -152,11 +156,11 @@ begin
 	GotoXY(1,TAILLE_Y+1);
 end;
 
-procedure affichageJeu (game:PJeu; boat:Bateau; joueur1, joueur2: PJoueur);
+procedure affichageDepl (game:PJeu; boat:Bateau; joueur1, joueur2: PJoueur);
 
 begin
 		clrscr;
-		affZone(boat);
+		affZone(boat,True,True,True);
 		affObstacle (game^.montagne, game^.recifs);
 		affBateaux(game,joueur1,joueur2);
 		affInfosJeu(game^.joueur1joue,joueur1,joueur2);
@@ -168,6 +172,16 @@ begin
 			GotoXY(TAILLE_X+1,31);
 			write(boat.quota:3:2);
 		end;
+end;
+
+procedure affichageTir (game:PJeu; boat:Bateau; joueur1, joueur2: PJoueur);
+
+begin
+		clrscr;
+		affZone(boat,False,True,True);
+		affObstacle (game^.montagne, game^.recifs);
+		affBateaux(game,joueur1,joueur2);
+		affInfosJeu(game^.joueur1joue,joueur1,joueur2);
 end;
 
 procedure affichageDebutTour (game:PJeu; joueur1, joueur2: PJoueur);
