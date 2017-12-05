@@ -213,19 +213,19 @@ begin
 	for  i:=1 to NBOAT do
 		begin		//taille, pdv, degats, trchrg, distDepl, distDetec, distTir, nom, navire
 			if (listeBateau[i].classe = destroyer) then	
-				affectation(2, 4, 2, 1, 20, 5, 3, 'destroyer', listeBateau[i]);		//si le bateau est un destroyer on lui attribue ses caractéristiques
+				affectation(2, 4, 2, 1, 40, 50, 3, 'destroyer', listeBateau[i]);		//si le bateau est un destroyer on lui attribue ses caractéristiques
 			if (listeBateau[i].classe = croiseurlg) then
-				affectation(3, 6, 3, 2, 14, 7, 5, 'croiseur leger' ,listeBateau[i]);	//idem pour le croiseur léger
+				affectation(3, 6, 3, 2, 30, 40, 5, 'croiseur leger' ,listeBateau[i]);	//idem pour le croiseur léger
 			if (listeBateau[i].classe = croiseurlrd) then	
-				affectation(4, 7, 4, 3, 12, 8, 7, 'croiseur lourd', listeBateau[i]);	//idem pour le croiseur lourd
+				affectation(4, 7, 4, 3, 25, 35, 7, 'croiseur lourd', listeBateau[i]);	//idem pour le croiseur lourd
 			if (listebateau[i].classe = cuirasse) then
-				affectation(5, 9, 6, 4, 10, 15, 10, 'cuirasse', listeBateau[i]);		//idem pour le cuirassé
+				affectation(5, 9, 6, 4, 20, 30, 10, 'cuirasse', listeBateau[i]);		//idem pour le cuirassé
 		end;
 end;
 
 procedure genBateau (plat : PJeu; var joueur1, joueur2 : PJoueur);
 
-var i, j, x, y, k : Integer;
+var i, j, x, y : Integer;
 
 begin	
 	initBateau(joueur1^.boat);											//On initialise les bateaux des deux joueurs
@@ -273,16 +273,8 @@ begin
 		end;
 		
 		
-	//initialisation du quota
-	resetQuota (joueur1,joueur2);
-	
-	//calcul des zones de chaque bateau
-	for k:= 1 to NBOAT do
-	begin
-		calculZone(plat,joueur1^.boat[k]);
-		calculZone(plat,joueur2^.boat[k]);
-	end;
-	
+	//initialisation du quota et calcul des zones
+	resetQuota (plat, joueur1,joueur2);
 end;	
 
 procedure genGrille(var plat : PJeu; var joueur1, joueur2 : PJoueur);

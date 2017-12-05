@@ -69,8 +69,8 @@ Begin
 	saisie := ' ';
 	i:=0;
 	case choixBat^.nature of
-		deplacement : repeat i:=i+1 until (not(joueur^.boat[i].coule) and (joueur^.boat[i].quota>0));
-		tir : repeat i:=i+1 until joueur^.boat[i].peutTirer;
+		deplacement : repeat i:=i+1 until ((not(joueur^.boat[i].coule) and (joueur^.boat[i].quota>0)) or (i=NBOAT+1));
+		tir : repeat i:=i+1 until ((joueur^.boat[i].peutTirer) or (i=NBOAT+1));
 	end;
 	affunBat(joueur^.boat[i]);
 	while saisie <> 'Enter' do

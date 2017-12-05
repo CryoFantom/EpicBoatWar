@@ -7,7 +7,7 @@ uses commun, math;
 
 ////////////////
 
-const DISTANCE_ZONE_MAX=30; //(2830 cases environ) 	(max 75)
+const DISTANCE_ZONE_MAX=50; //(2830 cases environ) 	(max 75)
 	
 Type Cases=Record
 	x : Integer; 
@@ -29,8 +29,9 @@ Type ZoneG=Record
 
 procedure calculZone (game : PJeu; var boat : Bateau);
 procedure gestionDeplacement (var game : PJeu; var saisie:PAction; var joueur1, joueur2 : PJoueur; var nbBateaux : Integer);
-procedure resetQuota (var joueur1,joueur2 : PJoueur);
+procedure resetQuota (game : PJeu ; var joueur1,joueur2 : PJoueur);
 procedure majProchainTir (joueur1Joue : Boolean ; var joueur1,joueur2 : PJoueur; var nbBateaux : Integer);
+procedure gestionTir (var game : PJeu; var saisie:PAction; var joueur1, joueur2 : PJoueur; var nbBateaux : Integer);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -488,7 +489,7 @@ begin
 	
 end;
 
-procedure resetQuota (var joueur1,joueur2 : PJoueur);
+procedure resetQuota (game : PJeu; var joueur1,joueur2 : PJoueur);
 
 var i : Word; 
 
@@ -497,6 +498,8 @@ begin
 	begin
 		joueur1^.boat[i].quota:=joueur1^.boat[i].deplacement.distance;
 		joueur2^.boat[i].quota:=joueur2^.boat[i].deplacement.distance;
+		//on recalcule les zones de déplacement car le quota a changé
+		calculZone(game,joueur1^.boat[i]);
 	end;
 end;
 
@@ -521,6 +524,115 @@ begin
 		end;
 		
 	if joueur1joue then joueur1:=joueur else joueur2:=joueur;
+end;
+
+procedure gestionTir (var game : PJeu; var saisie:PAction; var joueur1, joueur2 : PJoueur; var nbBateaux : Integer);
+
+var i,j,x,y : Word;
+var joueur,adversaire : PJoueur;
+var sboat : Bateau;
+var statut : StatutAction;
+var tabDetec : BArray;
+
+begin
+	if game^.joueur1joue then joueur:=joueur1 else joueur:=joueur2;
+	if game^.joueur1joue then adversaire:=joueur2 else adversaire:=joueur1;
+
+//si déplacement abandonné
+	if (saisie^.nature=finDeplacement) then 
+	begin 
+		saisie^.boat.quota:=0;
+		joueur^.boat[saisie^.noBateau].quota:=0;
+		saisie^.statut:=cancelled;
+	end
+	else
+	begin
+		//stockage de l'état du bateau avant calcul (pour pouvoir le remettre à l'état précédent)
+			sboat:=saisie^.boat;
+
+		//si rotation
+			if (saisie^.nature=rotation) then calculRotation (saisie);
+				
+		//si déplacement
+			if (saisie^.nature=deplacement) then calculDeplacement (saisie);
+			
+			saisie^.statut:=allowed; //le déplacement est autorisé par défaut, et on va vérifier que rien de l'empêche
+			
+		//le bateau est-il toujours dans la zone de jeu
+			for i:=1 to saisie^.boat.taille do
+				if (saisie^.boat.pos[i].x<=0) or (saisie^.boat.pos[i].x>TAILLE_X)
+				or (saisie^.boat.pos[i].y<=0) or (saisie^.boat.pos[i].y>TAILLE_Y)
+				then saisie^.statut:=outzone;
+				
+		//le bateau rencontre-t-il une montagne ou un récif
+			if saisie^.statut=allowed then
+			begin
+				for i:=1 to saisie^.boat.taille do
+				begin
+					if game^.grille[saisie^.boat.pos[i].x,saisie^.boat.pos[i].y]=montagne then saisie^.statut:=mountain;
+					if game^.grille[saisie^.boat.pos[i].x,saisie^.boat.pos[i].y]=recifs then saisie^.statut:=reef;
+				end;
+			end;
+
+		//si le déplacement est bloqué par un obstacle ou la limite de la zone de jeu, le bateau est remis à l'état précédent
+			statut:=saisie^.statut;
+			if saisie^.statut<>allowed then saisie^.boat:=sboat;
+			saisie^.statut:=statut;
+
+		//le quota est-il suffisant
+			if (saisie^.statut=allowed) and (saisie^.boat.quota<0) then
+				begin
+					saisie^.statut:=overquota;
+					joueur^.boat[saisie^.noBateau].quota:=0;	
+				end;
+				
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////		
+		//si tout est bon, on enregistre le bateau, on regarde s'il y a collision et on met à jour la visibilité de l'adversaire//
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+			if saisie^.statut=allowed then 
+			begin
+				gestionCollision(game^.joueur1Joue,saisie,joueur1,joueur2,nbBateaux); //détection et gestion des éventuelles collisions
+				calculZone (game, saisie^.boat); //mise à jour des zones
+				joueur^.boat[saisie^.noBateau]:=saisie^.boat;
+			
+			//les bateaux de l'adversaire deviennent-ils visibles ?
+				tabToGrille(joueur^.boat[saisie^.noBateau].detection,tabDetec);
+
+				for i:=1 to NBOAT do
+					begin
+					if not(adversaire^.boat[i].coule) then //si le bateau n'est pas coulé, auquel cas il est visible
+						begin
+						adversaire^.boat[i].detecte:=False; //on recache tout
+						for j:=1 to adversaire^.boat[i].taille do
+							begin
+							x:=adversaire^.boat[i].pos[j].x;
+							y:=adversaire^.boat[i].pos[j].y;
+							if tabDetec[x,y] then adversaire^.boat[i].detecte:=True;
+							end;
+						end;
+					end;
+			end;
+			
+		//mise à jour de la grille
+			if saisie^.statut=allowed then //si le bateau s'est déplacé
+			begin
+				//on enlève le bateau de l'ancienne position
+				for i:=1 to saisie^.boat.taille do
+					game^.grille[sboat.pos[i].x,sboat.pos[i].y]:=libre;
+				//et on le met sur la nouvelle
+				if game^.joueur1Joue then
+					for i:=1 to saisie^.boat.taille do
+					game^.grille[saisie^.boat.pos[i].x,saisie^.boat.pos[i].y]:=bateauJ1
+				else
+					for i:=1 to saisie^.boat.taille do
+					game^.grille[saisie^.boat.pos[i].x,saisie^.boat.pos[i].y]:=bateauJ2;
+			end;
+	end;
+	
+	if game^.joueur1joue then joueur1:=joueur else joueur2:=joueur;
+	if game^.joueur1joue then joueur2:=adversaire else joueur1:=adversaire;
+	
 end;
 
 begin
