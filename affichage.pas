@@ -12,6 +12,15 @@ procedure changementJoueur(var joueur1Joue : Boolean);
 
 implementation
 
+Procedure PVtoColor(touche, coule: Boolean);
+Begin
+		textbackground(Black);			
+		if coule then textcolor(Red)
+			else textcolor(White);
+		if touche and not(coule) then textbackground(Yellow)
+			else if not(coule) then textbackground(Green);
+end;
+
 procedure affObstacle ( montagne, recif: Obstacle);
 
 var i: Integer;
@@ -42,11 +51,7 @@ begin
 	for i:=1 to NBOAT do
 	begin
 		GotoXY(joueur^.boat[i].pos[1].x,joueur^.boat[i].pos[1].y);
-		textbackground(Black);			
-		if joueur^.boat[i].coule then textcolor(Red)
-			else textcolor(White);
-		if (joueur^.boat[i].touche and not(joueur^.boat[i].coule)) then textbackground(Yellow)
-			else if not(joueur^.boat[i].coule) then textbackground(Green);
+		PVtoColor(joueur^.boat[i].touche, joueur^.boat[i].coule);
 		write('O');
 		j:=2;
 		repeat
@@ -85,18 +90,6 @@ procedure affZone (boat: Bateau; deplacement, detection, tir : Boolean);
 var i : Integer;
 
 begin 
-	//déplacement
-	if deplacement then
-	for i:=1 to boat.deplacement.nbCases do
-		begin
-		GotoXY(boat.deplacement.tabZone[i].x,boat.deplacement.tabZone[i].y);
-		if boat.deplacement.tabZone[i].visible then
-			begin
-			TextBackground(Green);
-			write(' ');
-			end;
-		end;
-	
 	//détection
 	if detection then
 	for i:=1 to boat.detection.nbCases do
@@ -105,6 +98,18 @@ begin
 		if boat.detection.tabZone[i].visible then
 			begin
 			TextBackground(Blue);
+			write(' ');
+			end;
+		end;
+		
+	//déplacement
+	if deplacement then
+	for i:=1 to boat.deplacement.nbCases do
+		begin
+		GotoXY(boat.deplacement.tabZone[i].x,boat.deplacement.tabZone[i].y);
+		if boat.deplacement.tabZone[i].visible then
+			begin
+			TextBackground(Green);
 			write(' ');
 			end;
 		end;
@@ -136,10 +141,18 @@ begin
 	for j:=1 to NBOAT do
 	begin
 		GotoXY(TAILLE_X+1,i);
-		if joueur1^.boat[j].coule then writeln(joueur1^.boat[j].nom,' coulé !') 
-		else writeln(joueur1^.boat[j].nom,' ',joueur1^.boat[j].ptDeVie,' PV');
-		i:=i+1;
-	end;
+		PVtoColor(joueur1^.boat[j].touche,joueur1^.boat[j].coule);
+		write(joueur1^.boat[j].nom);
+		textbackground(Black);
+		textcolor(white);
+		if joueur1^.boat[j].coule then writeln(' coulé !') 
+		else case joueur1^.boat[j].prochainTir of 
+				0: write(' ',joueur1^.boat[j].ptDeVie,' PV', ' tir disponible');
+				1: write(' ',joueur1^.boat[j].ptDeVie,' PV',' tir dans 1 tour');
+				2,3,4: write(' ',joueur1^.boat[j].ptDeVie,' PV',' tir dans ',joueur1^.boat[j].prochainTir,' tours');
+			end;
+			i:=i+1;
+		end;
 	i:=i+2;
 	GotoXY(TAILLE_X+1,i);
 	writeln(joueur2^.nom);
@@ -148,8 +161,16 @@ begin
 	for j:=1 to NBOAT do
 	begin
 		GotoXY(TAILLE_X+1,i);
-		if joueur2^.boat[j].coule then writeln(joueur2^.boat[j].nom,' coulé !')
-		else writeln(joueur2^.boat[j].nom,' ',joueur2^.boat[j].ptDeVie,' PV');
+		PVtoColor(joueur2^.boat[j].touche,joueur2^.boat[j].coule);
+		write(joueur2^.boat[j].nom);
+		textbackground(Black);
+		textcolor(white);
+		if joueur2^.boat[j].coule then writeln(' coulé !') 
+		else case joueur2^.boat[j].prochainTir of 
+				0: write(' ',joueur2^.boat[j].ptDeVie,' PV', ' tir disponible');
+				1: write(' ',joueur2^.boat[j].ptDeVie,' PV',' tir dans 1 tour');
+				2,3,4: write(' ',joueur2^.boat[j].ptDeVie,' PV',' tir dans ',joueur2^.boat[j].prochainTir,' tours');
+			end;
 		i:=i+1;
 	end;
 			
