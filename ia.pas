@@ -6,6 +6,11 @@ uses commun, calcul, crt;
 
 Const NNOEUDSMAX = 1000000;
 
+type TabTir = record
+	tab : array[1..NBOAT] of Boolean;
+	nbBateaux : Integer;
+end;
+
 type Coordos = record
 	x : Integer;
 	y : Integer;
@@ -50,13 +55,58 @@ begin
 							end;
 					end;
 			end;
+	for i:=1 to listeNoeuds.Taille do
+	begin
+		gotoxy(listeNoeuds.tab[i].x, listeNoeuds.tab[i].y);
+		write('O');
+	end;
 			
 	calculNoeuds := listeNoeuds;
 	
 
 end;
 
+function listageBateau(listeBateaux : listeBateaux; leBateau : Bateau) : TabTir;
 
+var i, j, k, x, y : Integer;
+var tir : TabTir;
+
+begin
+	
+	tir.nbBateaux:=0;
+
+	for i:=1 to NBOAT do
+		tir.tab[i] := False;
+	
+	for i:=1 to leBateau.tir.nbCases do
+		if (leBateau.tir.tabZone[i].nature = bateauJ1) then
+		begin
+			x := leBateau.tir.tabZone[i].x;
+			y := leBateau.tir.tabZone[i].y;
+			for j:=1 to NBOAT do
+			for k:=1 to listeBateaux[j].taille do
+				if (not(listeBateaux[j].coule) and (listeBateaux[j].pos[k].x=x) and (listeBateaux[j].pos[k].y=y)) then
+				begin
+					tir.tab[j]:=True;
+					tir.nbBateaux := tir.nbBateaux +1;
+				end;	
+		end;
+	listageBateau := tir;
+end;
+
+function choixAction (listeBateaux : listeBateaux; leBateau : Bateau; unTir : TabTir) : TypeAction;
+ var i : Integer;
+ var action : TypeAction;
+
+begin
+	if unTir.nbBateaux = 0 then
+		action := deplacement;
+	for i:= 1 to NBOAT do
+		action := tir;
+	
+	choixAction:= action;
+
+end;
 
 begin
 end.
