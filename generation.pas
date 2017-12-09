@@ -213,13 +213,13 @@ begin
 	for  i:=1 to NBOAT do
 		begin		//taille, pdv, degats, trchrg, distDepl, distDetec, distTir, nom, navire
 			if (listeBateau[i].classe = destroyer) then	
-				affectation(2, 4, 2, 1, 40, 50, 3, 'destroyer', listeBateau[i]);		//si le bateau est un destroyer on lui attribue ses caractéristiques
+				affectation(2, 4, 2, 1, 45, 60, 10, 'destroyer', listeBateau[i]);		//si le bateau est un destroyer on lui attribue ses caractéristiques
 			if (listeBateau[i].classe = croiseurlg) then
-				affectation(3, 6, 3, 2, 30, 40, 5, 'croiseur leger' ,listeBateau[i]);	//idem pour le croiseur léger
+				affectation(3, 6, 3, 2, 40, 50, 15, 'croiseur léger' ,listeBateau[i]);	//idem pour le croiseur léger
 			if (listeBateau[i].classe = croiseurlrd) then	
-				affectation(4, 7, 4, 3, 25, 35, 7, 'croiseur lourd', listeBateau[i]);	//idem pour le croiseur lourd
+				affectation(4, 7, 4, 3, 35, 40, 20, 'croiseur lourd', listeBateau[i]);	//idem pour le croiseur lourd
 			if (listebateau[i].classe = cuirasse) then
-				affectation(5, 9, 6, 4, 20, 30, 10, 'cuirasse', listeBateau[i]);		//idem pour le cuirassé
+				affectation(5, 9, 6, 4, 30, 35, 25, 'cuirassé', listeBateau[i]);		//idem pour le cuirassé
 		end;
 end;
 
@@ -241,11 +241,10 @@ begin
 	joueur2^.score:= 0;
 	
 	//remplir les positions des bateaux
-	
-	y:=trunc(TAILLE_Y/2-NBOAT);											//au milieu à gauche
+	y:=trunc((TAILLE_Y-NBOAT*TMAX)/2);
 	for i:= 1 to NBOAT do												//On remplit les coordonnées de chaque bateau du joueur 1
 		begin
-			x:=2+TMAX;
+			x:=2+TMAX;													//à gauche de l'écran
 			for j := 1 to joueur1^.boat[i].taille do
 				begin
 					joueur1^.boat[i].pos[j].x := x;						
@@ -253,14 +252,14 @@ begin
 					joueur1^.boat[i].pos[j].nature := bateauJ1;
 					x:=x-1;
 				end;
-			y:=y+2;
+			y:=y+TMAX;
 			joueur1^.boat[i].sens:=E;
 		end;
 
-	y:=trunc(TAILLE_Y/2-NBOAT);											//au milieu à droite
+	y:=trunc((TAILLE_Y-NBOAT*TMAX)/2);									
 	for i:= 1 to NBOAT do												//On remplit les coordonnées de chaque bateau du joueur 2
 		begin
-			x:=TAILLE_X-2-TMAX;
+			x:=TAILLE_X-2-TMAX;											//à droite de l'écran
 			for j := 1 to joueur2^.boat[i].taille do
 				begin
 					joueur2^.boat[i].pos[j].x := x;
@@ -268,7 +267,7 @@ begin
 					joueur2^.boat[i].pos[j].nature := bateauJ2;
 					x:=x+1;
 				end;
-			y:=y+2;
+			y:=y+TMAX;
 			joueur2^.boat[i].sens:=O;
 		end;
 		

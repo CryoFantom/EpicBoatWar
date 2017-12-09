@@ -69,35 +69,39 @@ Begin
 	saisie := ' ';
 	i:=0;
 	case choixBat^.nature of
-		deplacement : repeat i:=i+1 until ((not(joueur^.boat[i].coule) and (joueur^.boat[i].quota>0)) or (i=NBOAT+1));
-		tir : repeat i:=i+1 until ((joueur^.boat[i].peutTirer) or (i=NBOAT+1));
+		deplacement : repeat i:=i+1 until ((i=NBOAT+1) or (not(joueur^.boat[i].coule) and (joueur^.boat[i].quota>0)));
+		tir : repeat i:=i+1 until ((i=NBOAT+1) or (joueur^.boat[i].peutTirer));
 	end;
-	affunBat(joueur^.boat[i]);
-	while saisie <> 'Enter' do
+	if (i<=NBOAT+1) then
 	begin
-		K:=GetKeyEvent;
-		K:=TranslateKeyEvent(K);
-		saisie:=KeyEventToString(K);
-		if GetKeyEventCode(K)=7181 then saisie:='Enter';
-		case saisie of 
-			'Right' : case choixBat^.nature of
-						deplacement : repeat if i = NBOAT then i:=1 else i:=i+1 until (not(joueur^.boat[i].coule) and (joueur^.boat[i].quota>0));
-						tir : repeat if i = NBOAT then i:=1 else i:=i+1 until joueur^.boat[i].peutTirer;
-					end;
-			'Left' : case choixBat^.nature of
-						deplacement : repeat if i=1 then i:=NBOAT else i:=i-1 until (not(joueur^.boat[i].coule) and (joueur^.boat[i].quota>0));
-						tir : repeat if i=1 then i:=NBOAT else i:=i-1 until joueur^.boat[i].peutTirer;
-					end;
-			't','T' : begin
-						choixBat^.nature:=finTour;
-						saisie:='Enter';
-					end;
-		end;
-		affBateaux (game, joueur1, joueur2);
 		affunBat(joueur^.boat[i]);
-	end;
-	choixBat^.boat:=joueur^.boat[i];
-	choixBat^.noBateau:=i;
+		while saisie <> 'Enter' do
+		begin
+			K:=GetKeyEvent;
+			K:=TranslateKeyEvent(K);
+			saisie:=KeyEventToString(K);
+			if GetKeyEventCode(K)=7181 then saisie:='Enter';
+			case saisie of 
+				'Right' : case choixBat^.nature of
+							deplacement : repeat if i = NBOAT then i:=1 else i:=i+1 until (not(joueur^.boat[i].coule) and (joueur^.boat[i].quota>0));
+							tir : repeat if i = NBOAT then i:=1 else i:=i+1 until joueur^.boat[i].peutTirer;
+						end;
+				'Left' : case choixBat^.nature of
+							deplacement : repeat if i=1 then i:=NBOAT else i:=i-1 until (not(joueur^.boat[i].coule) and (joueur^.boat[i].quota>0));
+							tir : repeat if i=1 then i:=NBOAT else i:=i-1 until joueur^.boat[i].peutTirer;
+						end;
+				't','T' : begin
+							choixBat^.nature:=finTour;
+							saisie:='Enter';
+						end;
+			end;
+			affBateaux (game, joueur1, joueur2);
+			affunBat(joueur^.boat[i]);
+		end;
+		choixBat^.boat:=joueur^.boat[i];
+		choixBat^.noBateau:=i;
+	end 
+	else choixBat^.statut:=overquota;
 	DoneKeyboard;
 end;
 
@@ -172,6 +176,7 @@ Begin
 				'Down': choix^.coord.y:= choix^.coord.y+1;
 				't','T': choix^.nature := finTir;
 			end;
+			if choix^.nature=finTir then saisie:='Enter';
 			if not(choix^.boat.tabTir[choix^.coord.x,choix^.coord.y]) {la position n'est pas dans la zone de tir} then 
 				choix^.coord:=coord;
 			GotoXY(choix^.coord.x,choix^.coord.y);

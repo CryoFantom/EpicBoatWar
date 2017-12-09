@@ -6,7 +6,8 @@ const 	NBOAT=6; //nombre maximum de bateaux
 		TMAX=5; //taille maximale d’un bateau
 		TAILLE_X=142; //largeur en caractères de la surface de jeu (max 169)
 		TAILLE_Y=45; //hauteur en caractères de la surface de jeu (max 51)
-		NMAXPOS=7500; //nombre maximum de valeurs dans un tableau de position (max 7500)
+		NMAXPOS=8000; //nombre maximum de valeurs dans un tableau de position
+		NMAXOBST=300; //nombre max de positions dans un tableau d'obstacle (pour ne pas allouer inutilement de la mémoire avec la taille précédente)
 		NBMONTS=6; //nombre maximum de montagnes
 		NBRECIF=5; //nombre maximum de récifs
 		PROBA=0.9; 
@@ -33,7 +34,7 @@ Type Position=Record
 end;
 
 Type Obstacle=Record
-	tab : Array[1..NMAXPOS] of Position; //index des positions des obstacles
+	tab : Array[1..NMAXOBST] of Position; //index des positions des obstacles
 	npos : Integer; //nombre de positions enregistrées dans le tableau
 end;
 		
@@ -68,6 +69,7 @@ Type Bateau=Record
 	deplacement : Zone; //distance + zone déplacement
 	quota : Single; //nombre de déplacements restants pour un tour
 	detection : Zone; //distance détection + zone où l'adversaire est détecté
+	tabDetec : BArray; //accès à la zone de détection par coordonnées
 	detecte : Boolean; //bateau visible par l’adversaire, recalculé à chaque tour
 	touche : Boolean; //le bateau est touché
 	coule : Boolean; //le bateau est coulé (PV à 0)

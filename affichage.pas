@@ -135,7 +135,7 @@ var i,j: integer;
 
 begin
 	GotoXY(TAILLE_X+1,1);
-	writeln(joueur1^.nom);
+	writeln(joueur1^.nom,' score : ',joueur1^.score,' pts');
 	j:=1;
 	i:=2;
 	for j:=1 to NBOAT do
@@ -145,6 +145,7 @@ begin
 		write(joueur1^.boat[j].nom);
 		textbackground(Black);
 		textcolor(white);
+		GotoXY(TAILLE_X+18,i);
 		if joueur1^.boat[j].coule then writeln(' coulé !') 
 		else case joueur1^.boat[j].prochainTir of 
 				0: write(' ',joueur1^.boat[j].ptDeVie,' PV', ' tir disponible');
@@ -155,7 +156,7 @@ begin
 		end;
 	i:=i+2;
 	GotoXY(TAILLE_X+1,i);
-	writeln(joueur2^.nom);
+	writeln(joueur2^.nom,' score : ',joueur2^.score,' pts');
 	i:=i+1;
 	j:=1;
 	for j:=1 to NBOAT do
@@ -165,6 +166,7 @@ begin
 		write(joueur2^.boat[j].nom);
 		textbackground(Black);
 		textcolor(white);
+		GotoXY(TAILLE_X+18,i);
 		if joueur2^.boat[j].coule then writeln(' coulé !') 
 		else case joueur2^.boat[j].prochainTir of 
 				0: write(' ',joueur2^.boat[j].ptDeVie,' PV', ' tir disponible');
@@ -208,6 +210,7 @@ end;
 procedure affichageDebutTour (game:PJeu; joueur1, joueur2: PJoueur);
 
 begin
+		textcolor(White);
 		clrscr;
 		affObstacle (game^.montagne, game^.recifs);
 		affBateaux(game,joueur1,joueur2);
