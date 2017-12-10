@@ -150,7 +150,7 @@ begin
 		else case joueur1^.boat[j].prochainTir of 
 				0: write(' ',joueur1^.boat[j].ptDeVie,' PV', ' tir disponible');
 				1: write(' ',joueur1^.boat[j].ptDeVie,' PV',' tir dans 1 tour');
-				2,3,4: write(' ',joueur1^.boat[j].ptDeVie,' PV',' tir dans ',joueur1^.boat[j].prochainTir,' tours');
+				2,3,4,5: write(' ',joueur1^.boat[j].ptDeVie,' PV',' tir dans ',joueur1^.boat[j].prochainTir,' tours');
 			end;
 			i:=i+1;
 		end;

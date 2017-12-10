@@ -582,12 +582,17 @@ begin
 else
 // on regarde pour chaque bateau s'il est touché
 	begin
+	saisie^.statut:=allowed;
 	//bateaux du joueur 1
 		for b:=1 to NBOAT do
-			//on ne vérifie que si le bateau est différent du bateau joué
-			if not(game^.joueur1Joue and (saisie^.noBateau=b)) then //si le bateau joué est le b-ième bateau du j1
+			if (game^.joueur1Joue and (saisie^.noBateau=b)) then
+				begin
+				for t:=1 to joueur1^.boat[b].taille do
+					if ((joueur1^.boat[b].pos[t].x=saisie^.coord.x) and (joueur1^.boat[b].pos[t].y=saisie^.coord.y)) then
+						saisie^.statut:=outzone; //si le joueur tire sur son bateau (b-ième bateau du j1)
+				end
+			else //on ne vérifie que si le bateau est différent du bateau joué
 			begin
-				saisie^.statut:=allowed;
 				for t:=1 to joueur1^.boat[b].taille do
 					if (joueur1^.boat[b].pos[t].x=saisie^.coord.x) and (joueur1^.boat[b].pos[t].y=saisie^.coord.y) then
 						begin //si le bateau est touché, on lui enlève le nombre de dégâts du bateau qui a tiré
@@ -603,25 +608,22 @@ else
 									if game^.joueur1joue then nbBateaux:=nbBateaux-1;
 								end;
 							if game^.joueur1joue then 
-								begin
-									joueur1^.score:=joueur1^.score+saisie^.boat.degats;
-									joueur1^.boat[saisie^.noBateau].prochainTir:=joueur1^.boat[saisie^.noBateau].tRechargement;
-									joueur1^.boat[saisie^.noBateau].peutTirer:=False;
-								end
+								joueur1^.score:=joueur1^.score+saisie^.boat.degats
 							else 
-								begin
-									joueur2^.boat[saisie^.noBateau].prochainTir:=joueur2^.boat[saisie^.noBateau].tRechargement;
-									joueur2^.score:=joueur2^.score+saisie^.boat.degats;
-									joueur2^.boat[saisie^.noBateau].peutTirer:=False;
-								end;
+								joueur2^.score:=joueur2^.score+saisie^.boat.degats;
 						end;
 			end;
 	//bateaux du joueur 2
+	if saisie^.statut=allowed then
 		for b:=1 to NBOAT do
-			//on ne vérifie que si le bateau est différent du bateau joué
-			if not(not(game^.joueur1Joue) and (saisie^.noBateau=b)) then //si le bateau joué est le b-ième bateau du j2
+			if (not(game^.joueur1Joue) and (saisie^.noBateau=b)) then
+				begin
+				for t:=1 to joueur2^.boat[b].taille do
+					if ((joueur2^.boat[b].pos[t].x=saisie^.coord.x) and (joueur2^.boat[b].pos[t].y=saisie^.coord.y)) then
+						saisie^.statut:=outzone; //si le joueur tire sur son bateau (b-ième bateau du j2)
+				end
+			else //on ne vérifie que si le bateau est différent du bateau joué
 			begin
-				saisie^.statut:=allowed;
 				for t:=1 to joueur2^.boat[b].taille do
 					if (joueur2^.boat[b].pos[t].x=saisie^.coord.x) and (joueur2^.boat[b].pos[t].y=saisie^.coord.y) then
 						begin //si le bateau est touché, on lui enlève le nombre de dégâts du bateau qui a tiré
@@ -637,20 +639,24 @@ else
 								if not(game^.joueur1joue) then nbBateaux:=nbBateaux-1;
 							end;
 							if game^.joueur1joue then 
-								begin
-									joueur1^.score:=joueur1^.score+saisie^.boat.degats;
-									joueur1^.boat[saisie^.noBateau].prochainTir:=joueur1^.boat[saisie^.noBateau].tRechargement;
-									joueur1^.boat[saisie^.noBateau].peutTirer:=False;
-								end
+								joueur1^.score:=joueur1^.score+saisie^.boat.degats
 							else 
-								begin
-									joueur2^.boat[saisie^.noBateau].prochainTir:=joueur2^.boat[saisie^.noBateau].tRechargement;
-									joueur2^.score:=joueur2^.score+saisie^.boat.degats;
-									joueur2^.boat[saisie^.noBateau].peutTirer:=False;
-								end;
+								joueur2^.score:=joueur2^.score+saisie^.boat.degats;
 						end;
 			end;
 	end;
+	
+	if saisie^.statut=allowed then
+		if game^.joueur1joue then 
+			begin
+				joueur1^.boat[saisie^.noBateau].prochainTir:=joueur1^.boat[saisie^.noBateau].tRechargement;
+				joueur1^.boat[saisie^.noBateau].peutTirer:=False;
+			end
+		else 
+			begin
+				joueur2^.boat[saisie^.noBateau].prochainTir:=joueur2^.boat[saisie^.noBateau].tRechargement;
+				joueur2^.boat[saisie^.noBateau].peutTirer:=False;
+			end;
 end;
 
 begin

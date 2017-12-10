@@ -41,6 +41,7 @@ begin
 	majProchainTir(game^.joueur1joue,False,joueur1,joueur2,nbBateauxTir);
 	if nbBateauxTir>0 then 
 	repeat //jusqu'à ce que le joueur ait fait tirer tous ses bateaux ou qu'il veuille terminer son tour
+		saisie^.statut:=allowed;
 		affichageDebutTour (game, joueur1, joueur2);
 		saisie^.nature:=tir;
 		choixBateau (game^.joueur1Joue,nbBateauxTir,joueur1,joueur2,game,saisie);
@@ -58,7 +59,6 @@ begin
 				if nbBateauxTir<=0 then saisie^.nature:=finTour;
 			end;
 		end;
-		saisie^.nature:=finTour
 	until (saisie^.nature=finTour);
 		
 	saisie^.nature:=nonValide; //reset saisie.nature

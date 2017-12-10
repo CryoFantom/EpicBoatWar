@@ -16,7 +16,7 @@ var i : Integer;
 begin
 	GotoXY(boat.pos[1].x,boat.pos[1].y);
 	textcolor(Black);
-	textbackground(LightGray);
+	textbackground(Blue);
 	write('O');
 	for i:=2 to boat.taille do
 	begin;
@@ -72,7 +72,7 @@ Begin
 		deplacement : repeat i:=i+1 until ((i=NBOAT+1) or (not(joueur^.boat[i].coule) and (joueur^.boat[i].quota>0)));
 		tir : repeat i:=i+1 until ((i=NBOAT+1) or (joueur^.boat[i].peutTirer));
 	end;
-	if (i<=NBOAT+1) then
+	if (i<=NBOAT) then
 	begin
 		affunBat(joueur^.boat[i]);
 		while saisie <> 'Enter' do
@@ -100,7 +100,8 @@ Begin
 		end;
 		choixBat^.boat:=joueur^.boat[i];
 		choixBat^.noBateau:=i;
-	end 
+		choixBat^.statut:=allowed;
+	end
 	else choixBat^.statut:=overquota;
 	DoneKeyboard;
 end;
