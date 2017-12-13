@@ -231,9 +231,6 @@ begin
 	initBateau(joueur1^.boat);											//On initialise les bateaux des deux joueurs
 	initBateau(joueur2^.boat);
 	
-	joueur1^.nom := 'J1';												//On initialise les noms, pour éviter tout problème d'affectation
-	joueur2^.nom := 'J2';
-	
 	joueur1^.nbBateaux := NBOAT;										//Chaque joueur commence la partie avec le même nombre de bateaux (ici NBOAT)
 	joueur2^.nbBateaux := NBOAT;
 	

@@ -7,7 +7,7 @@ uses commun, Crt, Keyboard, affichage, calcul;
 procedure choixDeplacement (var choix : PAction);
 procedure choixBateau (joueur1joue : Boolean; nbBateaux : Integer ; joueur1, joueur2: PJoueur; game : PJeu; var choixBat : PAction);
 procedure choixTir (var choix : PAction);
-
+procedure menu (joueur1, 
 implementation
 
 procedure affUnBat (boat : Bateau);
@@ -81,6 +81,7 @@ Begin
 			K:=TranslateKeyEvent(K);
 			saisie:=KeyEventToString(K);
 			if GetKeyEventCode(K)=7181 then saisie:='Enter';
+			if getkeyeventcode(k)=283 then saisie:= 'Escape';
 			case saisie of 
 				'Right' : case choixBat^.nature of
 							deplacement : repeat if i = NBOAT then i:=1 else i:=i+1 until (not(joueur^.boat[i].coule) and (joueur^.boat[i].quota>0));
@@ -94,6 +95,8 @@ Begin
 							choixBat^.nature:=finTour;
 							saisie:='Enter';
 						end;
+				'Escape' : exitgame()
+								
 			end;
 			affBateaux (game, joueur1, joueur2);
 			affunBat(joueur^.boat[i]);
