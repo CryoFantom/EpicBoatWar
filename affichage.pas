@@ -9,8 +9,51 @@ procedure affichageDebutTour (game:PJeu; joueur1, joueur2: PJoueur);
 procedure affichageDepl (game:PJeu; boat:Bateau; joueur1, joueur2: PJoueur);
 procedure affichageTir (game:PJeu; boat:Bateau; joueur1, joueur2: PJoueur);
 procedure changementJoueur(var joueur1Joue : Boolean);
+procedure exitgame();
+procedure menu (joueur1, joueur2: Joueur; veutjouer: Boolean);
 
 implementation
+
+procedure menu (joueur1, joueur2: Joueur; veutjouer: Boolean);
+var nom : array[1..20] of string;
+	i,x: Integer;
+	k: TKeyEvent;
+begin
+	GotoXY(70,22);
+	Writeln('Joueur 1 entrer votre nom (apuyer sur entrer pour valider, apuyer sur ← pour effacer)');
+	initKeyboard;
+	i:=0;
+	repeat
+		i:=i+1;
+		K:=GetKeyEvent;
+		K:=TranslateKeyEvent(K);
+		nom[i]:=KeyEventToString(K);
+		if GetKeyEventCode(K)=7181 then nom[i]:='Enter';
+		if nom[i] <> 'Enter' then
+			if nom[i] = 'Left' then
+				if i > 1 then
+					i:=i-2
+				else
+					i:=0
+			else
+			Begin
+				GotoXY(70,21);
+				
+			
+	until nom[i] = 'Enter';
+	
+end;
+
+procedure exitgame();
+begin
+	GotoXY(70,22);
+	writeln('Voulez vous vraiment quitter cette partie ?');
+	writeln(' ');
+	write('oui    ','  non');
+end;
+
+
+
 
 Procedure PVtoColor(touche, coule: Boolean);
 Begin

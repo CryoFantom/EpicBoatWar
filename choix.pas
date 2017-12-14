@@ -7,8 +7,9 @@ uses commun, Crt, Keyboard, affichage, calcul;
 procedure choixDeplacement (var choix : PAction);
 procedure choixBateau (joueur1joue : Boolean; nbBateaux : Integer ; joueur1, joueur2: PJoueur; game : PJeu; var choixBat : PAction);
 procedure choixTir (var choix : PAction);
-procedure menu (joueur1, 
+
 implementation
+
 
 procedure affUnBat (boat : Bateau);
 var i : Integer;
