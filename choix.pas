@@ -7,8 +7,43 @@ uses commun, Crt, Keyboard, affichage, calcul;
 procedure choixDeplacement (var choix : PAction);
 procedure choixBateau (joueur1joue : Boolean; nbBateaux : Integer ; joueur1, joueur2: PJoueur; game : PJeu; var choixBat : PAction);
 procedure choixTir (var choix : PAction);
+procedure exitgame();
+{procedure menu (var nomJ1, nomJ2: String; var veutjouer: Boolean);}
 
 implementation
+
+procedure menu (var nomJ1, nomJ2: String; var veutjouer: Boolean);
+
+begin
+	ClrScr;
+	GoToXY(trunc(TAILLE_X*0.4),trunc(TAILLE_Y/2));
+	writeln('Joueur 1, entrez votre nom puis appuyez sur Entrée');
+	readln(nomJ1);
+	writeln('Joueur 2, entrez votre nom puis appuyez sur Entrée');
+	readln(nomJ2);
+	//à terminer
+end;
+
+procedure exitgame();
+
+var K : TKeyEvent;
+
+begin
+	ClrScr;
+	GoToXY(trunc(TAILLE_X*0.4),trunc(TAILLE_Y/2));
+	writeln('Voulez vous vraiment quitter cette partie ?');
+	GoToXY(trunc(TAILLE_X*0.3),trunc(TAILLE_Y/2)+2);
+	write('Entrée pour quitter la partie / Échap pour revenir au jeu');
+	InitKeyBoard;
+	K:=GetKeyEvent;
+	case GetKeyEventCode(K) of 
+		7181 : Halt;
+		//283 : Exit;
+	end;
+	DoneKeyBoard;
+	ClrScr;
+	//à améliorer
+end;
 
 
 procedure affUnBat (boat : Bateau);
@@ -96,8 +131,7 @@ Begin
 							choixBat^.nature:=finTour;
 							saisie:='Enter';
 						end;
-				'Escape' : exitgame()
-								
+				'Escape' : exitgame();					
 			end;
 			affBateaux (game, joueur1, joueur2);
 			affunBat(joueur^.boat[i]);

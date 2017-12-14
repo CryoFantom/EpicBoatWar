@@ -5,58 +5,22 @@ interface
 uses commun,Crt,keyboard;
 
 procedure affBateaux  (game: PJeu; joueur1, joueur2: PJoueur);
-procedure affichageDebutTour (game:PJeu; joueur1, joueur2: PJoueur);
-procedure affichageDepl (game:PJeu; boat:Bateau; joueur1, joueur2: PJoueur);
-procedure affichageTir (game:PJeu; boat:Bateau; joueur1, joueur2: PJoueur);
+procedure affichageJeu (game:PJeu; saisie:PAction; joueur1, joueur2: PJoueur);
 procedure changementJoueur(var joueur1Joue : Boolean);
-procedure exitgame();
-procedure menu (joueur1, joueur2: Joueur; veutjouer: Boolean);
+procedure finJeu(nbBat1,nbBat2:Integer);
 
 implementation
 
-procedure menu (joueur1, joueur2: Joueur; veutjouer: Boolean);
-var nom : array[1..20] of string;
-	i,x: Integer;
-	k: TKeyEvent;
+procedure finJeu(nbBat1,nbBat2:Integer);
 begin
-	GotoXY(70,22);
-	Writeln('Joueur 1 entrer votre nom (apuyer sur entrer pour valider, apuyer sur ← pour effacer)');
-	initKeyboard;
-	i:=0;
-	repeat
-		i:=i+1;
-		K:=GetKeyEvent;
-		K:=TranslateKeyEvent(K);
-		nom[i]:=KeyEventToString(K);
-		if GetKeyEventCode(K)=7181 then nom[i]:='Enter';
-		if nom[i] <> 'Enter' then
-			if nom[i] = 'Left' then
-				if i > 1 then
-					i:=i-2
-				else
-					i:=0
-			else
-			Begin
-				GotoXY(70,21);
-				
-			
-	until nom[i] = 'Enter';
-	
+	GoToXY(trunc(TAILLE_X*0.4),trunc(TAILLE_Y/2));
+	if nbBat1=0 then write ('Le joueur 2 a gagné !');
+	if nbBat2=0 then write('Le joueur 1 a gagné !')
+	//à améliorer
 end;
 
-procedure exitgame();
+procedure PVtoColor(touche, coule: Boolean);
 begin
-	GotoXY(70,22);
-	writeln('Voulez vous vraiment quitter cette partie ?');
-	writeln(' ');
-	write('oui    ','  non');
-end;
-
-
-
-
-Procedure PVtoColor(touche, coule: Boolean);
-Begin
 		textbackground(Black);			
 		if coule then textcolor(Red)
 			else textcolor(White);
@@ -130,7 +94,8 @@ end;
 
 procedure affZone (boat: Bateau; deplacement, detection, tir : Boolean);
 
-var i : Integer;
+var i,j : Integer;
+	ordre : Boolean;
 
 begin 
 	//détection
@@ -144,32 +109,38 @@ begin
 			write(' ');
 			end;
 		end;
+	
+	if boat.quota<boat.tir.distance then ordre:=False {deplacement affiché sur tir} else ordre:=True {tir affiché sur deplacement};
+	
+	for j:=1 to 2 do
+	begin
+		//déplacement
+		if deplacement and ordre then
+		for i:=1 to boat.deplacement.nbCases do
+			begin
+			GotoXY(boat.deplacement.tabZone[i].x,boat.deplacement.tabZone[i].y);
+			if boat.deplacement.tabZone[i].visible then
+				begin
+				TextBackground(Green);
+				write(' ');
+				end;
+			end;
 		
-	//déplacement
-	if deplacement then
-	for i:=1 to boat.deplacement.nbCases do
-		begin
-		GotoXY(boat.deplacement.tabZone[i].x,boat.deplacement.tabZone[i].y);
-		if boat.deplacement.tabZone[i].visible then
+		//tir
+		if tir and not(ordre) then
+		for i:=1 to boat.tir.nbCases do
 			begin
-			TextBackground(Green);
-			write(' ');
+			GotoXY(boat.tir.tabZone[i].x,boat.tir.tabZone[i].y);
+			if boat.tir.tabZone[i].visible then
+				begin
+				TextBackground(Red);
+				write(' ');
+				end;
 			end;
-		end;
-	
-	//tir
-	if tir then
-	for i:=1 to boat.tir.nbCases do
-		begin
-		GotoXY(boat.tir.tabZone[i].x,boat.tir.tabZone[i].y);
-		if boat.tir.tabZone[i].visible then
-			begin
-			TextBackground(Red);
-			write(' ');
-			end;
-		end;
-	
-	TextBackground(Black);
+		TextBackground(Black);
+		
+		if ordre then ordre:=False else ordre:=True;
+	end;
 	GotoXY(1,TAILLE_Y+1);
 end;
 
@@ -222,42 +193,26 @@ begin
 	GotoXY(1,TAILLE_Y+1);
 end;
 
-procedure affichageDepl (game:PJeu; boat:Bateau; joueur1, joueur2: PJoueur);
-
-begin
-		clrscr;
-		affZone(boat,True,True,True);
-		affObstacle (game^.montagne, game^.recifs);
-		affBateaux(game,joueur1,joueur2);
-		affInfosJeu(game^.joueur1joue,joueur1,joueur2);
-		
-		if boat.quota>0 then
-		begin
-			GotoXY(TAILLE_X+1,30);
-			write('Quota de déplacement : ');
-			GotoXY(TAILLE_X+1,31);
-			write(boat.quota:3:2);
-		end;
-end;
-
-procedure affichageTir (game:PJeu; boat:Bateau; joueur1, joueur2: PJoueur);
-
-begin
-		clrscr;
-		affZone(boat,False,True,True);
-		affObstacle (game^.montagne, game^.recifs);
-		affBateaux(game,joueur1,joueur2);
-		affInfosJeu(game^.joueur1joue,joueur1,joueur2);
-end;
-
-procedure affichageDebutTour (game:PJeu; joueur1, joueur2: PJoueur);
+procedure affichageJeu (game:PJeu; saisie:PAction; joueur1, joueur2: PJoueur);
 
 begin
 		textcolor(White);
 		clrscr;
+		case saisie^.nature of
+			deplacement,rotation : if saisie^.boat.quota>0 then affZone(saisie^.boat,True,True,True);
+			tir : affZone(saisie^.boat,False,True,True);
+		end;
 		affObstacle (game^.montagne, game^.recifs);
 		affBateaux(game,joueur1,joueur2);
 		affInfosJeu(game^.joueur1joue,joueur1,joueur2);
+		
+		if (((saisie^.nature=deplacement) or (saisie^.nature=rotation)) and (saisie^.boat.quota>0)) then
+		begin
+			GotoXY(TAILLE_X+1,30);
+			write('Quota de déplacement : ');
+			GotoXY(TAILLE_X+1,31);
+			write(saisie^.boat.quota:3:2);
+		end;
 end;
 
 procedure changementJoueur(var joueur1Joue : Boolean);
