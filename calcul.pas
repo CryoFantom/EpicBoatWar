@@ -45,16 +45,12 @@ procedure tabToGrille(zone : Zone ; var tab : BArray);
 var x,y,i:Integer;
 
 begin
+	for x:=1 to TAILLE_X do //initialisation du tableau
+		for y:=1 to TAILLE_Y do 
+			tab[x,y]:=False;
 
-				for x:=1 to TAILLE_X do //initialisation du tableau
-					for y:=1 to TAILLE_Y do tab[x,y]:=False;
-
-				for i:=1 to zone.nbCases do
-					begin
-					x:=zone.tabZone[i].x;
-					y:=zone.tabZone[i].y;
-					tab[x,y]:=True;
-					end;
+	for i:=1 to zone.nbCases do
+		if zone.tabZone[i].visible then tab[zone.tabZone[i].x,zone.tabZone[i].y]:=True;
 end;
 
 ////////////////////////////////////////////////////////////////////////
@@ -95,7 +91,7 @@ begin
 			for j:=1 to 4 do
 			begin
 				x:=obst.tab[i].x;
-				y:=obst.tab[i].y; //pour rétablir les valeurs de départ si elles ont changé
+				y:=obst.tab[i].y; //pour rétablir les valeurs de départ
 				//position des 4 coins de l'obstacle
 				case j of
 					1,4 : x:=x-0.5;
@@ -131,11 +127,16 @@ begin
 		for j:=1 to nb do //tous les obstacles dans la zone
 			if zone.grille[i].distance>=obstZone[j].distance then //si la case est plus loin que l'obstacle
 				//si la case est dans la même direction que l'obstacle (délimité par angleMin et angleMax)
-				if (not(obstZone[j].angleMin=-obstZone[j].angleMax) and (obstZone[j].angleMin<=zone.grille[i].angle) and (obstZone[j].angleMax>=zone.grille[i].angle))
-				or ((obstZone[j].angleMin=-obstZone[j].angleMax) {obstacle aligné à gauche} and (obstZone[j].angleMax>pi()/2) and (abs(zone.grille[i].angle)>=obstZone[j].angleMax))
-				or ((obstZone[j].angleMin=-obstZone[j].angleMax) {obstacle aligné à gauche} and (obstZone[j].angleMax<pi()/2) and (abs(zone.grille[i].angle)<=obstZone[j].angleMax))
-				or ((obstZone[j].angleMin=0) and (obstZone[j].x<zone.grille[i].x)) //centre du bateau aligné avec le haut ou le bas de l'obstacle
-				//pour compenser l'erreur résultant du passage de la valeur de l'angle de pi à -pi
+				if (
+				(not((obstZone[j].angleMin=-obstZone[j].angleMax) or (obstZone[j].angleMax=pi())) 
+					and (obstZone[j].angleMin<=zone.grille[i].angle) and (obstZone[j].angleMax>=zone.grille[i].angle))
+				{obstacle aligné à gauche avec le centre d'un bateau de taille impaire (passage de -pi à pi)}	
+				or ((obstZone[j].angleMin=-obstZone[j].angleMax) and (obstZone[j].angleMax>pi()/2) and (abs(zone.grille[i].angle)>=obstZone[j].angleMax))
+				or ((obstZone[j].angleMin=-obstZone[j].angleMax) and (obstZone[j].angleMax<pi()/2) and (abs(zone.grille[i].angle)<=obstZone[j].angleMax))
+				{haut ou bas d'un obstacle aligné avec le centre d'un bateau de taille paire (angle de 0)}
+				or (((obstZone[j].angleMax=pi())) and (obstZone[j].y=zone.grille[i].y))
+				or ((obstZone[j].x=zone.grille[i].x) and (obstZone[j].y=zone.grille[i].y)) //obstacle sur la case
+				)
 				then zone.grille[i].cause:=obstZone[j].nature; //à cause de ce type d'obstacle
 end;
 
@@ -303,13 +304,14 @@ var b,i,j:Integer;
 
 begin
 //on recache tout
-	for i:=1 to NBOAT do
-		begin
-			if joueur1^.boat[i].coule then  joueur1^.boat[i].detecte:=True
-				else joueur1^.boat[i].detecte:=False;
-			if joueur2^.boat[i].coule then  joueur2^.boat[i].detecte:=True
-				else joueur2^.boat[i].detecte:=False;
-		end;
+	for b:=0 to NBOAT do
+		for i:=1 to NBOAT do
+			begin
+				if joueur1^.boat[i].coule then  joueur1^.boat[i].detecte[b]:=True
+					else joueur1^.boat[i].detecte[b]:=False;
+				if joueur2^.boat[i].coule then  joueur2^.boat[i].detecte[b]:=True
+					else joueur2^.boat[i].detecte[b]:=False;
+			end;
 
 //bateaux du joueur2 détectés par le joueur1
 	for b:=1 to NBOAT do
@@ -317,7 +319,11 @@ begin
 			for i:=1 to NBOAT do
 				if not(joueur2^.boat[i].coule) then //si le bateau n'est pas coulé, auquel cas il est visible
 					for j:=1 to joueur2^.boat[i].taille do
-						if joueur1^.boat[b].tabDetec[joueur2^.boat[i].pos[j].x,joueur2^.boat[i].pos[j].y] then joueur2^.boat[i].detecte:=True;
+						if joueur1^.boat[b].tabDetec[joueur2^.boat[i].pos[j].x,joueur2^.boat[i].pos[j].y] then 
+						begin
+						joueur2^.boat[i].detecte[b]:=True;
+						joueur2^.boat[i].detecte[0]:=True;
+						end;
 
 //bateaux du joueur1 détectés par le joueur2
 	for b:=1 to NBOAT do
@@ -325,7 +331,11 @@ begin
 			for i:=1 to NBOAT do
 				if not(joueur1^.boat[i].coule) then //si le bateau n'est pas coulé, auquel cas il est visible
 					for j:=1 to joueur1^.boat[i].taille do
-						if joueur2^.boat[b].tabDetec[joueur1^.boat[i].pos[j].x,joueur1^.boat[i].pos[j].y] then joueur1^.boat[i].detecte:=True;
+						if joueur2^.boat[b].tabDetec[joueur1^.boat[i].pos[j].x,joueur1^.boat[i].pos[j].y] then
+						begin
+						joueur1^.boat[i].detecte[b]:=True;
+						joueur1^.boat[i].detecte[0]:=True;
+						end;
 end;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -383,7 +393,7 @@ begin
 						if joueur1^.boat[b].ptDeVie<=0 then
 						begin
 							joueur1^.boat[b].coule:=True;
-							joueur1^.boat[b].detecte:=True;
+							joueur1^.boat[b].detecte[0]:=True;
 							joueur1^.nbBateaux:=joueur1^.nbBateaux-1;
 							if (joueur1Joue and (saisie^.noBateau<>b)) then nbBateaux:=nbBateaux-1;
 						end;
@@ -402,7 +412,7 @@ begin
 						if joueur2^.boat[b].ptDeVie<=0 then
 						begin
 							joueur2^.boat[b].coule:=True;
-							joueur2^.boat[b].detecte:=True;
+							joueur2^.boat[b].detecte[0]:=True;
 							joueur2^.nbBateaux:=joueur2^.nbBateaux;
 							if (not(joueur1Joue) and (saisie^.noBateau<>b)) then nbBateaux:=nbBateaux-1;
 						end;
@@ -413,7 +423,7 @@ begin
 	if saisie^.boat.ptDeVie<=0 then
 	begin
 	saisie^.boat.coule:=True;
-	saisie^.boat.detecte:=True;
+	saisie^.boat.detecte[0]:=True;
 	if joueur1Joue then joueur1^.nbBateaux:=joueur1^.nbBateaux-1
 	else joueur2^.nbBateaux:=joueur2^.nbBateaux-1;
 	end;
@@ -423,7 +433,7 @@ end;
 
 procedure gestionDeplacement (var game : PJeu; var saisie:PAction; var joueur1, joueur2 : PJoueur; var nbBateaux : Integer);
 
-var i,j:Word;
+var i,j,b:Word;
 var joueur,adversaire : PJoueur;
 var sboat : Bateau;
 var statut : StatutAction;
@@ -512,15 +522,19 @@ else
 
 	//mise à jour de la visibilité des bateaux
 	for i:=1 to NBOAT do
-	begin
 		if not(adversaire^.boat[i].coule) then //si le bateau n'est pas coulé, auquel cas il est visible
 		begin
-			adversaire^.boat[i].detecte:=False; //on recache tout
+			adversaire^.boat[i].detecte[saisie^.noBateau]:=False; //on recache tout
 			for j:=1 to adversaire^.boat[i].taille do
-				if saisie^.boat.tabDetec[adversaire^.boat[i].pos[j].x,adversaire^.boat[i].pos[j].y] then adversaire^.boat[i].detecte:=True;
-		end;
-	end; //faire appel à la totalité de la procédure detect à chaque déplacement ralentit inutilement l'exécution du programme
-
+				if saisie^.boat.tabDetec[adversaire^.boat[i].pos[j].x,adversaire^.boat[i].pos[j].y] then adversaire^.boat[i].detecte[saisie^.noBateau]:=True;
+			//s'il était déjà détecté, on vérifie qu'il l'est toujours
+			if adversaire^.boat[i].detecte[0] then 
+				for b:=1 to NBOAT do
+					if adversaire^.boat[i].detecte[b] then adversaire^.boat[i].detecte[0]:=True;
+			//s'il ne l'était pas encore et que le bateau l'a détecté
+			if ((adversaire^.boat[i].detecte[saisie^.noBateau]) and (adversaire^.boat[i].detecte[0]=False)) then adversaire^.boat[i].detecte[0]:=True;
+		end; 
+	//faire appel à la totalité de la procédure detect à chaque déplacement ralentit inutilement l'exécution du programme
 	if saisie^.boat.quota=0 then saisie^.statut:=overquota;
 end;
 
@@ -607,7 +621,7 @@ else
 							if joueur1^.boat[b].ptDeVie<=0 then
 								begin
 									joueur1^.boat[b].coule:=True;
-									joueur1^.boat[b].detecte:=True;
+									joueur1^.boat[b].detecte[0]:=True;
 									joueur1^.boat[b].peutTirer:=False;
 									joueur1^.nbBateaux:=joueur1^.nbBateaux-1;
 									if game^.joueur1joue then nbBateaux:=nbBateaux-1;
@@ -638,7 +652,7 @@ else
 							if joueur2^.boat[b].ptDeVie<=0 then
 							begin
 								joueur2^.boat[b].coule:=True;
-								joueur2^.boat[b].detecte:=True;
+								joueur2^.boat[b].detecte[0]:=True;
 								joueur2^.boat[b].peutTirer:=False;
 								joueur2^.nbBateaux:=joueur1^.nbBateaux-1;
 								if not(game^.joueur1joue) then nbBateaux:=nbBateaux-1;

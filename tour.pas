@@ -66,10 +66,10 @@ begin
 				if nbBateauxTir<=0 then saisie^.nature:=finTour;
 			end;
 		end;
-	until (saisie^.nature=finTour);
+	until ((saisie^.nature=finTour) or (saisie^.statut=overquota));
 		
 	saisie^.nature:=nonValide; //reset saisie.nature
-	changementJoueur(game^.joueur1Joue);
+	changementJoueur(game^.joueur1Joue,joueur1^.nom,joueur2^.nom);
 	Dispose(saisie);
 end;
 

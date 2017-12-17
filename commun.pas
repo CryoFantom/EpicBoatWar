@@ -37,7 +37,7 @@ Type Obstacle=Record
 	tab : Array[1..NMAXOBST] of Position; //index des positions des obstacles
 	npos : Integer; //nombre de positions enregistrées dans le tableau
 end;
-		
+
 Type Jeu=Record
 	montagne : Obstacle; //position des montagnes (pour calcul visibilité ...)
 	recifs : Obstacle; //position des récifs
@@ -70,7 +70,7 @@ Type Bateau=Record
 	quota : Single; //nombre de déplacements restants pour un tour
 	detection : Zone; //distance détection + zone où l'adversaire est détecté
 	tabDetec : BArray; //accès à la zone de détection par coordonnées
-	detecte : Boolean; //bateau visible par l’adversaire, recalculé à chaque tour
+	detecte : Array[0..NBOAT] of Boolean; //quel bateau adverse détecte le bateau, 0 : détecté par l'adversaire
 	touche : Boolean; //le bateau est touché
 	coule : Boolean; //le bateau est coulé (PV à 0)
 end;
@@ -82,6 +82,11 @@ Type Joueur=Record
 	nbBateaux : Integer; //nombre de bateaux restants
 	score : Integer;
 	boat : listeBateaux; //ensemble des bateaux du joueur
+	//capacités (utilisable une fois par partie)
+	detectAll : Boolean; //détecter tous les bateaux adverses
+	doubleDeplacement:Boolean; //doubler la distance de déplacement d'un bateau
+	doubleTir:Boolean; //doubler la portée de tir d'un bateau
+	rechargementExpress:Boolean; //tous les bateaux peuvent tirer au tour suivant
 end;
 
 Type Action=Record

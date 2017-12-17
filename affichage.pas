@@ -6,22 +6,37 @@ uses commun,Crt,keyboard;
 
 procedure affBateaux  (game: PJeu; joueur1, joueur2: PJoueur);
 procedure affichageJeu (game:PJeu; saisie:PAction; joueur1, joueur2: PJoueur);
-procedure changementJoueur(var joueur1Joue : Boolean);
-procedure finJeu(nbBat1,nbBat2:Integer);
-//procedure regledujeu();
+procedure changementJoueur(var joueur1Joue : Boolean; nomJ1,nomJ2 : String);
+procedure finJeu(joueur1,joueur2:PJoueur);
+procedure reglesDuJeu();
+procedure credits();
+
 implementation
 
-{procedure regledujeu()
+procedure reglesDuJeu();
 begin
-	ClrScr;}
-	
+	ClrScr;
+	GoToXY(trunc(TAILLE_X*0.4),trunc(TAILLE_Y/2));
+	write('Bientôt disponible !');
+end;
 
-procedure finJeu(nbBat1,nbBat2:Integer);
+procedure credits();
+begin
+	ClrScr;
+	GoToXY(trunc(TAILLE_X*0.4),trunc(TAILLE_Y/2));
+	write('Bientôt disponible !');
+end;
+
+procedure finJeu(joueur1,joueur2:PJoueur);
 begin
 	GoToXY(trunc(TAILLE_X*0.4),trunc(TAILLE_Y/2));
-	if nbBat1=0 then write ('Le joueur 2 a gagné !');
-	if nbBat2=0 then write('Le joueur 1 a gagné !')
-	//à améliorer
+	if (joueur1^.nbBateaux=0) and (joueur2^.nbBateaux=0) then write ('Égalité !');
+	if (joueur1^.nbBateaux=0) and (joueur2^.nbBateaux<>0) then write (joueur2^.nom,' a gagné !');
+	if (joueur2^.nbBateaux=0) and (joueur1^.nbBateaux<>0)then write(joueur1^.nom,' a gagné !');
+	GoToXY(trunc(TAILLE_X*0.4),trunc(TAILLE_Y/2)+2);
+	write(joueur1^.nom,' : ',joueur1^.score,' pts');
+	GoToXY(trunc(TAILLE_X*0.4),trunc(TAILLE_Y/2)+4);
+	write(joueur2^.nom,' : ',joueur2^.score,' pts');
 end;
 
 procedure PVtoColor(touche, coule: Boolean);
@@ -75,7 +90,7 @@ begin
 		
 	for i:=1 to NBOAT do
 	begin
-		if adversaire^.boat[i].detecte then
+		if adversaire^.boat[i].detecte[0] then
 		begin
 			GotoXY(adversaire^.boat[i].pos[1].x,adversaire^.boat[i].pos[1].y);
 			textcolor(red);
@@ -154,7 +169,7 @@ var i,j: integer;
 
 begin
 	GotoXY(TAILLE_X+1,1);
-	writeln(joueur1^.nom,' score : ',joueur1^.score,' pts');
+	writeln(joueur1^.nom,' - score : ',joueur1^.score,' pts');
 	j:=1;
 	i:=2;
 	for j:=1 to NBOAT do
@@ -167,15 +182,15 @@ begin
 		GotoXY(TAILLE_X+18,i);
 		if joueur1^.boat[j].coule then writeln(' coulé !') 
 		else case joueur1^.boat[j].prochainTir of 
-				0: write(' ',joueur1^.boat[j].ptDeVie,' PV', ' tir disponible');
-				1: write(' ',joueur1^.boat[j].ptDeVie,' PV',' tir dans 1 tour');
-				2,3,4,5: write(' ',joueur1^.boat[j].ptDeVie,' PV',' tir dans ',joueur1^.boat[j].prochainTir,' tours');
+				0: write(' ',joueur1^.boat[j].ptDeVie,' PV', ' - tir disponible');
+				1: write(' ',joueur1^.boat[j].ptDeVie,' PV',' - tir dans 1 tour');
+				2,3,4,5: write(' ',joueur1^.boat[j].ptDeVie,' PV',' - tir dans ',joueur1^.boat[j].prochainTir,' tours');
 			end;
 			i:=i+1;
 		end;
 	i:=i+2;
 	GotoXY(TAILLE_X+1,i);
-	writeln(joueur2^.nom,' score : ',joueur2^.score,' pts');
+	writeln(joueur2^.nom,' - score : ',joueur2^.score,' pts');
 	i:=i+1;
 	j:=1;
 	for j:=1 to NBOAT do
@@ -188,9 +203,9 @@ begin
 		GotoXY(TAILLE_X+18,i);
 		if joueur2^.boat[j].coule then writeln(' coulé !') 
 		else case joueur2^.boat[j].prochainTir of 
-				0: write(' ',joueur2^.boat[j].ptDeVie,' PV', ' tir disponible');
-				1: write(' ',joueur2^.boat[j].ptDeVie,' PV',' tir dans 1 tour');
-				2,3,4: write(' ',joueur2^.boat[j].ptDeVie,' PV',' tir dans ',joueur2^.boat[j].prochainTir,' tours');
+				0: write(' ',joueur2^.boat[j].ptDeVie,' PV', ' - tir disponible');
+				1: write(' ',joueur2^.boat[j].ptDeVie,' PV',' - tir dans 1 tour');
+				2,3,4: write(' ',joueur2^.boat[j].ptDeVie,' PV',' - tir dans ',joueur2^.boat[j].prochainTir,' tours');
 			end;
 		i:=i+1;
 	end;
@@ -205,7 +220,7 @@ begin
 		clrscr;
 		case saisie^.nature of
 			deplacement,rotation : if saisie^.boat.quota>0 then affZone(saisie^.boat,True,True,True);
-			tir : affZone(saisie^.boat,False,True,True);
+			tir : if saisie^.boat.peutTirer then affZone(saisie^.boat,False,True,True);
 		end;
 		affObstacle (game^.montagne, game^.recifs);
 		affBateaux(game,joueur1,joueur2);
@@ -220,7 +235,7 @@ begin
 		end;
 end;
 
-procedure changementJoueur(var joueur1Joue : Boolean);
+procedure changementJoueur(var joueur1Joue : Boolean; nomJ1,nomJ2 : String);
 
 var K : TKeyEvent;
 
@@ -229,9 +244,9 @@ begin
 	
 	clrscr;
 	GotoXY(trunc(TAILLE_X/2-5),trunc(TAILLE_Y/2));
-	if joueur1Joue then write('Joueur 1') else write('Joueur 2');
+	if joueur1Joue then write(nomJ1) else write(nomJ2);
 	GotoXY(trunc(TAILLE_X/2-15),trunc(TAILLE_Y/2+1));
-	write('Appuyez sur Entrer pour continuer');
+	write('Appuyez sur Entrée pour continuer');
 	InitKeyboard;
 	repeat
 		K:=GetKeyEvent;

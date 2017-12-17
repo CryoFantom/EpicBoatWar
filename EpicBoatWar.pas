@@ -11,17 +11,15 @@ begin
 		New(joueur1);
 		New(joueur2);
 		
-		//menu(joueur1^.nom,joueur2^.nom,veutJouer);
-			joueur1^.nom:='J1';
-			joueur2^.nom:='J2';
-			veutJouer:=True;
+		menu(joueur1^.nom,joueur2^.nom,veutJouer);
 		
 		if veutJouer then
 		begin
 			genGrille(game,joueur1,joueur2);
+			changementJoueur(game^.joueur1Joue,joueur1^.nom,joueur2^.nom);
 			repeat //pour chaque tour
 				unTour(game,joueur1,joueur2);
 			until (joueur1^.nbBateaux=0) or (joueur2^.nbBateaux=0);
-			finJeu(joueur1^.nbBateaux,joueur2^.nbBateaux);
+			finJeu(joueur1,joueur2);
 		end;
 end.

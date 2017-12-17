@@ -181,6 +181,8 @@ end;
 
 procedure affectation(taille, pdv, degats, trchrg, distDepl, distDetec, distTir : Integer; nom : String; var navire : Bateau);	//Cette procédure est juste créée pour faciliter l'assignation des caractéristiques à un bateau
 
+var b:Byte;
+
 begin
 	navire.taille := taille;
 	navire.nom:= nom;
@@ -191,7 +193,7 @@ begin
 	navire.prochainTir := 1;
 	navire.deplacement.distance := distDepl;
 	navire.detection.distance := distDetec;
-	navire.detecte:=False;
+	for b:=0 to NBOAT do navire.detecte[b]:=False;
 	navire.touche:=False;
 	navire.coule:=False;
 end;
@@ -237,6 +239,15 @@ begin
 	joueur1^.score:= 0;													//On initialise le score des deux joueurs
 	joueur2^.score:= 0;
 	
+	joueur1^.detectAll:=True;											//initialisation des capacités
+	joueur1^.doubleDeplacement:=True;
+	joueur1^.doubleTir:=True;
+	joueur1^.rechargementExpress:=True;
+	joueur2^.detectAll:=True;
+	joueur2^.doubleDeplacement:=True;
+	joueur2^.doubleTir:=True;
+	joueur2^.rechargementExpress:=True;
+	
 	//remplir les positions des bateaux
 	y:=trunc((TAILLE_Y-NBOAT*TMAX)/2);
 	for i:= 1 to NBOAT do												//On remplit les coordonnées de chaque bateau du joueur 1
@@ -277,7 +288,7 @@ procedure genGrille(var plat : PJeu; var joueur1, joueur2 : PJoueur);
 
 begin
 	genObstacles(plat^.grille, plat^.montagne, plat^.recifs, plat^.listeCentres);	//On génère les obstacles
-	plat^.joueur1Joue:=True;												//Le joueur 1 ouvre le bal
+	plat^.joueur1Joue:=False;											//Le joueur 1 ouvre le bal (passe à True au début du jeu)
 	genBateau(plat, joueur1, joueur2);									//On génère les bateaux des deux joueurs
 end;
 

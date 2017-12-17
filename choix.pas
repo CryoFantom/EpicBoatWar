@@ -7,8 +7,121 @@ uses commun, Crt, Keyboard, affichage, calcul;
 procedure choixDeplacement (var choix : PAction);
 procedure choixBateau (joueur1joue : Boolean; nbBateaux : Integer ; joueur1, joueur2: PJoueur; game : PJeu; var choixBat : PAction);
 procedure choixTir (var choix : PAction);
+procedure exitgame();
+procedure menu (var nomJ1, nomJ2: String; var veutJouer: Boolean);
 
 implementation
+
+procedure choixNom (var nomJ1, nomJ2: String; var veutJouer: Boolean);
+
+var i:Byte;
+
+begin 
+	veutjouer:= True;
+	ClrScr;
+	GoToXY(trunc(TAILLE_X*0.4),trunc(TAILLE_Y/2));
+		write('Joueur 1, saisissez votre nom puis appuyez sur Entrée');
+	GoToXY(trunc(TAILLE_X/2),trunc(TAILLE_Y/2)+1);
+		readln(nomJ1);
+	GoToXY(trunc(TAILLE_X*0.4),trunc(TAILLE_Y/2)+3);
+		write('Joueur 2, saisissez votre nom puis appuyez sur Entrée');
+	GoToXY(trunc(TAILLE_X/2),trunc(TAILLE_Y/2)+4);
+		i:=0;
+		repeat
+			readln(nomJ2);
+			GoToXY(trunc(TAILLE_X/2)+10,trunc(TAILLE_Y/2)+4+i);
+			if nomJ2=nomJ1 then write('Vous ne pouvez pas utiliser le même nom que le joueur 1 !');
+			i:=i+1;
+			GoToXY(trunc(TAILLE_X/2),trunc(TAILLE_Y/2)+4+i);
+		until nomJ2<>nomJ1;
+end;
+
+procedure menu (var nomJ1, nomJ2: String; var veutJouer: Boolean);
+
+var sousMenu : Array [1..3] of String;
+	i,j : Integer;
+	saisie : String;
+	k : TKeyEvent;
+
+begin
+	veutjouer:=False;
+	sousMenu[1]:= 'Jouer';
+	sousMenu[2]:= 'Comment jouer ?';
+	sousMenu[3]:= 'Crédits';
+	
+	ClrScr;
+	
+	GoToXY(trunc(TAILLE_X/2-15),10);
+		writeln('  _____       _        ____              _    __        __         ');
+	GoToXY(trunc(TAILLE_X/2-15),11);
+		writeln(' | ____|_ __ (_) ___  | __ )  ___   __ _| |_  \ \      / /_ _ _ __ ');
+	GoToXY(trunc(TAILLE_X/2-15),12);
+		writeln(' |  _| | ''_ \| |/ __| |  _ \ / _ \ / _` | __|  \ \ /\ / / _` | ''__|');
+	GoToXY(trunc(TAILLE_X/2-15),13);
+		writeln(' | |___| |_) | | (__  | |_) | (_) | (_| | |_    \ V  V / (_| | |   ');
+	GoToXY(trunc(TAILLE_X/2-15),14);
+		writeln(' |_____| .__/|_|\___| |____/ \___/ \__,_|\__|    \_/\_/ \__,_|_|   ');
+	GoToXY(trunc(TAILLE_X/2-15),15);
+		writeln('       |_|                                                         ');
+
+	GoToXY(trunc(TAILLE_X*0.4),trunc(TAILLE_Y/2)-1);
+	writeln('Utilisez ↑ et ↓ pour vous déplacer dans le Menu, appuyez sur Entrée pour valider');
+	i:=1;
+	saisie:='init';
+	while saisie <> 'Enter' do
+	begin
+		for j:=1 to 3 do
+		begin
+			GoToXY(trunc(TAILLE_X*0.4),trunc(TAILLE_Y/2)+j);
+			if j=i then
+			begin
+				textcolor(Black);
+				textbackground(White);
+				write(sousMenu[j]);
+				textcolor(White);
+				textbackground(Black);
+			end
+			else
+				write(sousMenu[j]);
+		end;
+		GoToXY(1,1);
+		InitKeyBoard;
+		K:=GetKeyEvent;
+		K:=TranslateKeyEvent(K);
+		saisie:=KeyEventToString(K);
+		if GetKeyEventCode(K)=7181 then saisie:='Enter';
+		if getkeyeventcode(k)=283 then saisie:='Escape';
+		DoneKeyBoard;
+		case saisie of
+			'Up' : if i=1 then i:=3 else i:=i-1;
+			'Down' : if i=3 then i:=1 else i:=i+1;
+			'Escape' : exitgame();
+		end;
+	end;
+	case sousMenu[i] of
+		'Jouer' : choixNom(nomJ1,nomJ2,veutJouer);
+		'Comment jouer ?' : reglesDuJeu();
+		'Crédits' : credits();
+	end;
+end;
+
+procedure exitgame();
+
+var K : TKeyEvent;
+
+begin
+	ClrScr;
+	GoToXY(trunc(TAILLE_X*0.4),trunc(TAILLE_Y/2));
+	writeln('Voulez vous vraiment quitter cette partie ?');
+	GoToXY(trunc(TAILLE_X*0.3),trunc(TAILLE_Y/2)+2);
+	write('Entrée pour quitter la partie / Une autre touche pour revenir au jeu');
+	InitKeyBoard;
+	K:=GetKeyEvent;
+	if GetKeyEventCode(K)=7181 then Halt;
+	DoneKeyBoard;
+	ClrScr;
+	//à améliorer
+end;
 
 
 procedure affUnBat (boat : Bateau);
@@ -70,14 +183,19 @@ Begin
 	saisie := ' ';
 	i:=0;
 	case choixBat^.nature of
-		deplacement : repeat i:=i+1 until ((i=NBOAT+1) or (not(joueur^.boat[i].coule) and (joueur^.boat[i].quota>0)));
-		tir : repeat i:=i+1 until ((i=NBOAT+1) or (joueur^.boat[i].peutTirer));
+		deplacement : repeat i:=i+1 until ((i=NBOAT) or (not(joueur^.boat[i].coule) and (joueur^.boat[i].quota>0)));
+		tir : repeat i:=i+1 until ((i=NBOAT) or (joueur^.boat[i].peutTirer));
 	end;
+	
+	//après avoir testé tous les bateaux, si le dernier bateau (NBOAT) ne peut pas se déplacer ou tirer, i passe à NBOAT+1
+	//Le joueur ne peut plus effectuer de tir ou de déplacement
+	if ((i=NBOAT) and (choixBat^.nature=deplacement) and ((joueur^.boat[i].coule) or (joueur^.boat[i].quota<=0))) then i:=NBOAT+1;
+	if ((i=NBOAT) and (choixBat^.nature=tir) and not(joueur^.boat[i].peutTirer)) then i:=NBOAT+1;
+	
 	if (i<=NBOAT) then
 	begin
 		affunBat(joueur^.boat[i]);
-		while saisie <> 'Enter' do
-		begin
+		repeat
 			K:=GetKeyEvent;
 			K:=TranslateKeyEvent(K);
 			saisie:=KeyEventToString(K);
@@ -96,12 +214,14 @@ Begin
 							choixBat^.nature:=finTour;
 							saisie:='Enter';
 						end;
-				'Escape' : exitgame()
-								
+				'Escape' : begin
+						exitgame();
+						affichageJeu (game, choixBat, joueur1, joueur2); //si le joueur revient dans le jeu
+						end;					
 			end;
 			affBateaux (game, joueur1, joueur2);
 			affunBat(joueur^.boat[i]);
-		end;
+		until saisie='Enter';
 		choixBat^.boat:=joueur^.boat[i];
 		choixBat^.noBateau:=i;
 		choixBat^.statut:=allowed;
