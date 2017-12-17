@@ -8,8 +8,13 @@ procedure affBateaux  (game: PJeu; joueur1, joueur2: PJoueur);
 procedure affichageJeu (game:PJeu; saisie:PAction; joueur1, joueur2: PJoueur);
 procedure changementJoueur(var joueur1Joue : Boolean);
 procedure finJeu(nbBat1,nbBat2:Integer);
-
+//procedure regledujeu();
 implementation
+
+{procedure regledujeu()
+begin
+	ClrScr;}
+	
 
 procedure finJeu(nbBat1,nbBat2:Integer);
 begin
