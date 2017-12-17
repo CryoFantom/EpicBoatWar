@@ -95,12 +95,25 @@ begin
 		case saisie of
 			'Up' : if i=1 then i:=3 else i:=i-1;
 			'Down' : if i=3 then i:=1 else i:=i+1;
-			'Escape' : exitgame();
+			'Escape' :begin
+							exitgame();
+							GoToXY(trunc(TAILLE_X*0.4),trunc(TAILLE_Y/2));
+							writeln('Utilisez ↑ et ↓ pour vous déplacer dans le Menu, appuyez sur Entrée pour valider');
+					  end;
 		end;
 	end;
 	case sousMenu[i] of
 		'Jouer' : choixNom(nomJ1,nomJ2,veutJouer);
-		'Comment jouer ?' : reglesDuJeu();
+		'Comment jouer ?' :begin
+								reglesDuJeu();
+								repeat
+									K:=GetKeyEvent;
+									K:=TranslateKeyEvent(K);
+									saisie:=KeyEventToString(K);
+									if GetKeyEventCode(K)=7181 then saisie:='Enter';
+								until saisie = 'Enter';
+								menu (nomJ1, nomJ2, veutJouer);
+							end;
 		'Crédits' : credits();
 	end;
 end;
