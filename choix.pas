@@ -5,7 +5,7 @@ interface
 uses commun, Crt, Keyboard, affichage, calcul;
 
 procedure choixDeplacement (var choix : PAction);
-procedure choixBateau (joueur1joue : Boolean; nbBateaux : Integer ; joueur1, joueur2: PJoueur; game : PJeu; var choixBat : PAction);
+procedure choixBateau (joueur1joue : Boolean; nbBateaux : Integer ; var joueur1, joueur2: PJoueur; game : PJeu; var choixBat : PAction);
 procedure choixTir (var choix : PAction);
 procedure exitgame();
 procedure menu (var nomJ1, nomJ2: String; var veutJouer: Boolean);
@@ -114,9 +114,19 @@ begin
 								until saisie = 'Enter';
 								menu (nomJ1, nomJ2, veutJouer);
 							end;
-		'Crédits' : credits();
+		'Crédits' : begin
+						credits();
+						repeat
+							K:=GetKeyEvent;
+							K:=TranslateKeyEvent(K);
+							saisie:=KeyEventToString(K);
+							if GetKeyEventCode(K)=7181 then saisie:='Enter';
+						until saisie = 'Enter';
+						menu (nomJ1, nomJ2, veutJouer);
+					end;
 	end;
 end;
+
 
 procedure exitgame();
 
@@ -155,11 +165,69 @@ begin
 	GoToXY(1,TAILLE_Y+1);
 end;
 
+procedure choixCapacite(var choix:Capacite);
 
-procedure choixBateau (joueur1joue : Boolean; nbBateaux : Integer ; joueur1, joueur2: PJoueur; game : PJeu; var choixBat : PAction);
+var sousMenu : Array [1..5] of String;
+	i,j:Byte;
+	saisie:String;
+	K : TKeyEvent;
+
+begin
+	sousMenu[1]:= 'Détecter tous les bateaux de l''adversaire';
+	sousMenu[2]:= 'Doubler le quota de déplacement du bateau';
+	sousMenu[3]:= 'Doubler la portée de tir du bateau';
+	sousMenu[4]:= 'Rechargement express';
+	sousMenu[5]:= 'Je les garde pour plus tard';
+	
+	GotoXY(1,TAILLE_Y);
+	writeln('Utilisez ↑ et ↓ pour choisir une capacité puis appuyez sur Entrée pour valider');
+	writeln('Attention, une fois la capacité utilisée, vous ne pourrez plus l''utiliser jusqu''à la fin de la partie');
+	i:=1;
+	saisie:='init';
+	while saisie <> 'Enter' do
+	begin
+		for j:=1 to 5 do
+		begin
+			GotoXY(TAILLE_X+1,35+j);
+			if j=5 then GotoXY(TAILLE_X+1,35+j+1);
+			if j=i then
+			begin
+				textcolor(Black);
+				textbackground(White);
+				write(sousMenu[j]);
+				textcolor(White);
+				textbackground(Black);
+			end
+			else
+				write(sousMenu[j]);
+		end;
+		GoToXY(1,1);
+		InitKeyBoard;
+		K:=GetKeyEvent;
+		K:=TranslateKeyEvent(K);
+		saisie:=KeyEventToString(K);
+		if GetKeyEventCode(K)=7181 then saisie:='Enter';
+		DoneKeyBoard;
+		case saisie of
+			'Up' : if i=1 then i:=5 else i:=i-1;
+			'Down' : if i=5 then i:=1 else i:=i+1;
+		end;
+	end;
+	case i of
+		1 : choix:=detectAll;
+		2 : choix:=doubleDeplacement;
+		3 : choix:=doubleTir;
+		4 : choix:=rechargementExpress;
+		5 : choix:=plusTard;
+	end;
+end;
+
+
+procedure choixBateau (joueur1joue : Boolean; nbBateaux : Integer ; var joueur1, joueur2: PJoueur; game : PJeu; var choixBat : PAction);
 
 var joueur : PJoueur;
 	saisie : String;
+	choix : Capacite;
 	K : TKeyEvent;
 	i : Integer;
 
@@ -230,14 +298,31 @@ Begin
 				'Escape' : begin
 						exitgame();
 						affichageJeu (game, choixBat, joueur1, joueur2); //si le joueur revient dans le jeu
-						end;					
+						end;
+				'c','C' : if joueur^.tabCapacite[0] then
+						begin
+							choixCapacite(choix);
+							gestionCapacite(game,choix,choixBat,joueur1,joueur2);
+							saisie:='capacité';
+							choixBat^.boat:=joueur^.boat[i];
+							choixBat^.noBateau:=i;
+							choixBat^.statut:=allowed;
+						end
+						else 
+						begin
+							GotoXY(TAILLE_X+1,36);
+							write('Vous avez déjà utilisé toutes vos capacités');
+						end;				
 			end;
 			affBateaux (game, joueur1, joueur2);
 			affunBat(joueur^.boat[i]);
-		until saisie='Enter';
-		choixBat^.boat:=joueur^.boat[i];
-		choixBat^.noBateau:=i;
-		choixBat^.statut:=allowed;
+		until (saisie='Enter') or (saisie='capacité');
+		if saisie='Enter' then
+		begin
+			choixBat^.boat:=joueur^.boat[i];
+			choixBat^.noBateau:=i;
+			choixBat^.statut:=allowed;
+		end;
 	end
 	else choixBat^.statut:=overquota;
 	DoneKeyboard;

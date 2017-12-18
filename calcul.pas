@@ -33,6 +33,7 @@ procedure resetQuota (game : PJeu ; var joueur1,joueur2 : PJoueur);
 procedure majProchainTir (joueur1Joue, debutTour : Boolean ; var joueur1,joueur2 : PJoueur; var nbBateaux : Integer);
 procedure gestionTir (var game : PJeu; var saisie:PAction; var joueur1, joueur2 : PJoueur; var nbBateaux : Integer);
 procedure detect (var joueur1,joueur2 : PJoueur);
+procedure gestionCapacite(game : PJeu; choix:Capacite; var choixBat : PAction; var joueur1, joueur2 : PJoueur);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -128,13 +129,11 @@ begin
 			if zone.grille[i].distance>=obstZone[j].distance then //si la case est plus loin que l'obstacle
 				//si la case est dans la même direction que l'obstacle (délimité par angleMin et angleMax)
 				if (
-				(not((obstZone[j].angleMin=-obstZone[j].angleMax) or (obstZone[j].angleMax=pi())) 
+				(not(obstZone[j].angleMin=-obstZone[j].angleMax) 
 					and (obstZone[j].angleMin<=zone.grille[i].angle) and (obstZone[j].angleMax>=zone.grille[i].angle))
 				{obstacle aligné à gauche avec le centre d'un bateau de taille impaire (passage de -pi à pi)}	
 				or ((obstZone[j].angleMin=-obstZone[j].angleMax) and (obstZone[j].angleMax>pi()/2) and (abs(zone.grille[i].angle)>=obstZone[j].angleMax))
 				or ((obstZone[j].angleMin=-obstZone[j].angleMax) and (obstZone[j].angleMax<pi()/2) and (abs(zone.grille[i].angle)<=obstZone[j].angleMax))
-				{haut ou bas d'un obstacle aligné avec le centre d'un bateau de taille paire (angle de 0)}
-				or (((obstZone[j].angleMax=pi())) and (obstZone[j].y=zone.grille[i].y))
 				or ((obstZone[j].x=zone.grille[i].x) and (obstZone[j].y=zone.grille[i].y)) //obstacle sur la case
 				)
 				then zone.grille[i].cause:=obstZone[j].nature; //à cause de ce type d'obstacle
@@ -154,7 +153,9 @@ var proue, poupe : Position; //position de l'avant et de l'arrière du bateau
 begin
 	//calcul de la position du centre du bateau (et de la zone)
 	proue:=boat.pos[1];
-	poupe:=boat.pos[boat.taille];
+	if (boat.taille mod 2 = 0) then 
+		poupe:=boat.pos[boat.taille-1]
+		else poupe:=boat.pos[boat.taille];
 	zone.xc:=(proue.x+poupe.x)/2;
 	zone.yc:=(proue.y+poupe.y)/2;
 
@@ -372,6 +373,7 @@ begin
 				NO,NE,SE,SO : saisie^.boat.quota:=saisie^.boat.quota-2*sqrt(2); //déplacement en diagonale plus rapide
 			end;
 end;
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 procedure gestionCollision (joueur1joue : Boolean; var saisie:PAction; var joueur1, joueur2 : PJoueur; var nbBateaux : Integer);
@@ -557,6 +559,21 @@ end;
 
 ////////////////////////////////////////////////////////////////////////
 
+procedure gestionCapacite(game : PJeu; choix:Capacite; var choixBat : PAction; var joueur1, joueur2 : PJoueur);
+begin
+
+	{case choix of
+		detectAll :
+		doubleDeplacement : begin
+								choixBat
+							end;
+		doubleTir :
+		rechargementExpress :
+	end;}
+end;
+
+////////////////////////////////////////////////////////////////////////
+
 procedure majProchainTir (joueur1Joue, debutTour : Boolean ; var joueur1,joueur2 : PJoueur; var nbBateaux : Integer);
 
 var i : Word;
@@ -676,6 +693,10 @@ else
 				joueur2^.boat[saisie^.noBateau].prochainTir:=joueur2^.boat[saisie^.noBateau].tRechargement;
 				joueur2^.boat[saisie^.noBateau].peutTirer:=False;
 			end;
+end;
+
+procedure gestionCapacite();
+begin
 end;
 
 begin

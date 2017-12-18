@@ -25,6 +25,8 @@ Type Orientation=(NO, N, NE, E, SE, S, SO, O); //orientation de l'avant du batea
 Type StatutAction=(allowed, overquota, outzone, mountain, reef, boatJ1, boatJ2, cancelled); //l'action est-elle autorisée et si non pourquoi
 
 Type BArray = Array[1..TAILLE_X,1..TAILLE_Y] of Boolean;
+
+Type Capacite=(detectAll, doubleDeplacement, doubleTir, rechargementExpress, plusTard {choix abandonné});
 		
 Type Position=Record
 	nature : Nature; //bateauJ1, bateauJ2, récif, montagne, centreMontagne, centreRecifs
@@ -82,11 +84,7 @@ Type Joueur=Record
 	nbBateaux : Integer; //nombre de bateaux restants
 	score : Integer;
 	boat : listeBateaux; //ensemble des bateaux du joueur
-	//capacités (utilisable une fois par partie)
-	detectAll : Boolean; //détecter tous les bateaux adverses
-	doubleDeplacement:Boolean; //doubler la distance de déplacement d'un bateau
-	doubleTir:Boolean; //doubler la portée de tir d'un bateau
-	rechargementExpress:Boolean; //tous les bateaux peuvent tirer au tour suivant
+	tabCapacite : Array [0..4] of Boolean; //quelles capacités ont été utilisées (True->False), 0:False si toutes les capacités utilisées
 end;
 
 Type Action=Record

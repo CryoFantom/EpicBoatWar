@@ -239,14 +239,11 @@ begin
 	joueur1^.score:= 0;													//On initialise le score des deux joueurs
 	joueur2^.score:= 0;
 	
-	joueur1^.detectAll:=True;											//initialisation des capacités
-	joueur1^.doubleDeplacement:=True;
-	joueur1^.doubleTir:=True;
-	joueur1^.rechargementExpress:=True;
-	joueur2^.detectAll:=True;
-	joueur2^.doubleDeplacement:=True;
-	joueur2^.doubleTir:=True;
-	joueur2^.rechargementExpress:=True;
+	for i:=0 to 4 do
+	begin
+		joueur1^.tabCapacite[i]:=True;									//initialisation des capacités
+		joueur2^.tabCapacite[i]:=True;
+	end;
 	
 	//remplir les positions des bateaux
 	y:=trunc((TAILLE_Y-NBOAT*TMAX)/2);
