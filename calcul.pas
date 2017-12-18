@@ -29,10 +29,10 @@ Type ZoneG=Record
 
 procedure calculZone (game : PJeu; var boat : Bateau);
 procedure gestionDeplacement (var game : PJeu; var saisie:PAction; var joueur1, joueur2 : PJoueur; var nbBateaux : Integer);
-procedure resetQuota (game : PJeu ; var joueur1,joueur2 : PJoueur);
+procedure resetQuota (var game : PJeu ; var joueur1,joueur2 : PJoueur);
 procedure majProchainTir (joueur1Joue, debutTour : Boolean ; var joueur1,joueur2 : PJoueur; var nbBateaux : Integer);
 procedure gestionTir (var game : PJeu; var saisie:PAction; var joueur1, joueur2 : PJoueur; var nbBateaux : Integer);
-procedure detect (var joueur1,joueur2 : PJoueur);
+procedure detect (game : PJeu; var joueur1,joueur2 : PJoueur);
 procedure gestionCapacite(game : PJeu; choix:Capacite; var choixBat : PAction; var joueur1, joueur2 : PJoueur);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -149,8 +149,16 @@ var proue, poupe : Position; //position de l'avant et de l'arrière du bateau
 	x,y : Integer; //pour parcours de toute les cases
 	i,nb : Integer; //pour stockage dans le tableau de la zone
 	distance:Single;
+	double,doubleTir:Byte;
 
 begin
+	//pour les capacités
+	if ((game^.joueur1Joue and (game^.capacite[1,2] or game^.capacite[1,3])) or (not(game^.joueur1Joue) and (game^.capacite[2,2] or game^.capacite[2,3])))
+	then double:=2 else double:=1;
+	
+	if ((game^.joueur1Joue and game^.capacite[1,3]) or (not(game^.joueur1Joue) and game^.capacite[2,3]))
+	then doubleTir:=2 else double:=1;
+
 	//calcul de la position du centre du bateau (et de la zone)
 	proue:=boat.pos[1];
 	if (boat.taille mod 2 = 0) then 
@@ -160,16 +168,16 @@ begin
 	zone.yc:=(proue.y+poupe.y)/2;
 
 	//pré-détermination de la zone (carré de côté 2*distanceMax)
-	xmin:=trunc(zone.xc)-DISTANCE_ZONE_MAX-1;
+	xmin:=trunc(zone.xc)-DISTANCE_ZONE_MAX*double-1;
 	if xmin<=0 then xmin:=1;
 
-	xmax:=trunc(zone.xc)+DISTANCE_ZONE_MAX+1;
+	xmax:=trunc(zone.xc)+DISTANCE_ZONE_MAX*double+1;
 	if xmax>TAILLE_X then xmax:=TAILLE_X;
 
-	ymin:=trunc(zone.yc)-DISTANCE_ZONE_MAX-1;
+	ymin:=trunc(zone.yc)-DISTANCE_ZONE_MAX*double-1;
 	if ymin<=0 then ymin:=1;
 
-	ymax:=trunc(zone.yc)+DISTANCE_ZONE_MAX+1;
+	ymax:=trunc(zone.yc)+DISTANCE_ZONE_MAX*double+1;
 	if ymax>TAILLE_Y then ymax:=TAILLE_Y;
 
 
@@ -180,7 +188,7 @@ begin
 			begin
 			distance:=sqrt(sqr(x-zone.xc)+sqr(y-zone.yc));
 			//si le point est dans la zone, on l'ajoute dans le tableau, on calcule l'angle, et on vérifie s'il est masqué par un obstacle
-			if distance<=DISTANCE_ZONE_MAX then
+			if distance<=DISTANCE_ZONE_MAX*double then
 				begin
 				i:=i+1;
 				zone.grille[i].x:=x;
@@ -201,7 +209,7 @@ begin
 	nb:=0;
 	boat.tir.typeZone:=tir;
 	for i:=1 to zone.nbCases do
-			if zone.grille[i].distance<=boat.tir.distance then
+			if zone.grille[i].distance<=boat.tir.distance*doubleTir then
 				begin
 				nb:=nb+1;
 				case zone.grille[i].cause of
@@ -299,44 +307,39 @@ begin
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-procedure detect (var joueur1,joueur2 : PJoueur);
+procedure detect (game : PJeu; var joueur1,joueur2 : PJoueur);
 
 var b,i,j:Integer;
 
 begin
 //on recache tout
-	for b:=0 to NBOAT do
-		for i:=1 to NBOAT do
-			begin
-				if joueur1^.boat[i].coule then  joueur1^.boat[i].detecte[b]:=True
-					else joueur1^.boat[i].detecte[b]:=False;
-				if joueur2^.boat[i].coule then  joueur2^.boat[i].detecte[b]:=True
-					else joueur2^.boat[i].detecte[b]:=False;
-			end;
+	for i:=1 to NBOAT do
+		begin
+			if joueur1^.boat[i].coule then  joueur1^.boat[i].detecte:=True
+				else joueur1^.boat[i].detecte:=False;
+			if joueur2^.boat[i].coule then  joueur2^.boat[i].detecte:=True
+				else joueur2^.boat[i].detecte:=False;
+		end;
 
 //bateaux du joueur2 détectés par le joueur1
+	if game^.capacite[2,1] then for i:=1 to NBOAT do joueur2^.boat[i].detecte:=True
+	else
 	for b:=1 to NBOAT do
 		if not(joueur1^.boat[i].coule) then //si le bateau du j1 n'est pas coulé (il ne peut plus détecter les autres bateaux)
 			for i:=1 to NBOAT do
 				if not(joueur2^.boat[i].coule) then //si le bateau n'est pas coulé, auquel cas il est visible
 					for j:=1 to joueur2^.boat[i].taille do
-						if joueur1^.boat[b].tabDetec[joueur2^.boat[i].pos[j].x,joueur2^.boat[i].pos[j].y] then 
-						begin
-						joueur2^.boat[i].detecte[b]:=True;
-						joueur2^.boat[i].detecte[0]:=True;
-						end;
+						if joueur1^.boat[b].tabDetec[joueur2^.boat[i].pos[j].x,joueur2^.boat[i].pos[j].y] then joueur2^.boat[i].detecte:=True;
 
 //bateaux du joueur1 détectés par le joueur2
+	if game^.capacite[1,2] then for i:=1 to NBOAT do joueur1^.boat[i].detecte:=True
+	else
 	for b:=1 to NBOAT do
 		if not(joueur2^.boat[i].coule) then //si le bateau du j1 n'est pas coulé (il ne peut plus détecter les autres bateaux)
 			for i:=1 to NBOAT do
 				if not(joueur1^.boat[i].coule) then //si le bateau n'est pas coulé, auquel cas il est visible
 					for j:=1 to joueur1^.boat[i].taille do
-						if joueur2^.boat[b].tabDetec[joueur1^.boat[i].pos[j].x,joueur1^.boat[i].pos[j].y] then
-						begin
-						joueur1^.boat[i].detecte[b]:=True;
-						joueur1^.boat[i].detecte[0]:=True;
-						end;
+						if joueur2^.boat[b].tabDetec[joueur1^.boat[i].pos[j].x,joueur1^.boat[i].pos[j].y] then joueur1^.boat[i].detecte:=True;
 end;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -395,7 +398,7 @@ begin
 						if joueur1^.boat[b].ptDeVie<=0 then
 						begin
 							joueur1^.boat[b].coule:=True;
-							joueur1^.boat[b].detecte[0]:=True;
+							joueur1^.boat[b].detecte:=True;
 							joueur1^.nbBateaux:=joueur1^.nbBateaux-1;
 							if (joueur1Joue and (saisie^.noBateau<>b)) then nbBateaux:=nbBateaux-1;
 						end;
@@ -414,7 +417,7 @@ begin
 						if joueur2^.boat[b].ptDeVie<=0 then
 						begin
 							joueur2^.boat[b].coule:=True;
-							joueur2^.boat[b].detecte[0]:=True;
+							joueur2^.boat[b].detecte:=True;
 							joueur2^.nbBateaux:=joueur2^.nbBateaux;
 							if (not(joueur1Joue) and (saisie^.noBateau<>b)) then nbBateaux:=nbBateaux-1;
 						end;
@@ -425,7 +428,7 @@ begin
 	if saisie^.boat.ptDeVie<=0 then
 	begin
 	saisie^.boat.coule:=True;
-	saisie^.boat.detecte[0]:=True;
+	saisie^.boat.detecte:=True;
 	if joueur1Joue then joueur1^.nbBateaux:=joueur1^.nbBateaux-1
 	else joueur2^.nbBateaux:=joueur2^.nbBateaux-1;
 	end;
@@ -435,7 +438,7 @@ end;
 
 procedure gestionDeplacement (var game : PJeu; var saisie:PAction; var joueur1, joueur2 : PJoueur; var nbBateaux : Integer);
 
-var i,j,b:Word;
+var i:Word;
 var joueur,adversaire : PJoueur;
 var sboat : Bateau;
 var statut : StatutAction;
@@ -452,7 +455,7 @@ begin
 		saisie^.statut:=cancelled;
 	end
 else
-	begin
+	begin	
 		//stockage de l'état du bateau avant calcul (pour pouvoir le remettre à l'état précédent)
 			sboat:=saisie^.boat;
 
@@ -523,28 +526,15 @@ else
 	if game^.joueur1joue then joueur2:=adversaire else joueur1:=adversaire;
 
 	//mise à jour de la visibilité des bateaux
-	for i:=1 to NBOAT do
-		if not(adversaire^.boat[i].coule) then //si le bateau n'est pas coulé, auquel cas il est visible
-		begin
-			adversaire^.boat[i].detecte[saisie^.noBateau]:=False; //on recache tout
-			for j:=1 to adversaire^.boat[i].taille do
-				if saisie^.boat.tabDetec[adversaire^.boat[i].pos[j].x,adversaire^.boat[i].pos[j].y] then adversaire^.boat[i].detecte[saisie^.noBateau]:=True;
-			//s'il était déjà détecté, on vérifie qu'il l'est toujours
-			if adversaire^.boat[i].detecte[0] then 
-				for b:=1 to NBOAT do
-					if adversaire^.boat[i].detecte[b] then adversaire^.boat[i].detecte[0]:=True;
-			//s'il ne l'était pas encore et que le bateau l'a détecté
-			if ((adversaire^.boat[i].detecte[saisie^.noBateau]) and (adversaire^.boat[i].detecte[0]=False)) then adversaire^.boat[i].detecte[0]:=True;
-		end; 
-	//faire appel à la totalité de la procédure detect à chaque déplacement ralentit inutilement l'exécution du programme
+	detect(game,joueur1,joueur2);
 	if saisie^.boat.quota=0 then saisie^.statut:=overquota;
 end;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-procedure resetQuota (game : PJeu; var joueur1,joueur2 : PJoueur);
+procedure resetQuota (var game : PJeu; var joueur1,joueur2 : PJoueur);
 
-var i : Word;
+var i,j : Word;
 
 begin
 	for i:= 1 to NBOAT do
@@ -554,22 +544,56 @@ begin
 		//on recalcule les zones de déplacement car le quota a changé
 		calculZone(game,joueur1^.boat[i]);
 		calculZone(game,joueur2^.boat[i]);
+		//on remet la détection de tous les bateaux de l'adversaire (capacité) à False
 	end;
+	
+	for j:=1 to 2 do
+		for i:=1 to 3 do
+			game^.capacite[j,i]:=False;
 end;
 
 ////////////////////////////////////////////////////////////////////////
 
 procedure gestionCapacite(game : PJeu; choix:Capacite; var choixBat : PAction; var joueur1, joueur2 : PJoueur);
-begin
 
-	{case choix of
-		detectAll :
+var joueur,adversaire:PJoueur;
+	j,adv:Byte;
+	i:Byte;
+
+begin
+	if game^.joueur1Joue then joueur:=joueur1 else joueur:=joueur2;
+	if game^.joueur1Joue then adversaire:=joueur2 else adversaire:=joueur1;
+	if game^.joueur1Joue then j:=1 else j:=2;
+	if game^.joueur1Joue then adv:=2 else adv:=1;
+	
+	case choix of
+		detectAll : begin
+						for i:=1 to NBOAT do adversaire^.boat[i].detecte:=True;
+						game^.capacite[adv,1]:=True;
+						joueur^.tabCapacite[1]:=False;
+					end;
+					
 		doubleDeplacement : begin
-								choixBat
+							game^.capacite[j,2]:=True;
+							joueur^.tabCapacite[2]:=False;
 							end;
-		doubleTir :
-		rechargementExpress :
-	end;}
+		doubleTir : begin
+						game^.capacite[j,3]:=True;
+						joueur^.tabCapacite[3]:=False;
+					end;
+					
+		rechargementExpress : begin
+								for i:=1 to NBOAT do
+								begin
+									joueur^.boat[i].prochainTir:=0;
+									joueur^.boat[i].peutTirer:=True;
+								end;
+								joueur^.tabCapacite[4]:=False;
+							end;
+	end;
+	
+	if game^.joueur1Joue then joueur1:=joueur else joueur2:=joueur;
+	if game^.joueur1Joue then joueur2:=adversaire else joueur1:=adversaire;
 end;
 
 ////////////////////////////////////////////////////////////////////////
@@ -611,8 +635,15 @@ begin
 	if (saisie^.nature=finTir) then
 	begin
 		if game^.joueur1joue then  //le joueur pourra tirer au prochain tour
-			joueur1^.boat[saisie^.noBateau].prochainTir:=joueur1^.boat[saisie^.noBateau].prochainTir+1
-		else  joueur2^.boat[saisie^.noBateau].prochainTir:=joueur2^.boat[saisie^.noBateau].prochainTir+1;
+			begin
+			joueur1^.boat[saisie^.noBateau].prochainTir:=joueur1^.boat[saisie^.noBateau].prochainTir+1;
+			joueur1^.boat[saisie^.noBateau].peutTirer:=False;
+			end
+		else  
+			begin
+			joueur2^.boat[saisie^.noBateau].prochainTir:=joueur2^.boat[saisie^.noBateau].prochainTir+1;
+			joueur2^.boat[saisie^.noBateau].peutTirer:=False;
+			end;
 		saisie^.statut:=cancelled;
 	end
 else
@@ -638,7 +669,7 @@ else
 							if joueur1^.boat[b].ptDeVie<=0 then
 								begin
 									joueur1^.boat[b].coule:=True;
-									joueur1^.boat[b].detecte[0]:=True;
+									joueur1^.boat[b].detecte:=True;
 									joueur1^.boat[b].peutTirer:=False;
 									joueur1^.nbBateaux:=joueur1^.nbBateaux-1;
 									if game^.joueur1joue then nbBateaux:=nbBateaux-1;
@@ -669,7 +700,7 @@ else
 							if joueur2^.boat[b].ptDeVie<=0 then
 							begin
 								joueur2^.boat[b].coule:=True;
-								joueur2^.boat[b].detecte[0]:=True;
+								joueur2^.boat[b].detecte:=True;
 								joueur2^.boat[b].peutTirer:=False;
 								joueur2^.nbBateaux:=joueur1^.nbBateaux-1;
 								if not(game^.joueur1joue) then nbBateaux:=nbBateaux-1;
@@ -693,10 +724,6 @@ else
 				joueur2^.boat[saisie^.noBateau].prochainTir:=joueur2^.boat[saisie^.noBateau].tRechargement;
 				joueur2^.boat[saisie^.noBateau].peutTirer:=False;
 			end;
-end;
-
-procedure gestionCapacite();
-begin
 end;
 
 begin

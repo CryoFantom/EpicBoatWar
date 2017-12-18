@@ -2,7 +2,7 @@ unit tour;
 
 interface
 
-uses commun, affichage, choix, calcul, Crt;
+uses commun, affichage, choix, calcul, crt;
 
 procedure unTour (var game : PJeu; var joueur1, joueur2 : PJoueur);
 
@@ -25,19 +25,21 @@ begin
 		choixBateau (game^.joueur1Joue,nbBateauxDepl,joueur1,joueur2,game,saisie);
 		if (saisie^.nature<>finTour) and (saisie^.statut<>overquota) then
 		begin
+			detect(game,joueur1,joueur2); //mise à jour de la détection pour tous les bateaux des deux joueurs
 			repeat //pour chaque déplacement
 				affichageJeu (game,saisie, joueur1, joueur2);
 				repeat
 					choixDeplacement(saisie)
 				until saisie^.nature<>nonValide;
 				gestionDeplacement (game, saisie, joueur1, joueur2,nbBateauxDepl);
+				Delay(50); //Pour éviter le clignotement lors du déplacement
 			until ((saisie^.statut=overquota) or saisie^.boat.coule or (saisie^.nature=finDeplacement));
-			detect(joueur1,joueur2); //mise à jour de la détection pour tous les bateaux des deux joueurs
 			nbBateauxDepl:=nbBateauxDepl-1;
 			affichageJeu (game, saisie, joueur1, joueur2);	
 			if nbBateauxDepl=0 then saisie^.nature:=finTour;
 		end;
 	until (saisie^.nature=finTour);
+	begin //affichage TIR
 	ClrScr;
 	GoToXY(trunc(TAILLE_X*0.2),trunc(TAILLE_Y/2));
 	writeln('                                                                                                                   ');
@@ -93,6 +95,7 @@ begin
 	delay(50);
 	writeln(' ¯                                   ’''¯                              ’''¯¯¯¯¯                 ¯¯¯¯          ’ ');
 	delay(1000);
+	end;
 //tir
 	majProchainTir(game^.joueur1joue,False,joueur1,joueur2,nbBateauxTir);
 	if nbBateauxTir>0 then 

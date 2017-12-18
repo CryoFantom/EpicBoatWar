@@ -181,8 +181,6 @@ end;
 
 procedure affectation(taille, pdv, degats, trchrg, distDepl, distDetec, distTir : Integer; nom : String; var navire : Bateau);	//Cette procédure est juste créée pour faciliter l'assignation des caractéristiques à un bateau
 
-var b:Byte;
-
 begin
 	navire.taille := taille;
 	navire.nom:= nom;
@@ -193,7 +191,7 @@ begin
 	navire.prochainTir := 1;
 	navire.deplacement.distance := distDepl;
 	navire.detection.distance := distDetec;
-	for b:=0 to NBOAT do navire.detecte[b]:=False;
+	navire.detecte:=False;
 	navire.touche:=False;
 	navire.coule:=False;
 end;
@@ -225,7 +223,7 @@ begin
 		end;
 end;
 
-procedure genBateau (plat : PJeu; var joueur1, joueur2 : PJoueur);
+procedure genBateau (var plat : PJeu; var joueur1, joueur2 : PJoueur);
 
 var i, j, x, y : Integer;
 

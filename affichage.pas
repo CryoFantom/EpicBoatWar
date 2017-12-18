@@ -15,7 +15,6 @@ implementation
 
 procedure reglesDuJeu();
 begin
-begin
 	ClrScr;
 	writeln('Règles du jeu :');
 	writeln('Pour gagner la partie détruisez tous les bateaux de votre adversaire, pour cela utilisez votre artillerie ou bien lancez vos navires contre ceux de votre adversaire,  tous les coups sont permis !');
@@ -47,12 +46,12 @@ begin
 	writeln('- Utilisez les flèches directionnelles pour déplacer le curseur et appuyez sur « Entrer » pour tirer. Pour annuler le tir appuyez sur « T » (cela ne déclenchera pas le rechargement de votre navire).');
 	writeln('Pour terminer la phase de tir appuyez sur « T ».');
 	writeln(' ');
-	writeln('3 zones sont affichées tous le long de ces 2 phases :');
-	writeln('- Bleu : zone de détection (zone dans laquelle vous voyez les bateaux de l’adversaire)');
-	writeln('- Rouge : zone de tir (zone dans laquelle vous pouvez tirer)');
-	writeln('- Vert : zone de déplacement (emplacement atteignable lors du déplacement)');
+	writeln('3 zones sont affichées tous le long de ces 2 phases :');
+	writeln('- Bleu : zone de détection (zone dans laquelle vous voyez les bateaux de l’adversaire)');
+	writeln('- Rouge : zone de tir (zone dans laquelle vous pouvez tirer)');
+	writeln('- Vert : zone de déplacement (emplacement atteignable lors du déplacement)');
 	writeln('Lors du déplacement la mobilité des bateaux est restreinte par un quota (indiqué en bas à droite lors de la phase de déplacement).');
-	writeln('Ce quota diminue plus ou moins vite en fonction du déplacement demandé :');
+	writeln('Ce quota diminue plus ou moins vite en fonction du déplacement demandé :');
 	writeln('Classe         Avancer         Reculer         Pivoter (45°)');
 	writeln('Cuirassé          1               2                 1');
 	writeln('Croiseur lourd    1               2                0,75');
@@ -63,8 +62,7 @@ begin
 	writeln('- Doubler la portée de tir du bateau');
 	writeln('- Rechargement express');
 	writeln(' ');
-	writeln('Appuyez sur Entrer pour revenir au menu');
-end;	
+	writeln('Appuyez sur Entrer pour revenir au menu');	
 end;
 
 procedure credits();
@@ -137,7 +135,7 @@ begin
 		
 	for i:=1 to NBOAT do
 	begin
-		if adversaire^.boat[i].detecte[0] then
+		if adversaire^.boat[i].detecte then
 		begin
 			GotoXY(adversaire^.boat[i].pos[1].x,adversaire^.boat[i].pos[1].y);
 			textcolor(red);

@@ -46,6 +46,7 @@ Type Jeu=Record
 	listeCentres : Obstacle; //pour le fonctionnement de l'IA
 	grille : Plateau; //pour tester la présence d’un obstacle ou d’un bateau à une position donnée
 	joueur1Joue : Boolean; //quel joueur est en train de jouer
+	capacite : Array [1..2,1..3] of Boolean; //quelles capacités sont utilisées (joueur puis capacité (detectAll, doubleDeplacement, doubleTir));
 end;
 
 Type Zone=Record
@@ -72,7 +73,7 @@ Type Bateau=Record
 	quota : Single; //nombre de déplacements restants pour un tour
 	detection : Zone; //distance détection + zone où l'adversaire est détecté
 	tabDetec : BArray; //accès à la zone de détection par coordonnées
-	detecte : Array[0..NBOAT] of Boolean; //quel bateau adverse détecte le bateau, 0 : détecté par l'adversaire
+	detecte : Boolean; //quel bateau adverse détecte le bateau
 	touche : Boolean; //le bateau est touché
 	coule : Boolean; //le bateau est coulé (PV à 0)
 end;

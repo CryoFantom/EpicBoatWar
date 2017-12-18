@@ -390,7 +390,7 @@ var saisie: String;
 	coord:Position;
 
 
-Begin
+begin
 	GotoXY(TAILLE_X+1,20);
 	write('Utilisez les flèches');
 	GotoXY(TAILLE_X+1,21);
