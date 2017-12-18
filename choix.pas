@@ -165,7 +165,7 @@ begin
 	GoToXY(1,TAILLE_Y+1);
 end;
 
-procedure choixCapacite(var choix:Capacite);
+procedure choixCapacite(player : PJoueur; var choix:Capacite);
 
 var sousMenu : Array [1..5] of String;
 	i,j:Byte;
@@ -189,8 +189,19 @@ begin
 		for j:=1 to 5 do
 		begin
 			GotoXY(TAILLE_X+1,35+j);
-			if j=5 then GotoXY(TAILLE_X+1,35+j+1);
-			if j=i then
+			if (j=i) and (j=5) then begin
+											GotoXY(TAILLE_X+1,35+j+1);
+											textcolor(Black);
+											textbackground(White);
+											write(sousMenu[j]);
+											textcolor(White);
+											textbackground(Black);
+										 end
+			else if j=5 then begin
+							GotoXY(TAILLE_X+1,35+j+1);
+							write(sousMenu[j]);
+						end
+			else if (j=i) and (player^.tabCapacite[j]= true) then
 			begin
 				textcolor(Black);
 				textbackground(White);
@@ -198,8 +209,20 @@ begin
 				textcolor(White);
 				textbackground(Black);
 			end
-			else
+			else if (j=i) and (player^.tabCapacite[j]= false) then
+			begin
+				textcolor(Red);
+				textbackground(White);
 				write(sousMenu[j]);
+				textcolor(White);
+				textbackground(Black);
+			end
+			else if player^.tabCapacite[j]= false then begin
+															textcolor(Red);
+															write(sousMenu[j]);
+															textcolor(White);
+														  end
+			else write(sousMenu[j]);
 		end;
 		GoToXY(1,1);
 		InitKeyBoard;
@@ -301,7 +324,7 @@ Begin
 						end;
 				'c','C' : if joueur^.tabCapacite[0] then
 						begin
-							choixCapacite(choix);
+							choixCapacite(joueur, choix);
 							gestionCapacite(game,choix,choixBat,joueur1,joueur2);
 							saisie:='capacité';
 							choixBat^.boat:=joueur^.boat[i];
@@ -393,10 +416,10 @@ Begin
 			coord:=choix^.coord;
 			if GetKeyEventCode(K)=7181 then saisie:='Enter';
 			case saisie of
-				'Right': choix^.coord.x:= choix^.coord.x+1;
-				'Left': choix^.coord.x:= choix^.coord.x-1;
-				'Up': choix^.coord.y:= choix^.coord.y-1;
-				'Down': choix^.coord.y:= choix^.coord.y+1;
+				'Right': if not(choix^.coord.x+1>TAILLE_X) then choix^.coord.x:= choix^.coord.x+1;
+				'Left': if not(choix^.coord.x-1<0) then choix^.coord.x:= choix^.coord.x-1;
+				'Up': if not(choix^.coord.y-1<0) then choix^.coord.y:= choix^.coord.y-1;
+				'Down': if not(choix^.coord.y+1>TAILLE_X) then choix^.coord.y:= choix^.coord.y+1;
 				't','T': choix^.nature := finTir;
 			end;
 			if choix^.nature=finTir then saisie:='Enter';

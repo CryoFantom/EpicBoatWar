@@ -2,7 +2,7 @@ unit tour;
 
 interface
 
-uses commun, affichage, choix, calcul;
+uses commun, affichage, choix, calcul, Crt;
 
 procedure unTour (var game : PJeu; var joueur1, joueur2 : PJoueur);
 
@@ -38,6 +38,61 @@ begin
 			if nbBateauxDepl=0 then saisie^.nature:=finTour;
 		end;
 	until (saisie^.nature=finTour);
+	ClrScr;
+	GoToXY(trunc(TAILLE_X*0.2),trunc(TAILLE_Y/2));
+	writeln('                                                                                                                   ');
+	GoToXY(trunc(TAILLE_X*0.2),trunc(TAILLE_Y/2)+1);
+	delay(50);
+	writeln('                                                                                     ''                            '); 
+	GoToXY(trunc(TAILLE_X*0.2),trunc(TAILLE_Y/2)+2);
+	delay(50);
+	writeln('          (`·.                  )\                 (`·.              )\             (`·.               )\''        '); 
+	GoToXY(trunc(TAILLE_X*0.2),trunc(TAILLE_Y/2)+3);
+	delay(50);
+	writeln('            )  `·.      .·´( .·´  (                 )  `·.   .·´( .·´  (             )  `·.   .·´( .·´  (     /('' '); 
+	GoToXY(trunc(TAILLE_X*0.2),trunc(TAILLE_Y/2)+4);
+	delay(50);
+	writeln('    .·´( .·´:..::(,__(::..--  '' ''\:·´(''     .·´( .·´:..::(,(::--  '' ''\:·´     .·´( .·´:..::(,(::--  '' ''\::.`·._) `·.’ ');
+	GoToXY(trunc(TAILLE_X*0.2),trunc(TAILLE_Y/2)+5);
+	delay(50);
+	writeln('    );; :--  '' ’                  _\::/      \:::....::::·´         _\’''     );; :--   ''               \::....:::::) ');
+	GoToXY(trunc(TAILLE_X*0.2),trunc(TAILLE_Y/2)+6);
+	delay(50);
+	writeln('.·´/\                   ,.. : ´:::''/:’ ’        )..:::·´      ,..:´:::''/''   .·´/\                ,...__ ¯¯¯` ·:·´’ ');
+	GoToXY(trunc(TAILLE_X*0.2),trunc(TAILLE_Y/2)+7);
+	delay(50);
+	writeln(')/:::''\__..:´/       /::::::::::/   '' ''        `·::/       /::::::::/     )/:::''\...:´/       /:::::::::::/     /   ');
+	GoToXY(trunc(TAILLE_X*0.2),trunc(TAILLE_Y/2)+8);
+	delay(50);
+	writeln(' \:::/:::::·''/       /:::;;::· ´''                  /       /;;::· ´         \:::/::::/       /;;::;;´-··´´     /  ''  ');
+	GoToXY(trunc(TAILLE_X*0.2),trunc(TAILLE_Y/2)+9);
+	delay(50);
+	writeln('  ''\/;::::-''/       /· ´                          /       /                  ''\/;::-''/               ,...::::´/     '' ');
+	GoToXY(trunc(TAILLE_X*0.2),trunc(TAILLE_Y/2)+10);
+	delay(50);
+	writeln('   (`·.)'':/       /''                      (`·.)'':/       /             ''           /       ,, -,      \::::::/    ''   ');
+	GoToXY(trunc(TAILLE_X*0.2),trunc(TAILLE_Y/2)+11);
+	delay(50);
+	writeln('     ):./       /''                ''         ):./       /                   .·´( ''/       /:::/::\      \:· ´         ');
+	GoToXY(trunc(TAILLE_X*0.2),trunc(TAILLE_Y/2)+12);
+	delay(50);
+	writeln('    ''\:/       /''                          ''\:/       /                  ''_) ::/       ''/;;:/::::''\      ''\          ’'' ');
+	GoToXY(trunc(TAILLE_X*0.2),trunc(TAILLE_Y/2)+13);
+	delay(50);
+	writeln('     /       /''                 ''           /       /                    )..::/       /    ''\::::::''\      ''\         ');
+	GoToXY(trunc(TAILLE_X*0.2),trunc(TAILLE_Y/2)+14);
+	delay(50);
+	writeln('   ''/,..::·´/''                            ''/,..::·´/                     ''`·:/____ /       ''\::::::\____\       ');
+	GoToXY(trunc(TAILLE_X*0.2),trunc(TAILLE_Y/2)+15);
+	delay(50);
+	writeln(' ''/:::::::''/                             ''/:::::::/                      '' /::::::::/           ''\::::/:::::::/    ');   
+	GoToXY(trunc(TAILLE_X*0.2),trunc(TAILLE_Y/2)+16);
+	delay(50);
+	writeln('/:;:: · ´''                       ''      /:;:: · ´                        /::::::::/              ''\/:::::::''/     ''   ');
+	GoToXY(trunc(TAILLE_X*0.2),trunc(TAILLE_Y/2)+17);
+	delay(50);
+	writeln(' ¯                                   ’''¯                              ’''¯¯¯¯¯                 ¯¯¯¯          ’ ');
+	delay(1000);
 //tir
 	majProchainTir(game^.joueur1joue,False,joueur1,joueur2,nbBateauxTir);
 	if nbBateauxTir>0 then 
