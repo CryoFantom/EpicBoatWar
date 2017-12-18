@@ -13,6 +13,7 @@ procedure credits();
 
 implementation
 
+
 procedure reglesDuJeu();
 begin
 	ClrScr;
@@ -69,8 +70,24 @@ procedure credits();
 begin
 	ClrScr;
 	GoToXY(trunc(TAILLE_X*0.4),trunc(TAILLE_Y/2));
-	write('Bientôt disponible !');
+	writeln('Ce jeu a été dévellopé dans le cadre du projet informatique à l''INSA de Rouen.');
+	GoToXY(trunc(TAILLE_X*0.4),trunc(TAILLE_Y/2)+1);
+	writeln('Il vous est proposé par :');
+	GoToXY(trunc(TAILLE_X*0.4),trunc(TAILLE_Y/2)+2);
+	writeln('Alexandre Jaquemart');
+	GoToXY(trunc(TAILLE_X*0.4),trunc(TAILLE_Y/2)+3);
+	writeln('Yves Le Guennec');
+	GoToXY(trunc(TAILLE_X*0.4),trunc(TAILLE_Y/2)+4);
+	writeln('Hugo Legrand');
+	GoToXY(trunc(TAILLE_X*0.4),trunc(TAILLE_Y/2)+6);
+
+	writeln('version : 1');
+	GoToXY(trunc(TAILLE_X*0.4),trunc(TAILLE_Y/2)+7);
+	writeln('Dernière release Décembre 2017');
+	GoToXY(trunc(TAILLE_X*0.4),trunc(TAILLE_Y/2)+8);
+	writeln('Version 2 bientot disponible...');
 end;
+
 
 procedure finJeu(joueur1,joueur2:PJoueur);
 begin
