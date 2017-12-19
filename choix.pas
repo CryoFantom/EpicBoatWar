@@ -342,7 +342,7 @@ Begin
 			end;
 			affBateaux (game, joueur1, joueur2);
 			affunBat(joueur^.boat[i]);
-		until (saisie='Enter') or (saisie='capacité');
+		until (saisie='Enter');
 		if saisie='Enter' then
 		begin
 			choixBat^.boat:=joueur^.boat[i];

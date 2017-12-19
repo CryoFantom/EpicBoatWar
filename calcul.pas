@@ -614,10 +614,7 @@ begin
 		begin
 			joueur^.boat[i].peutTirer:=False;
 			if debutTour then
-			begin
-				if joueur^.boat[i].prochainTir=0 then joueur^.boat[i].prochainTir:=joueur^.boat[i].tRechargement;
 				joueur^.boat[i].prochainTir:=joueur^.boat[i].prochainTir-1;
-			end;
 			if ((joueur^.boat[i].prochainTir=0) and not(joueur^.boat[i].coule)) then
 				begin
 					nbBateaux:=nbBateaux+1;
@@ -712,8 +709,6 @@ else
 	end;
 
 	if saisie^.statut=allowed then
-	begin
-		saisie^.boat.peutTirer:=False;
 		if game^.joueur1joue then
 			begin
 				joueur1^.boat[saisie^.noBateau].prochainTir:=joueur1^.boat[saisie^.noBateau].tRechargement;
@@ -724,7 +719,6 @@ else
 				joueur2^.boat[saisie^.noBateau].prochainTir:=joueur2^.boat[saisie^.noBateau].tRechargement;
 				joueur2^.boat[saisie^.noBateau].peutTirer:=False;
 			end;
-	end;
 end;
 
 begin
