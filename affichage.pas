@@ -13,20 +13,15 @@ procedure credits();
 
 implementation
 
-
 procedure reglesDuJeu();
 begin
 	ClrScr;
 	writeln('Règles du jeu :');
-	writeln('Pour gagner la partie détruisez tous les bateaux de votre adversaire, pour cela utilisez votre artillerie ou bien lancez vos navires contre ceux de votre adversaire,  tous les coups sont permis !');
+	writeln('Pour gagner la partie détruisez tous les bateaux de votre adversaire, pour cela utilisez votre artillerie ou bien lancez vos navires contre ceux de votre adversaire,  tous les coups sont   permis !');
 	writeln(' ');
-	writeln('Informations utiles :');
 	writeln('Votre flotte est composée de :');
-	writeln('- 1 cuirassé');
-	writeln('- 1 croiseur lourd');
-	writeln('- 2 destroyers');
-	writeln('- 2 croiseurs légers');
-	writeln('Chacune de ces 4 classes de navires a des caractéristiques différentes :');
+	writeln('1 cuirassé, 1 croiseur lourd, 2 destroyers et 2 croiseurs légers');
+	writeln('Chacune de ces 4 classes de navires a des caractéristiques spécifiques :');
 	writeln('classe         Taille (case)   PV   Dégâts   Temps de rechargement (tours)   Distance de détection   Distance de déplacement (cases)   Distance de tir (cases)');
 	writeln('Cuirassé             5         9      6                   4                           35                          30                               25');
 	writeln('Croiseur lourd       4         7      4                   3                           40                          35                               20');
@@ -38,16 +33,16 @@ begin
 	writeln('Le tour se découpe en deux phases, une phase de déplacement et une phase de tir.');
 	writeln(' ');
 	writeln('Phase de déplacement :');
-	writeln('- Utilisez les flèches droite et gauche afin de sélectionner le bateau que vous voulez déplacer puis valider avec la touche « Entrer ».');
+	writeln('- Utilisez les flèches droite et gauche afin de sélectionner le bateau que vous voulez déplacer puis validez avec la touche « Entrer ».');
 	writeln('- Utilisez les flèches directionnelles pour orienter et déplacer votre bateaux (attention toute collision avec des bateaux de votre flotte entraînera une perte de PV).');
 	writeln('Pour terminer le déplacement d’un bateau ou terminer la phase de tir appuyez sur « T ».');
 	writeln(' ');
 	writeln('Phase de tir :');
 	writeln('- Utilisez les flèches droite et gauche afin de sélectionner le bateau avec lequel vous voulez tirer puis validez avec la touche « Entrer ».');
-	writeln('- Utilisez les flèches directionnelles pour déplacer le curseur et appuyez sur « Entrer » pour tirer. Pour annuler le tir appuyez sur « T » (cela ne déclenchera pas le rechargement de votre navire).');
+	writeln('- Utilisez les flèches directionnelles pour déplacer le curseur et appuyez sur « Entrer » pour tirer. Pour annuler le tir appuyez sur « T » (cela ne déclenchera pas le rechargement de votre navire, vous pourrez tirer au prochain tour).');
 	writeln('Pour terminer la phase de tir appuyez sur « T ».');
 	writeln(' ');
-	writeln('3 zones sont affichées tous le long de ces 2 phases :');
+	writeln('3 zones sont affichées tout au long de ces 2 phases :');
 	writeln('- Bleu : zone de détection (zone dans laquelle vous voyez les bateaux de l’adversaire)');
 	writeln('- Rouge : zone de tir (zone dans laquelle vous pouvez tirer)');
 	writeln('- Vert : zone de déplacement (emplacement atteignable lors du déplacement)');
@@ -58,10 +53,12 @@ begin
 	writeln('Croiseur lourd    1               2                0,75');
 	writeln('Croiseur léger    1               2                0,50');
 	writeln('Destroyer         1               2                0,25');
+	writeln('Vous disposez de 4 capacités accessibles en appuyant sur la touche « C » lors de la phase du choix du bateau, donnant chacune accès à des bonus : ');
 	writeln('- Détecter tous les bateaux de l''adversaire');
 	writeln('- Doubler le quota de déplacement du bateau');
 	writeln('- Doubler la portée de tir du bateau');
-	writeln('- Rechargement express');
+	writeln('- Rechargement express : vous pouvez faire tirer tous vos bateaux lors de ce tour');
+	writeln('Attention, une fois une capacité utilisée, elle n''est plus accessible jusqu''à la fin de la partie.');
 	writeln(' ');
 	writeln('Appuyez sur Entrer pour revenir au menu');	
 end;
@@ -70,24 +67,23 @@ procedure credits();
 begin
 	ClrScr;
 	GoToXY(trunc(TAILLE_X*0.4),trunc(TAILLE_Y/2));
-	writeln('Ce jeu a été dévellopé dans le cadre du projet informatique à l''INSA de Rouen.');
+	writeln('Ce jeu a été développé dans le cadre du projet informatique à l''INSA de Rouen.');
 	GoToXY(trunc(TAILLE_X*0.4),trunc(TAILLE_Y/2)+1);
 	writeln('Il vous est proposé par :');
 	GoToXY(trunc(TAILLE_X*0.4),trunc(TAILLE_Y/2)+2);
-	writeln('Alexandre Jaquemart');
+	writeln('Alexandre Jacquemart');
 	GoToXY(trunc(TAILLE_X*0.4),trunc(TAILLE_Y/2)+3);
 	writeln('Yves Le Guennec');
 	GoToXY(trunc(TAILLE_X*0.4),trunc(TAILLE_Y/2)+4);
 	writeln('Hugo Legrand');
 	GoToXY(trunc(TAILLE_X*0.4),trunc(TAILLE_Y/2)+6);
 
-	writeln('version : 1');
+	writeln('Version : 1');
 	GoToXY(trunc(TAILLE_X*0.4),trunc(TAILLE_Y/2)+7);
-	writeln('Dernière release Décembre 2017');
+	writeln('Dernière release : Décembre 2017');
 	GoToXY(trunc(TAILLE_X*0.4),trunc(TAILLE_Y/2)+8);
-	writeln('Version 2 bientot disponible...');
+	writeln('Version 2 bientôt disponible...');
 end;
-
 
 procedure finJeu(joueur1,joueur2:PJoueur);
 begin
@@ -244,7 +240,8 @@ begin
 		GotoXY(TAILLE_X+18,i);
 		if joueur1^.boat[j].coule then writeln(' coulé !') 
 		else case joueur1^.boat[j].prochainTir of 
-				0: write(' ',joueur1^.boat[j].ptDeVie,' PV', ' - tir disponible');
+				0: if joueur1^.boat[j].peutTirer then write(' ',joueur1^.boat[j].ptDeVie,' PV', ' - tir disponible') else 
+							write(' ',joueur1^.boat[j].ptDeVie,' PV',' - tir dans 1 tour');
 				1: write(' ',joueur1^.boat[j].ptDeVie,' PV',' - tir dans 1 tour');
 				2,3,4,5: write(' ',joueur1^.boat[j].ptDeVie,' PV',' - tir dans ',joueur1^.boat[j].prochainTir,' tours');
 			end;

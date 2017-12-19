@@ -32,7 +32,6 @@ begin
 					choixDeplacement(saisie)
 				until saisie^.nature<>nonValide;
 				gestionDeplacement (game, saisie, joueur1, joueur2,nbBateauxDepl);
-				Delay(50); //Pour éviter le clignotement lors du déplacement
 			until ((saisie^.statut=overquota) or saisie^.boat.coule or (saisie^.nature=finDeplacement));
 			nbBateauxDepl:=nbBateauxDepl-1;
 			affichageJeu (game, saisie, joueur1, joueur2);	
@@ -120,6 +119,7 @@ begin
 					choixTir(saisie);
 					gestionTir (game, saisie, joueur1, joueur2, nbBateauxTir);
 				until ((saisie^.statut=allowed) or (saisie^.statut=cancelled));
+				affichageJeu (game, saisie, joueur1, joueur2);
 				nbBateauxTir:=nbBateauxTir-1;
 				if nbBateauxTir<=0 then saisie^.nature:=finTour;
 			end;

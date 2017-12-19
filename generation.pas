@@ -15,17 +15,16 @@ var test : Boolean;
 var rando : Double;
 
 	begin
-		
-			
+
 		rando := random;												//Ce random définira la position x de la case aléatoire
 		test := true;
 		i:=1;
 	
 		while(test) do
 		begin
-			if((rando < i/(TAILLE_X-20)) and (rando >= (i-1)/(TAILLE_X-20))) then //rando fait partie d'un ensemble continue, on va donc chercher à le caser dans un intervalle. La borne haute de l'intervalle nous donne la position x de la case
+			if((rando < i/(TAILLE_X-20)) and (rando >= (i-1)/(TAILLE_X-20))) then //rando fait partie d'un ensemble continu, on va donc chercher à le caser dans un intervalle. La borne haute de l'intervalle nous donne la position x de la case
 			begin
-				xp := i+10;												// + 7 pour permettre une zone de départ des bateaux sans obstacles
+				xp := i+10;												// + 10 pour permettre une zone de départ des bateaux sans obstacles
 				test := False;											// pour sortir de la boucle													
 			end
 			else 

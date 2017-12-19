@@ -143,8 +143,7 @@ begin
 	if GetKeyEventCode(K)=7181 then Halt;
 	DoneKeyBoard;
 	ClrScr;
-	//à améliorer
-end;
+	end;
 
 
 procedure affUnBat (boat : Bateau);
@@ -236,12 +235,19 @@ begin
 			'Down' : if i=5 then i:=1 else i:=i+1;
 		end;
 	end;
+	if (player^.tabCapacite[i] or (i=5)) then
 	case i of
 		1 : choix:=detectAll;
 		2 : choix:=doubleDeplacement;
 		3 : choix:=doubleTir;
 		4 : choix:=rechargementExpress;
 		5 : choix:=plusTard;
+	end
+	else 
+	begin
+		GotoXY(TAILLE_X+1,43);
+		write ('Vous avez déjà utilisé cette capacité');
+		Delay(2000);
 	end;
 end;
 
@@ -325,11 +331,8 @@ Begin
 				'c','C' : if joueur^.tabCapacite[0] then
 						begin
 							choixCapacite(joueur, choix);
-							gestionCapacite(game,choix,choixBat,joueur1,joueur2);
+							gestionCapacite(game,choix,joueur1,joueur2);
 							saisie:='capacité';
-							choixBat^.boat:=joueur^.boat[i];
-							choixBat^.noBateau:=i;
-							choixBat^.statut:=allowed;
 						end
 						else 
 						begin

@@ -33,7 +33,7 @@ procedure resetQuota (var game : PJeu ; var joueur1,joueur2 : PJoueur);
 procedure majProchainTir (joueur1Joue, debutTour : Boolean ; var joueur1,joueur2 : PJoueur; var nbBateaux : Integer);
 procedure gestionTir (var game : PJeu; var saisie:PAction; var joueur1, joueur2 : PJoueur; var nbBateaux : Integer);
 procedure detect (game : PJeu; var joueur1,joueur2 : PJoueur);
-procedure gestionCapacite(game : PJeu; choix:Capacite; var choixBat : PAction; var joueur1, joueur2 : PJoueur);
+procedure gestionCapacite(var game : PJeu; choix:Capacite; var joueur1, joueur2 : PJoueur);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -157,7 +157,7 @@ begin
 	then double:=2 else double:=1;
 	
 	if ((game^.joueur1Joue and game^.capacite[1,3]) or (not(game^.joueur1Joue) and game^.capacite[2,3]))
-	then doubleTir:=2 else double:=1;
+	then doubleTir:=2 else doubleTir:=1;
 
 	//calcul de la position du centre du bateau (et de la zone)
 	proue:=boat.pos[1];
@@ -332,7 +332,7 @@ begin
 						if joueur1^.boat[b].tabDetec[joueur2^.boat[i].pos[j].x,joueur2^.boat[i].pos[j].y] then joueur2^.boat[i].detecte:=True;
 
 //bateaux du joueur1 détectés par le joueur2
-	if game^.capacite[1,2] then for i:=1 to NBOAT do joueur1^.boat[i].detecte:=True
+	if game^.capacite[1,1] then for i:=1 to NBOAT do joueur1^.boat[i].detecte:=True
 	else
 	for b:=1 to NBOAT do
 		if not(joueur2^.boat[i].coule) then //si le bateau du j1 n'est pas coulé (il ne peut plus détecter les autres bateaux)
@@ -554,7 +554,7 @@ end;
 
 ////////////////////////////////////////////////////////////////////////
 
-procedure gestionCapacite(game : PJeu; choix:Capacite; var choixBat : PAction; var joueur1, joueur2 : PJoueur);
+procedure gestionCapacite(var game : PJeu; choix:Capacite; var joueur1, joueur2 : PJoueur);
 
 var joueur,adversaire:PJoueur;
 	j,adv:Byte;
@@ -575,6 +575,7 @@ begin
 					
 		doubleDeplacement : begin
 							game^.capacite[j,2]:=True;
+							for i:=1 to NBOAT do joueur^.boat[i].quota:=joueur^.boat[i].quota*2;
 							joueur^.tabCapacite[2]:=False;
 							end;
 		doubleTir : begin
@@ -591,6 +592,9 @@ begin
 								joueur^.tabCapacite[4]:=False;
 							end;
 	end;
+	
+	if (not(joueur^.tabCapacite[1]) and not(joueur^.tabCapacite[2]) and not(joueur^.tabCapacite[3]) and not(joueur^.tabCapacite[4])) then joueur^.tabCapacite[0]:=False;
+	//toutes les capacités ont été utilisées
 	
 	if game^.joueur1Joue then joueur1:=joueur else joueur2:=joueur;
 	if game^.joueur1Joue then joueur2:=adversaire else joueur1:=adversaire;
@@ -635,15 +639,9 @@ begin
 	if (saisie^.nature=finTir) then
 	begin
 		if game^.joueur1joue then  //le joueur pourra tirer au prochain tour
-			begin
-			joueur1^.boat[saisie^.noBateau].prochainTir:=joueur1^.boat[saisie^.noBateau].prochainTir+1;
-			joueur1^.boat[saisie^.noBateau].peutTirer:=False;
-			end
+			joueur1^.boat[saisie^.noBateau].peutTirer:=False
 		else  
-			begin
-			joueur2^.boat[saisie^.noBateau].prochainTir:=joueur2^.boat[saisie^.noBateau].prochainTir+1;
 			joueur2^.boat[saisie^.noBateau].peutTirer:=False;
-			end;
 		saisie^.statut:=cancelled;
 	end
 else
@@ -714,6 +712,8 @@ else
 	end;
 
 	if saisie^.statut=allowed then
+	begin
+		saisie^.boat.peutTirer:=False;
 		if game^.joueur1joue then
 			begin
 				joueur1^.boat[saisie^.noBateau].prochainTir:=joueur1^.boat[saisie^.noBateau].tRechargement;
@@ -724,6 +724,7 @@ else
 				joueur2^.boat[saisie^.noBateau].prochainTir:=joueur2^.boat[saisie^.noBateau].tRechargement;
 				joueur2^.boat[saisie^.noBateau].peutTirer:=False;
 			end;
+	end;
 end;
 
 begin
